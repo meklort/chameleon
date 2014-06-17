@@ -17,8 +17,8 @@ PAX = /bin/pax
 NASM = $(shell which nasm) -p $(SRCROOT)/autoconf.inc
 
 
-CFLAGS	= $(CONFIG_OPTIMIZATION_LEVEL) -g -Wmost -Werror
-CPPFLAGS = $(MORECPP) -g -Wmost -Werror -fno-exceptions -fno-rtti
+CFLAGS	= $(CONFIG_OPTIMIZATION_LEVEL) -g -Wall -Werror
+CPPFLAGS = $(MORECPP) -g -Wall -Werror -fno-exceptions -fno-rtti
 DEFINES=
 
 DIST_SUBDIRS += $(SUBDIRS)
@@ -42,40 +42,32 @@ OMIT_FRAME_POINTER_CFLAG=
 
 -include $(OBJROOT)/*.Makedep
 
-$(OBJROOT)/%.o32: %.c
-	@echo "\t[CC32] $<"
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) -arch i386 $< -MM -M -o $@.Makedep
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) -arch i386 $< -o $@ 
-
-$(OBJROOT)/%.o64: %.c
-	@echo "\t[CC64] $<"
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) -arch x86_64 $< -MM -M -o $@.Makedep
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) -arch x86_64 $< -o $@ 
-
-
 $(OBJROOT)/%.o: %.c
-	@echo "\t[CC] $<"
+	@echo "	[CC] $<"
 	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
 	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.o: %.m
-	@echo "\t[M] $<"
+	@echo "	[M] $<"
 	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
 	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.o: %.cpp
-	@echo "\t[CPP] $<"
+	@echo "	[CPP] $<"
 	@$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
 	@$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
 
 $(OBJROOT)/%.o: %.s
-	@echo "\t[AS] $<"
+	@echo "	[AS] $<"
 	@$(CC) $(CPPFLAGS) -c $(INC) -arch i386 $< -MM -M -o $@.Makedep
 	@$(CC) $(CPPFLAGS) -c $(INC) -arch i386 $< -o $@
 
-CONFIG_FILES=$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
-$(CONFIG_FILES): $(SRCROOT)/.config
-	@echo "\t[MAKE] config"
+#CONFIG_FILES=$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
+#.PHONY: ${CONFIG_FILES}
+#$(CONFIG_FILES): 
+#$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc: ${SRCROOT}/.config
+${SRCROOT}/.config:
+	@echo "	[MAKE] config"
 	@make -C $(SRCROOT)/i386/config rebuild_config
 
 HEADER_VERSION=$(SRCROOT)/vers.h
@@ -89,7 +81,7 @@ CONFIG_HEADERS=$(CONFIG_FILES) $(HEADER_VERSION)
 
 # This breaks make, must use make all (FIXME)
 $(DIRS_NEEDED) $(INSTALLDIR) $(OBJROOT) $(SYMROOT):
-	@echo "\t[MKDIR] $@"
+	@echo "	[MKDIR] $@"
 	@$(MKDIRS) $@
 
 # Recursive rules
