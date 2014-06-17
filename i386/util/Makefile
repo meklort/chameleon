@@ -17,7 +17,7 @@ DIR = util
 include ${SRCROOT}/Make.rules
 
 PROGRAMS = machOconv dyldsymboltool segsize
-OBJS = dyldsymboltool.o32 dyldsymboltool.o64 machOconv.o32 machOconv.o64 segsize.o32 segsize.o64
+OBJS = dyldsymboltool.o machOconv.o segsize.o
 
 
 ifeq (${CONFIG_BDMESG}, y)
@@ -43,18 +43,13 @@ SUBDIRS = fdisk
 all: $(DIRS_NEEDED) $(SYMPROG) all-recursive
 
 $(SYMPROG): $(OBJS)
-	@echo "\t[LD32] $(@F)_32"
-	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -arch i386 -o $(SYMROOT)/$(@F)_32 $(OBJROOT)/$(@F).o32
-	@echo "\t[LD64] $(@F)_64"
-	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -arch x86_64 -o $(SYMROOT)/$(@F)_64 $(OBJROOT)/$(@F).o64
-	@echo "\t[LIPO] $(@F)"
-	@lipo -create -arch i386 $(SYMROOT)/$(@F)_32 -arch x86_64 $(SYMROOT)/$(@F)_64 -output $(SYMROOT)/$(@F)
-	@$(RM) $(SYMROOT)/$(@F)_32 $(SYMROOT)/$(@F)_64
+	@echo "	[LD] $(@F)"
+	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) $(OBJROOT)/$(@F).o
 
 #dependencies
 -include $(OBJROOT)/Makedep
 
 clean-local:
-	@for o in $(OBJS); do if [ -f "$${o}" ];then echo "\t[RM] $${o}"; fi; done
-	@for p in $(SYMPROG); do if [ -f "$${p}" ];then echo "\t[RM] $${p}"; fi; done
+	@for o in $(OBJS); do if [ -f "$${o}" ];then echo "	[RM] $${o}"; fi; done
+	@for p in $(SYMPROG); do if [ -f "$${p}" ];then echo "	[RM] $${p}"; fi; done
 	@rm -f $(SYMPROG) $(OBJS)
