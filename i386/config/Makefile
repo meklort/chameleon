@@ -33,7 +33,7 @@ DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
 all: $(DIRS_NEEDED) $(SYMPROG)
 
 $(SYMPROG): $(OBJS)
-	@echo "\t[LD] $(@F)"
+	@echo "	[LD] $(@F)"
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) $(OBJROOT)/*.o
 
 config: $(DIRS_NEEDED) $(SYMPROG)
