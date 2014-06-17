@@ -29,13 +29,8 @@ ifeq ($(CONFIG_FDISK440),y)
 all: $(SYMROOT) $(OBJROOT) $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
-	@echo "\t[LD32] $@_32"
-	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -arch i386 -o $@_32 $(filter %.o32,$^)
-	@echo "\t[LD64] $@_64"
-	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -arch x86_64 -o $@_64 $(filter %.o64,$^)
-	@echo "\t[LIPO] $@"
-	@lipo -create -arch i386 $@_32 -arch x86_64 $@_64 -output $@
-	@rm $@_32 $@_64
+	@echo "[LD] $@"
+	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $@ $(filter %.o,$^)
 
 else
 
@@ -48,6 +43,6 @@ endif
 -include $(OBJROOT)/Makedep
 
 clean-local:
-	@for p in $(PROGRAMS); do if [ -f "$${p}" ];then echo "\t[RM] $${p}"; fi; done
-	@for o in $(OBJS); do if [ -f "$${o}" ];then echo "\t[RM] $${o}"; fi; done
+	@for p in $(PROGRAMS); do if [ -f "$${p}" ];then echo "	[RM] $${p}"; fi; done
+	@for o in $(OBJS); do if [ -f "$${o}" ];then echo "	[RM] $${o}"; fi; done
 	@rm -f $(PROGRAM) $(OBJS)
