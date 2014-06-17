@@ -52,18 +52,18 @@ dist image: all
 
 dist-local image-local:
 	@echo "================= Distrib ================="
-	@echo "\t[RM] ${IMGROOT}"
+	@echo "	[RM] ${IMGROOT}"
 	@rm -rf ${IMGROOT}	
-	@echo "\t[MKDIR] ${IMGROOT}/usr/standalone/i386"			  	  
+	@echo "	[MKDIR] ${IMGROOT}/usr/standalone/i386"			  	  
 	@mkdir -p ${IMGROOT}/usr/standalone/i386
-	@echo "\t[MKDIR] ${IMGROOT}/Extra/modules"
+	@echo "	[MKDIR] ${IMGROOT}/Extra/modules"
 	@mkdir -p ${IMGROOT}/Extra/modules				
-	@echo "\t[MKDIR] ${IMGROOT}/Extra/Themes/Default"
+	@echo "	[MKDIR] ${IMGROOT}/Extra/Themes/Default"
 	@mkdir -p ${IMGROOT}/Extra/Themes/Default				
-	@echo "\t[MKDIR] ${IMGROOT}/usr/bin"
+	@echo "	[MKDIR] ${IMGROOT}/usr/bin"
 	@mkdir -p ${IMGROOT}/usr/bin
 	@if [ -e "$(IMGSKELROOT)" ]; then				\
-		@echo "\t[CP] ${IMGROOTSKEL} ${IMGROOT}"		\
+		@echo "	[CP] ${IMGROOTSKEL} ${IMGROOT}"		\
 		@cp -R -f "${IMGSKELROOT}"/* "${IMGROOT}";		\
 	fi;								  
 	@cp -f ${SYMROOT}/i386/cdboot ${CDBOOT}
@@ -83,39 +83,39 @@ ifdef CONFIG_BDMESG
 endif
 ifdef CONFIG_KEYLAYOUT_MODULE
 	@cp -f ${SYMROOT}/i386/cham-mklayout ${IMGROOT}/usr/bin
-	@echo "\t[MKDIR] ${IMGROOT}/Extra/Keymaps"
+	@echo "	[MKDIR] ${IMGROOT}/Extra/Keymaps"
 	@mkdir -p ${IMGROOT}/Extra/Keymaps
-	@echo "\t[CP] Keymaps ${IMGROOT}/Extra/Keymaps"
+	@echo "	[CP] Keymaps ${IMGROOT}/Extra/Keymaps"
 	@cp -R -f "Keymaps"/* "${IMGROOT}/Extra/Keymaps/"
 endif
 
-	@echo "\t[HDIUTIL] ${ISOIMAGE}"
+	@echo "	[HDIUTIL] ${ISOIMAGE}"
 	@hdiutil makehybrid -iso -joliet -hfs -hfs-volume-name \
 		${CDLABEL} -eltorito-boot ${CDBOOT} -no-emul-boot -ov -o   \
 		"${ISOIMAGE}" ${IMGROOT} -quiet 		  	  
-	@echo "\t[GZ] ${DISTFILE}.tgz"
+	@echo "	[GZ] ${DISTFILE}.tgz"
 	@rm -f ${DISTFILE}.tar.gz
 	@cd ${SYMROOT} && tar -cf ${DISTFILE}.tar ${DISTROOT}
 	@gzip --best ${DISTFILE}.tar
 	@mv ${DISTFILE}.tar.gz ${DISTFILE}.tgz
 
 clean-local:
-	@if [ -d "$(PKG_BUILD_DIR)" ];then echo "\t[RMDIR] $(PKG_BUILD_DIR)"; fi
-	@if [ -f "$(HEADER_VERSION)" ];then echo "\t[RM] $(HEADER_VERSION)"; fi
-	@if [ -f "$(SRCROOT)/revision" ];then echo "\t[RM] $(SRCROOT)/revision"; fi
+	@if [ -d "$(PKG_BUILD_DIR)" ];then echo "	[RMDIR] $(PKG_BUILD_DIR)"; fi
+	@if [ -f "$(HEADER_VERSION)" ];then echo "	[RM] $(HEADER_VERSION)"; fi
+	@if [ -f "$(SRCROOT)/revision" ];then echo "	[RM] $(SRCROOT)/revision"; fi
 	@rm -rf "$(PKG_BUILD_DIR)" $(HEADER_VERSION) $(SRCROOT)/revision
 
 AUTOCONF_FILES = $(SRCROOT)/auto.conf    $(SRCROOT)/autoconf.h \
 				 $(SRCROOT)/autoconf.inc $(SRCROOT)/.config $(SRCROOT)/.config.old
 
 distclean-local:
-	@if [ -d "$(OBJROOT)" ];then echo "\t[RMDIR] $(OBJROOT)"; fi
-	@if [ -d "$(SYMROOT)" ];then echo "\t[RMDIR] $(SYMROOT)"; fi
-	@if [ -d "$(DSTROOT)" ];then echo "\t[RMDIR] $(DSTROOT)"; fi
+	@if [ -d "$(OBJROOT)" ];then echo "	[RMDIR] $(OBJROOT)"; fi
+	@if [ -d "$(SYMROOT)" ];then echo "	[RMDIR] $(SYMROOT)"; fi
+	@if [ -d "$(DSTROOT)" ];then echo "	[RMDIR] $(DSTROOT)"; fi
 	@if [ -d "$(SRCROOT)/i386/modules/module_includes" ];then \
-		echo "\t[RMDIR] $(SRCROOT)/i386/modules/module_includes"; \
+		echo "	[RMDIR] $(SRCROOT)/i386/modules/module_includes"; \
 	 fi
-	@for cfg in $(AUTOCONF_FILES); do if [ -f "$${cfg}" ];then echo "\t[RM] $${cfg}"; fi; done
+	@for cfg in $(AUTOCONF_FILES); do if [ -f "$${cfg}" ];then echo "	[RM] $${cfg}"; fi; done
 	@rm -rf $(OBJROOT) $(SYMROOT) $(DSTROOT)        \
             $(SRCROOT)/i386/modules/module_includes \
             $(AUTOCONF_FILES)

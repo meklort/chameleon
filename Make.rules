@@ -125,7 +125,7 @@ $(RECURSIVE_CLEAN_TARGETS):
 
 
 clean-dep:
-	@if [ -f "$(OBJROOT)/Makedep" ];then echo "\t[RM] $(OBJROOT)/Makedep"; fi
+	@if [ -f "$(OBJROOT)/Makedep" ];then echo "	[RM] $(OBJROOT)/Makedep"; fi
 	@rm -f $(OBJROOT)/Makedep
 
 
@@ -133,11 +133,11 @@ FIND_IGNORE := \( -name .git -o -name .svn \) -prune -o -name Cconfig -o
 
 # clean: remove almost everything (execpt auto.conf, autoconf.h, autoconf.inc)
 clean: clean-recursive clean-dep
-	@if [ -d "$(OBJROOT)" ];then echo "\t[RMDIR] $(OBJROOT)"; fi
-	@if [ -d "$(SYMROOT)" ];then echo "\t[RMDIR] $(SYMROOT)"; fi
-	@if [ -d "$(DSTROOT)" ];then echo "\t[RMDIR] $(DSTROOT)"; fi
+	@if [ -d "$(OBJROOT)" ];then echo "	[RMDIR] $(OBJROOT)"; fi
+	@if [ -d "$(SYMROOT)" ];then echo "	[RMDIR] $(SYMROOT)"; fi
+	@if [ -d "$(DSTROOT)" ];then echo "	[RMDIR] $(DSTROOT)"; fi
 	@if [ -d "$(SRCROOT)/i386/modules/module_includes" ];then \
-		echo "\t[RMDIR] $(SRCROOT)/i386/modules/module_includes"; \
+		echo "	[RMDIR] $(SRCROOT)/i386/modules/module_includes"; \
 	 fi
 	@rm -rf $(OBJROOT) $(SYMROOT) $(DSTROOT)        \
             $(SRCROOT)/i386/modules/module_includes 
