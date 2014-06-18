@@ -16,35 +16,38 @@ CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 DIR = util
 include ${SRCROOT}/Make.rules
 
-PROGRAMS = machOconv dyldsymboltool segsize
-OBJS = dyldsymboltool.o machOconv.o segsize.o
+#PROGRAMS = machOconv dyldsymboltool segsize
+#OBJS = dyldsymboltool.o machOconv.o segsize.o
+#PROGRAMS = machOconv segsize
+#OBJS = machOconv.o segsize.o
 
 
-ifeq (${CONFIG_BDMESG}, y)
-PROGRAMS += bdmesg
-OBJS += bdmesg.o32 bdmesg.o64
-endif
+#ifeq (${CONFIG_BDMESG}, y)
+#PROGRAMS += bdmesg
+#OBJS += bdmesg.o32 bdmesg.o64
+#endif
 
-ifeq (${CONFIG_OPENUP}, y)
-PROGRAMS += openUp
-OBJS += openUp.o64 openUp.o32
-endif
+#ifeq (${CONFIG_OPENUP}, y)
+#PROGRAMS += openUp
+#OBJS += openUp.o64 openUp.o32
+#endif
 
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 
-LDFLAGS := $(LDFALGS) -framework IOKit -framework CoreFoundation -mmacosx-version-min=10.5
+LDFLAGS += -framework IOKit -framework CoreFoundation -mmacosx-version-min=10.5
+CFLAGS += -I${SRCROOT}/i386/include
 
 SYMPROG = $(addprefix $(SYMROOT)/, $(PROGRAMS))
 
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
 
-SUBDIRS = fdisk
+#SUBDIRS = fdisk
 
 all: $(DIRS_NEEDED) $(SYMPROG) all-recursive
 
 $(SYMPROG): $(OBJS)
 	@echo "	[LD] $(@F)"
-	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) $(OBJROOT)/$(@F).o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) $(OBJROOT)/$(@F).o
 
 #dependencies
 -include $(OBJROOT)/Makedep
