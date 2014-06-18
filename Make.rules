@@ -13,6 +13,9 @@ LD = ld
 CC = cc
 CPP = c++
 
+X86_ELF_CC = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-unknown-linux
+X86_ELF_CPP = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-unknown-linux
+
 PAX = /bin/pax
 NASM = $(shell which nasm) -p $(SRCROOT)/autoconf.inc
 
@@ -59,8 +62,32 @@ $(OBJROOT)/%.o: %.cpp
 
 $(OBJROOT)/%.o: %.s
 	@echo "	[AS] $<"
-	@$(CC) $(CPPFLAGS) -c $(INC) -arch i386 $< -MM -M -o $@.Makedep
-	@$(CC) $(CPPFLAGS) -c $(INC) -arch i386 $< -o $@
+	@$(CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(CC) $(CPPFLAGS) -c $(INC) $< -o $@
+
+
+$(OBJROOT)/%.x86.elf.o: %.c
+	@echo "	[CC] $<"
+	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+
+$(OBJROOT)/%.x86.elf.o: %.m
+	@echo "	[M] $<"
+	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+
+$(OBJROOT)/%.x86.elf.o: %.cpp
+	@echo "	[CPP] $<"
+	@$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
+	@$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+
+$(OBJROOT)/%.x86.elf.o: %.S
+	@echo "	[AS] $<"
+	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -o $@
+
+
+
 
 #CONFIG_FILES=$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
 #.PHONY: ${CONFIG_FILES}
