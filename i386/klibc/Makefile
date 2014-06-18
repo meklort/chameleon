@@ -12,7 +12,7 @@ include ${SRCROOT}/Make.rules
 
 # LIBSAIODIR = ../libsaio
 
-CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) -arch i386 \
+CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
 	      -fno-builtin -static $(OMIT_FRAME_POINTER_CFLAG) \
 	      -march=pentium4 -msse2 -msoft-float -fno-stack-protector \
 	      -nostdinc -include $(SRCROOT)/autoconf.h
@@ -21,7 +21,7 @@ CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
 INC = -I. -I$(SYMROOT) -I${SRCROOT}/i386/include
 
-OBJS = strlcpy.o
+OBJS = strlcpy.x86.elf.o
 
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 
