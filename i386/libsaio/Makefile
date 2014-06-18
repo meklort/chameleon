@@ -17,7 +17,7 @@ BOOT2DIR = ../boot2
 DEFINES = -DNOTHING
 #DEFINES = -DDEBUG_CPU=1 -DDEBUG_MEM=1 -DDEBUG_SPD=1 -DDEBUG_PCI=1 -DDEBUG_SMBIOS=1
 
-CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) -arch i386 \
+CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
     -D__ARCHITECTURE__=\"i386\" -DSAIO_INTERNAL_USER \
     -DRCZ_COMPRESSED_FILE_SUPPORT -fno-stack-protector \
     -fno-builtin -static $(OMIT_FRAME_POINTER_CFLAG) -fno-stack-protector \
@@ -27,18 +27,18 @@ CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
 INC = -I. -I$(SRCROOT) -I$(SYMROOT) -I$(LIBSADIR) -I$(BOOT2DIR) -I${SRCROOT}/i386/include
 
-SAIO_OBJS = table.o asm.o bios.o biosfn.o \
-	disk.o sys.o cache.o bootstruct.o \
-	stringTable.o load.o pci.o allocate.o misc.o \
-	befs.o freebsd.o openbsd.o \
-	vbe.o nbp.o hfs.o hfs_compare.o \
-	xml.o ntfs.o msdos.o md5c.o device_tree.o \
-	cpu.o platform.o acpi_patcher.o \
-	smbios.o smbios_getters.o smbios_decode.o \
-	fake_efi.o ext2fs.o \
-	hpet.o dram_controllers.o spd.o usb.o pci_setup.o \
-	device_inject.o nvidia_helper.o nvidia.o ati.o gma.o hda.o pci_root.o \
-	convert.o aml_generator.o console.o exfat.o base64-decode.o
+SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
+	disk.x86.elf.o sys.x86.elf.o cache.x86.elf.o bootstruct.x86.elf.o \
+	stringTable.x86.elf.o load.x86.elf.o pci.x86.elf.o allocate.x86.elf.o misc.x86.elf.o \
+	befs.x86.elf.o freebsd.x86.elf.o openbsd.x86.elf.o \
+	vbe.x86.elf.o nbp.x86.elf.o hfs.x86.elf.o hfs_compare.x86.elf.o \
+	xml.x86.elf.o ntfs.x86.elf.o msdos.x86.elf.o md5c.x86.elf.o device_tree.x86.elf.o \
+	cpu.x86.elf.o platform.x86.elf.o acpi_patcher.x86.elf.o \
+	smbios.x86.elf.o smbios_getters.x86.elf.o smbios_decode.x86.elf.o \
+	fake_efi.x86.elf.o ext2fs.x86.elf.o \
+	hpet.x86.elf.o dram_controllers.x86.elf.o spd.x86.elf.o usb.x86.elf.o pci_setup.x86.elf.o \
+	device_inject.x86.elf.o nvidia_helper.x86.elf.o nvidia.x86.elf.o ati.x86.elf.o gma.x86.elf.o hda.x86.elf.o pci_root.x86.elf.o \
+	convert.x86.elf.o aml_generator.x86.elf.o console.x86.elf.o exfat.x86.elf.o base64-decode.x86.elf.o
 
 SAIO_OBJS := $(addprefix $(OBJROOT)/, $(SAIO_OBJS))
 

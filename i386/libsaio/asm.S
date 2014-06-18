@@ -149,7 +149,7 @@ CODE16_SEG   = BASE_SEG
 
 .globl _Gdtr
     //.data
-    .section __INIT,__data	// turbo - Data that must be in the first segment
+    .section "__INIT,__data"	// turbo - Data that must be in the first segment
     .align 2, 0x90
 _Gdtr:
     .word GDTLIMIT
@@ -158,7 +158,7 @@ _Gdtr:
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // IDTR representing real-mode IVT.  The values are constant.
     //.const
-    .section __INIT,__data	// turbo - Data that must be in the first segment
+    .section "__INIT,__data"	// turbo - Data that must be in the first segment
 // Real mode IDT
     .align 2
 .globl _Idtr_real
@@ -171,7 +171,7 @@ _Idtr_real:
 // procesor that no IDT is available.  After we get into protected mode we can
 // allocate memory for a proper IDT and update this IDTR to point to it.
     //.data
-    .section __INIT,__data	// turbo - Data that must be in the first segment
+    .section "__INIT,__data"	// turbo - Data that must be in the first segment
     .align 2
 .globl _Idtr_prot
 _Idtr_prot:
@@ -185,7 +185,7 @@ save_sp: .long  STACK_OFS
 save_ss: .long  STACK_SEG
 
     //.text
-    .section __INIT,__text      // turbo - This code must reside within the first segment
+    .section "__INIT,__text"      // turbo - This code must reside within the first segment
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // real_to_prot()
 //

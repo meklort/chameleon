@@ -53,7 +53,7 @@
 #define O_ES    36
 #define O_FLG   38
 
-    .section __INIT,__data	// turbo - Data that must be in the first segment
+    .section "__INIT,__data"	// turbo - Data that must be in the first segment
 
 /*  Saved registers:
     These used to be (and in theory ought to be) located in __DATA,__bss.
@@ -97,7 +97,7 @@ new_es:     .space 2
     .align 1
 new_ds:     .space 2
 
-    .section __INIT,__text      // turbo - This code must reside within the first segment
+    .section "__INIT,__text"      // turbo - This code must reside within the first segment
 
 
 /*============================================================================
