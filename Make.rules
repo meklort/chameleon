@@ -92,7 +92,7 @@ $(OBJROOT)/%.x86.elf.o: %.S
 #CONFIG_FILES=$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
 CONFIG_FILES=$(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
 .PHONY: ${CONFIG_FILES}
-$(CONFIG_FILES):  $(SRCROOT)/.config
+$(CONFIG_FILES): 
 	@echo "	[MAKE] config"
 	@make -C $(SRCROOT)/i386/config rebuild_config
 
