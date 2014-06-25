@@ -8,8 +8,7 @@ KEYMAPSROOT = $(SRCROOT)/Keymaps
 
 INC = -I$(SRCROOT)/i386/libsaio/ -I. -I..
 
-OBJS     = cham-mklayout.o32 cham-mklayout.o64
-
+OBJS     = cham-mklayout.o
 OBJS    := $(addprefix $(OBJROOT)/, $(OBJS))
 
 MKLAYOUT = cham-mklayout
