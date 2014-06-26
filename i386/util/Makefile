@@ -15,8 +15,8 @@ CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 DIR = util
 include ${SRCROOT}/Make.rules
 
-PROGRAMS = bin2header
-OBJS = bin2header.o
+PROGRAMS = bin2h
+OBJS = bin2h.o
 #PROGRAMS = machOconv dyldsymboltool segsize
 #OBJS = dyldsymboltool.o machOconv.o segsize.o
 #PROGRAMS = machOconv segsize
