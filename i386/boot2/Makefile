@@ -42,9 +42,11 @@ OTHER_FILES =
 
 # The ordering is important;
 # boot2.o must be first.
-OBJS = boot2.o boot.o graphics.o drivers.o prompt.o options.o lzss.o mboot.o \
-	   ramdisk.o picopng.o resume.o bmdecompress.o graphic_utils.o gui.o modules.o \
-	   modules_support.o boot_modules.o
+OBJS = boot2.x86.elf.o boot.x86.elf.o graphics.x86.elf.o drivers.x86.elf.o \
+	prompt.x86.elf.o options.x86.elf.o lzss.x86.elf.o mboot.x86.elf.o \
+	ramdisk.x86.elf.o picopng.x86.elf.o resume.x86.elf.o bmdecompress.x86.elf.o \
+	graphic_utils.x86.elf.o gui.x86.elf.o modules.x86.elf.o \
+	modules_support.x86.elf.o boot_modules.x86.elf.o
 # button.o browser.o scrollbar.o == NOTYET
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 

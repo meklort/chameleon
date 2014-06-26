@@ -44,16 +44,16 @@
 #define retf    .byte 0xcb
 
     .file "boot2.s"
-    .section __INIT,__text	// turbo - This initialization code must reside within the first segment
+    .section "__INIT,__text"	// turbo - This initialization code must reside within the first segment
 
     //.data
-    .section __INIT,__data	// turbo - Data that must be in the first segment
+    .section "__INIT,__data"	// turbo - Data that must be in the first segment
 
 EXPORT(_chainbootdev)  .byte 0x80
 EXPORT(_chainbootflag) .byte 0x00
 
     //.text
-    .section __INIT,__text	// turbo
+    .section "__INIT,__text"	// turbo
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Booter entry point. Called by boot1 or by the NBP.
@@ -153,7 +153,7 @@ start_chain_boot:
 # cannot do that and have GRUB find it because GRUB only searches the first
 # 8k of the binary.  Since __TEXT,__const follows __TEXT,__text (the code
 # section) and since the code is well over 8k long, it doesn't work.
-.align 2, 0x90 # Make sure we're on a 4-byte boundary.  Required by Multiboot.
+.align 4, 0x90 # Make sure we're on a 4-byte boundary.  Required by Multiboot.
 _multiboot_header:
     # magic (NOTE: this shows up as 02b0 ad1b in a hex dump)
     .long   MULTIBOOT_HEADER_MAGIC
@@ -176,7 +176,7 @@ _multiboot_header:
     nop
     nop
     nop
-.align 3, 0x90 # Align to 8 byte boundary which should be enough nops
+.align 8, 0x90 # Align to 8 byte boundary which should be enough nops
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _multiboot_entry:
@@ -276,7 +276,7 @@ Lhltloop:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # _continue_at_low_address does some trickery to get the caller running from the low address with the right selector
     .globl _continue_at_low_address
-    .align 2, 0x90
+    .align 4, 0x90
 _continue_at_low_address:
     # Our stack frame has been set up with the return address on top
     # First, fix that to be 1 MB lower
@@ -325,7 +325,7 @@ _jump_to_chainbooter:
 # We aren't using it right now so it's in an if 0 block.
 #if 0
     .globl _cause_crash
-    .align 2, 0x90
+    .align 4, 0x90
 _cause_crash:
     # Cause a crash, there is no GDT selector f0
     jmp     $0xf0,$0
@@ -337,8 +337,8 @@ _cause_crash:
 # _Gdtr_high is a pointer to the extended-memory loaded _Gdt
 # See the comments above as to why we have OFFSET_1MEG.
     //.data
-    .section __INIT,__data	// turbo
-    .align 2, 0x90
+    .section "__INIT,__data"	// turbo
+    .align 4, 0x90
 _Gdtr_high:
     .word GDTLIMIT
     .long vtop(_Gdt + OFFSET_1MEG)
