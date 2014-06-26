@@ -12,10 +12,11 @@ IMGROOT = $(SRCROOT)/sym/cache
 IMGSKELROOT = $(SRCROOT)/imgskel
 CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 
-
 DIR = util
 include ${SRCROOT}/Make.rules
 
+PROGRAMS = bin2header
+OBJS = bin2header.o
 #PROGRAMS = machOconv dyldsymboltool segsize
 #OBJS = dyldsymboltool.o machOconv.o segsize.o
 #PROGRAMS = machOconv segsize
@@ -34,8 +35,8 @@ include ${SRCROOT}/Make.rules
 
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 
-LDFLAGS += -framework IOKit -framework CoreFoundation -mmacosx-version-min=10.5
-CFLAGS += -I${SRCROOT}/i386/include
+#LDFLAGS += -framework IOKit -framework CoreFoundation -mmacosx-version-min=10.5
+#CFLAGS += -I${SRCROOT}/i386/include
 
 SYMPROG = $(addprefix $(SYMROOT)/, $(PROGRAMS))
 
