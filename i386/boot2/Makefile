@@ -179,8 +179,8 @@ $(SYMROOT)/art.h:
 	fi;
 	@echo "#ifndef __BOOT2_ART_H" >> $(SYMROOT)/art.h
 	@echo "#define __BOOT2_ART_H" >> $(SYMROOT)/art.h
-	@cd $(SYMROOT)/embed && find . -name 'theme.plist' -exec xxd -i >> $(SYMROOT)/art.h {} \;
-	@cd $(SYMROOT)/embed && find . -name '*.png' -exec xxd -i >> $(SYMROOT)/art.h {} \;
+	@cd $(SYMROOT)/embed && find . -name 'theme.plist' -exec cat {} | $(SYMROOT)/bin2h {} >> $(SYMROOT)/art.h \;
+	@cd $(SYMROOT)/embed && find . -name '*.png'       -exec cat {} | $(SYMROOT)/bin2h {} >> $(SYMROOT)/art.h \;
 
 	@echo "typedef struct {" >> $(SYMROOT)/art.h
 	@echo "	char			name[32];" >> $(SYMROOT)/art.h
@@ -196,7 +196,7 @@ $(SYMROOT)/art.h:
 	@echo "#endif /* !__BOOT2_ART_H */"  >> $(SYMROOT)/art.h ;\
 
 $(SYMROOT)/embedded.h:
-	@cd $(SYMROOT)/../../doc && xxd -i BootHelp.txt > $(SYMROOT)/embedded.h
+	@cd $(SYMROOT)/../../doc && cat BootHelp.txt | $(SYMROOT)/bin2h BootHelp_txt > $(SYMROOT)/embedded.h
 
 
 #dependencies

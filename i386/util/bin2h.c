@@ -60,7 +60,7 @@ main (int argc, char *argv[])
 
 end:
   printf ("\n};\n");
-  printf ("int %s_size = %d;\n", sym, bytes);
+  printf ("int %s_len = %d;\n", sym, bytes);
 abort:
   exit (0);
 }
