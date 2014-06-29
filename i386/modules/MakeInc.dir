@@ -80,7 +80,9 @@ ifeq ($(MODULE_DEFINITION),y)
 ifeq ($(BUILT_IN),yes)
 
 # Make this *BUILT IN*
-all: $(CONFIG_HEADERS) $(HEADER_VERSION) dylib_LINKER all-recursive
+##### DISBLAED FOR linux compile
+#all: $(CONFIG_HEADERS) $(HEADER_VERSION) dylib_LINKER all-recursive
+all:
 
 else
 # Module not selected to be built in
@@ -103,7 +105,6 @@ dylib: ${SYMROOT}/modules/ ${OBJROOT} $(SYMROOT)/modules/$(MODULE_NAME).dylib
 MODULE_OBJS := $(addprefix $(OBJROOT)/, ${MODULE_OBJS})
 
 ifeq ($(BUILT_IN),yes)
-
 $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author Makefile
 	@echo "\t[LD] $(MODULE_NAME).dylib"
 	@ld -arch i386 -undefined dynamic_lookup \
@@ -117,7 +118,6 @@ $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $
 	-sectcreate __INFO __author $(OBJROOT)/$(MODULE_NAME).author \
 	-sectcreate __INFO __description $(OBJROOT)/$(MODULE_NAME).desc \
 	-o $(SYMROOT)/modules/$(MODULE_NAME).dylib
-
 else
 
 $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author $(SRCROOT)/obj/i386/boot2/Symbols_LINKER_ONLY.dylib Makefile
