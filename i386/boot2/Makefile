@@ -69,107 +69,23 @@ PATCH_ADDR  = $(shell echo ${SYMBOL_ADDR}-${DATA_ADDR}+${DATA_OFFSET} | bc)
 #### NOTE #### This value is currently *not* calculated and *should* be. It is currently determined experimentally…
 DATA_PAD = 3582
 
-all: $(DIRS_NEEDED) boot all-recursive
+all: $(DIRS_NEEDED) ${SYMROOT}/boot.sys all-recursive
+
+BOOT_DEPS = $(CONFIG_HEADERS) $(SYMROOT)/embedded.h $(OBJS) $(addprefix $(SYMROOT)/, $(LIBDEP))
 
 ifeq (${CONFIG_EMBED_THEME}, y)
-
-boot: $(CONFIG_HEADERS) $(SYMROOT)/art.h $(SYMROOT)/embedded.h $(OBJS) $(addprefix $(SYMROOT)/, $(LIBDEP))
-
-else
-
-boot: $(CONFIG_HEADERS) $(SYMROOT)/embedded.h $(OBJS) $(addprefix $(SYMROOT)/, $(LIBDEP))
-
-
+BOOT_DEPS += $(SYMROOT)/art.h
 endif
+
+
+${SYMROOT}/boot.sys: ${BOOT_DEPS}
 	@${MKDIRS} $(OBJROOT)/../boot2_modules/
 	
 	@### First pass, don't worry abount segment alignment.
 	@echo "	[LD] boot.sys"
-	@$(CC) -Wl,-preload -Wl,-alias,boot2,start \
-			-nostdlib -arch i386  -Wl,-pie \
-			-Wl,-read_only_relocs,suppress \
-			-lcc_kext \
-			$(filter %.o,$^) `find $(OBJROOT)/../boot2_modules/ -name \*.o`  $(LIBS) \
-			-o ${SYMROOT}/$@.sys
-
-
-ifeq (${CONFIG_MODULES}, y)
-
-	@# Generate the Symbols.dylib file
-	@echo "	[dyldsymboltool] Symbols.dylib"
-	@$(SYMROOT)/dyldsymboltool $(SYMROOT)/boot.sys $(SYMROOT)/${SYMBOLS_MODULE}
-
-	@echo "	[LD] boot.sys"
-	@$(CC) -Wl,-preload -Wl,-alias,boot2,start \
-			-nostdlib -arch i386  -Wl,-pie \
-			-Wl,-sectcreate,__DATA,__Symbols,$(SYMROOT)/Symbols.dylib \
-			-Wl,-segaddr,__INIT,`echo obase=16\; $$((0x${BOOT2ADDR})) | bc` \
-			-Wl,-segaddr,__TEXT,`echo obase=16\; $$((0x${BOOT2ADDR})) + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __INIT\` | bc` \
-			-Wl,-segaddr,__DATA,`echo obase=16\; $$((0x${BOOT2ADDR})) + ${DATA_PAD} + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __INIT\` + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __TEXT\` | bc` \
-			-Wl,-read_only_relocs,suppress \
-			-lcc_kext \
-			$(filter %.o,$^) `find $(OBJROOT)/../boot2_modules/ -name \*.o`  $(LIBS) \
-			-o ${SYMROOT}/$@.sys
-
-
-	@# Second pass, fixup global var locations
-	@${RM} $(SYMROOT)/${SYMBOLS_MODULE}
-
-	@# Generate the Symbols.dylib file
-	@echo "	[dyldsymboltool] Symbols.dylib"
-	@$(SYMROOT)/dyldsymboltool $(SYMROOT)/boot.sys $(SYMROOT)/${SYMBOLS_MODULE}
-
-	@echo "	[LD] boot.sys"
-	@$(CC) -Wl,-preload -Wl,-alias,boot2,start \
-			-nostdlib -arch i386  -Wl,-pie \
-			-Wl,-sectcreate,__DATA,__Symbols,$(SYMROOT)/Symbols.dylib \
-			-Wl,-segaddr,__INIT,`echo obase=16\; $$((0x${BOOT2ADDR})) | bc` \
-			-Wl,-segaddr,__TEXT,`echo obase=16\; $$((0x${BOOT2ADDR})) + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __INIT\` | bc` \
-			-Wl,-segaddr,__DATA,`echo obase=16\; $$((0x${BOOT2ADDR})) + ${DATA_PAD} + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __INIT\` + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __TEXT\` | bc` \
-			-Wl,-read_only_relocs,suppress \
-			-lcc_kext \
-			$(filter %.o,$^) `find $(OBJROOT)/../boot2_modules/ -name \*.o`  $(LIBS) \
-			-o ${SYMROOT}/$@.sys
-
-	@#${RM} $(SYMROOT)/${SYMBOLS_MODULE}
-
-	@$(LD) -arch i386 \
-	-undefined dynamic_lookup \
-	-dylib -read_only_relocs suppress \
-	-S -x -Z -dead_strip_dylibs \
-	-no_uuid \
-	$(filter %.o,$^) $(LIBS) \
-	-final_output Symbols \
-	-macosx_version_min 10.6 \
-	-o $(OBJROOT)/Symbols_LINKER_ONLY.dylib
-
-else
-	@echo "	[LD] boot.sys"
-	@$(CC) -Wl,-preload -Wl,-alias,boot2,start \
-			-nostdlib -arch i386  -Wl,-pie \
-			-Wl,-segaddr,__INIT,`echo obase=16\; $$((0x${BOOT2ADDR})) | bc` \
-			-Wl,-segaddr,__TEXT,`echo obase=16\; $$((0x${BOOT2ADDR})) + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __INIT\` | bc` \
-			-Wl,-segaddr,__DATA,`echo obase=16\; $$((0x${BOOT2ADDR})) + ${DATA_PAD} + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __INIT\` + \`${SYMROOT}/segsize ${SYMROOT}/$@.sys __TEXT\` | bc` \
-			-Wl,-read_only_relocs,suppress \
-			-lcc_kext \
-			$(filter %.o,$^) `find $(OBJROOT)/../boot2_modules/ -name \*.o`  $(LIBS) \
-			-o ${SYMROOT}/$@.sys
-endif
-
-
-	@echo "	[MACHOCONV] boot"
-	@$(SYMROOT)/machOconv ${SYMROOT}/$@.sys $(SYMROOT)/$@ &> /dev/null
-
-	@( size=`ls -l $(SYMROOT)/boot | awk '{ print $$5}'` ; \
-	  if expr "$$size" ">" "$(MAXBOOTSIZE)" > /dev/null ;\
-	  then \
-	   	echo "	******* boot is $$size bytes *******"; \
-	    echo "Booter executable larger than $(MAXBOOTSIZE) bytes" ;\
-	    rm $(SYMROOT)/boot ;\
-	    exit 1;\
-	  else \
-	  	echo "	******* boot is $$size bytes *******"; \
-	  fi)
+	$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC) $< -MM -M -o $@.Makedep
+	$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC) $< -o $@
+	@cp $@ ${SYMROOT}/boot
 
 $(SYMROOT)/art.h:
 	@if [ "$(PNGCRUSH)" ]; then	\
