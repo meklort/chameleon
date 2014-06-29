@@ -24,6 +24,9 @@ CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -g -Wmost -Werror \
 		-fno-builtin -DSAIO_INTERNAL_USER -static $(OMIT_FRAME_POINTER_CFLAG) -fno-stack-protector \
 		-march=pentium4 -msse2 -msoft-float -nostdinc -include $(SRCROOT)/autoconf.h
 
+LDFLAGS = -fno-builtin -static -fno-stack-protector $(OMIT_FRAME_POINTER_CFLAG) -DSAIO_INTERNAL_USER \
+		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float
+
 CPPFLAGS := $(CPPFLAGS) -nostdinc++ -include $(SRCROOT)/autoconf.h
 
 DEFINES=
@@ -69,7 +72,7 @@ PATCH_ADDR  = $(shell echo ${SYMBOL_ADDR}-${DATA_ADDR}+${DATA_OFFSET} | bc)
 #### NOTE #### This value is currently *not* calculated and *should* be. It is currently determined experimentally…
 DATA_PAD = 3582
 
-all: $(DIRS_NEEDED) ${SYMROOT}/boot.sys all-recursive
+all: $(DIRS_NEEDED) ${SYMROOT}/boot.elf all-recursive
 
 BOOT_DEPS = $(CONFIG_HEADERS) $(SYMROOT)/embedded.h $(OBJS) $(addprefix $(SYMROOT)/, $(LIBDEP))
 
@@ -77,14 +80,13 @@ ifeq (${CONFIG_EMBED_THEME}, y)
 BOOT_DEPS += $(SYMROOT)/art.h
 endif
 
-
-${SYMROOT}/boot.sys: ${BOOT_DEPS}
+${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@${MKDIRS} $(OBJROOT)/../boot2_modules/
 	
 	@### First pass, don't worry abount segment alignment.
-	@echo "	[LD] boot.sys"
-	$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC) $< -MM -M -o $@.Makedep
-	$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC) $< -o $@
+	@echo "	[LD] boot.elf"
+	@#$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
+	$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o $.a, $^}
 	@cp $@ ${SYMROOT}/boot
 
 $(SYMROOT)/art.h:
@@ -121,8 +123,8 @@ $(SYMROOT)/embedded.h:
 -include $(OBJROOT)/Makedep
 
 clean-local:
-	@for o in $(SYMROOT)/boot $(SYMROOT)/boot.sys $(SYMROOT)/embedded.h $(OBJROOT)/Symbols_LINKER_ONLY.dylib; do \
+	@for o in $(SYMROOT)/boot $(SYMROOT)/boot.elf $(SYMROOT)/embedded.h $(OBJROOT)/Symbols_LINKER_ONLY.dylib; do \
 		if [ -f "$${o}" ];then echo "	[RM] $${o}"; fi; done
 	@if [ -d "$(OBJROOT)" ];then echo "	[RM] all objects in $(OBJROOT)"; fi
-	@rm -f $(SYMROOT)/boot $(SYMROOT)/boot.sys $(SYMROOT)/embedded.h $(OBJS)
+	@rm -f $(SYMROOT)/boot $(SYMROOT)/boot.elf $(SYMROOT)/embedded.h $(OBJS)
 	@rm -rf $(OBJROOT)
