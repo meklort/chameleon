@@ -298,11 +298,11 @@ Lcontinue_at_low_address_next:
     ret
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# _jump_to_chainbooter sets up dl, switches from protected to real mode, and
+# jump_to_chainbooter sets up dl, switches from protected to real mode, and
 # jumps to 0:7C00.  Unlike the usual code, the stack is not switched since
 # there is no stack to switch to.
-    .globl _jump_to_chainbooter
-_jump_to_chainbooter:
+    .globl jump_to_chainbooter
+jump_to_chainbooter:
     # TODO: Take segment/offset arguments and put them in ES:SI?
 
     xorl    %edx, %edx
