@@ -344,7 +344,7 @@ LABEL(_halt)
 // Start the program on protected mode where phyaddr is the entry point.
 // Passes arg to the program in %eax.
 //
-LABEL(_startprog)
+LABEL(startprog)
     push    %ebp
     mov     %esp, %ebp
 

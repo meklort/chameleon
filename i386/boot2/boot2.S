@@ -90,7 +90,7 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
     # Transfer execution to C by calling boot().
 
     pushl   %edx                # bootdev
-    call    _boot
+    call    boot
 
     testb   $0xff, _chainbootflag
     jnz     start_chain_boot    # Jump to a foreign booter
@@ -263,7 +263,7 @@ Lpost_gdt_switch:
     # so we won't be returning from it.
     pushl   %ebx
     pushl   %eax
-    call    _multiboot_to_boot # NOTE: near relative call, so we stay in high mem
+    call    multiboot_to_boot # NOTE: near relative call, so we stay in high mem
     # NORETURN
 
     # NOTE: Once we get in to C, we should never return
@@ -342,5 +342,5 @@ _cause_crash:
     .align 4, 0x90
 _Gdtr_high:
     .word GDTLIMIT
-    .long vtop(_Gdt + OFFSET_1MEG)
+    .long vtop(Gdt + OFFSET_1MEG)
 
