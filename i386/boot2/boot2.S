@@ -49,8 +49,8 @@
     //.data
     .section "__INIT,__data"	// turbo - Data that must be in the first segment
 
-EXPORT(_chainbootdev)  .byte 0x80
-EXPORT(_chainbootflag) .byte 0x00
+EXPORT(chainbootdev)  .byte 0x80
+EXPORT(chainbootflag) .byte 0x00
 
     //.text
     .section "__INIT,__text"	// turbo
@@ -92,7 +92,7 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
     pushl   %edx                # bootdev
     call    boot
 
-    testb   $0xff, _chainbootflag
+    testb   $0xff, chainbootflag
     jnz     start_chain_boot    # Jump to a foreign booter
 
     call    __prot_to_real      # Back to real mode.
@@ -112,7 +112,7 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
 
 start_chain_boot:
     xorl    %edx, %edx
-    movb    _chainbootdev, %dl  # Setup DL with the BIOS device number
+    movb    chainbootdev, %dl  # Setup DL with the BIOS device number
 
     call    __prot_to_real      # Back to real mode.
 
@@ -306,7 +306,7 @@ _jump_to_chainbooter:
     # TODO: Take segment/offset arguments and put them in ES:SI?
 
     xorl    %edx, %edx
-    movb    _chainbootdev, %dl  # Setup DL with the BIOS device number
+    movb    chainbootdev, %dl  # Setup DL with the BIOS device number
 
     call    __prot_to_real      # Back to real mode.
 
