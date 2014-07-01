@@ -104,7 +104,7 @@ new_ds:     .space 2
  * Call real-mode BIOS INT functions.
  *
  */
-LABEL(_bios)
+LABEL(bios)
     enter   $0, $0
     pushal
 

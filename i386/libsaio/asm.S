@@ -153,7 +153,7 @@ CODE16_SEG   = BASE_SEG
     .align 2, 0x90
 _Gdtr:
     .word GDTLIMIT
-    .long vtop(_Gdt)
+    .long vtop(Gdt)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // IDTR representing real-mode IVT.  The values are constant.
@@ -330,13 +330,13 @@ xreal:
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // halt()
 //
-LABEL(_halt)
+LABEL(halt)
 #ifdef BOOT1
     hlt
 #else
-    call    _bgetc
+    call    bgetc
 #endif
-    jmp     _halt
+    jmp     halt
 
 #ifndef BOOT1
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
