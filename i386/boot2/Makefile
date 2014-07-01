@@ -86,7 +86,7 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@### First pass, don't worry abount segment alignment.
 	@echo "	[LD] boot.elf"
 	@#$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
-	$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o $.a, $^}
+	$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 	@cp $@ ${SYMROOT}/boot
 
 $(SYMROOT)/art.h:
