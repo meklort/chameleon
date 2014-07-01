@@ -95,13 +95,10 @@ void showTextBuffer(char *buf, int size);
 
 static void zeroBSS(void)
 {
-	extern char  bss_start  __asm("section$start$__DATA$__bss");
-	extern char  bss_end    __asm("section$end$__DATA$__bss");
-	extern char  common_start  __asm("section$start$__DATA$__common");
-	extern char  common_end    __asm("section$end$__DATA$__common");
+	extern char*  __bss_stop;
+	extern char*  __bss_start;
+	bzero(&__bss_start, (&__bss_stop - &__bss_start));
 
-	bzero(&bss_start, (&bss_end - &bss_start));
-	bzero(&common_start, (&common_end - &common_start));
 }
 
 //==========================================================================
