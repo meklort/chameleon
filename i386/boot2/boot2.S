@@ -275,10 +275,10 @@ Lhltloop:
     jmp Lhltloop
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# _continue_at_low_address does some trickery to get the caller running from the low address with the right selector
-    .globl _continue_at_low_address
+# continue_at_low_address does some trickery to get the caller running from the low address with the right selector
+    .globl continue_at_low_address
     .align 4, 0x90
-_continue_at_low_address:
+continue_at_low_address:
     # Our stack frame has been set up with the return address on top
     # First, fix that to be 1 MB lower
     subl    $OFFSET_1MEG, (%esp)
@@ -287,8 +287,8 @@ _continue_at_low_address:
     lgdt    _Gdtr
     # Now jump to GDT selector 8 using the low address of this function
     # This finally puts us in low memory in the right selector (0x08)
-    jmpl $0x08,$L_continue_at_low_address_next
-L_continue_at_low_address_next:
+    jmpl $0x08,$Lcontinue_at_low_address_next
+Lcontinue_at_low_address_next:
     # We don't need to set ss,ds,es,fs, or gs because they are already 0x10
     # and the old GDT had the same information for selector 0x10 as the new
     # one does.
