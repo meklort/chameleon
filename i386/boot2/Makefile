@@ -25,7 +25,7 @@ CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -g -Wmost -Werror \
 		-march=pentium4 -msse2 -msoft-float -nostdinc -include $(SRCROOT)/autoconf.h
 
 LDFLAGS = -fno-builtin -static -fno-stack-protector $(OMIT_FRAME_POINTER_CFLAG) -DSAIO_INTERNAL_USER \
-		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float
+		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float -Wl,-T,linker.cfg
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc++ -include $(SRCROOT)/autoconf.h
 
