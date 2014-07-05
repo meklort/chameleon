@@ -17,6 +17,10 @@ include ${SRCROOT}/Make.rules
 
 PROGRAMS = bin2h
 OBJS = bin2h.o
+
+PROGRAMS += dyldsymboltool
+OBJS += dyldsymboltool.o
+
 #PROGRAMS = machOconv dyldsymboltool segsize
 #OBJS = dyldsymboltool.o machOconv.o segsize.o
 #PROGRAMS = machOconv segsize
@@ -36,7 +40,7 @@ OBJS = bin2h.o
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 
 #LDFLAGS += -framework IOKit -framework CoreFoundation -mmacosx-version-min=10.5
-#CFLAGS += -I${SRCROOT}/i386/include
+CFLAGS += -I${SRCROOT}/i386/util/include/
 
 SYMPROG = $(addprefix $(SYMROOT)/, $(PROGRAMS))
 
