@@ -288,6 +288,11 @@ unsigned int lookup_all_symbols(const char* name)
 			//DBG("External symbol %s located at 0x%X\n", name, entry->addr);
 			return entry->addr;
 		}
+		else if(strcmp(entry->symbol, name + 1) == 0 && *name == '_') // Allow _strstr to bing to strstr, etc
+		{
+			//DBG("External symbol %s located at 0x%X\n", name, entry->addr);
+			return entry->addr;
+		}
 		else
 		{
 			entry = entry->next;
