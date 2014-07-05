@@ -25,7 +25,7 @@ CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -g -Wmost -Werror \
 		-march=pentium4 -msse2 -msoft-float -nostdinc -include $(SRCROOT)/autoconf.h
 
 LDFLAGS = -fno-builtin -static -fno-stack-protector $(OMIT_FRAME_POINTER_CFLAG) -DSAIO_INTERNAL_USER \
-		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float -Wl,-T,linker.cfg
+		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float -Wl,-T,${abspath linker.cfg}
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc++ -include $(SRCROOT)/autoconf.h
 
@@ -63,14 +63,6 @@ MAXBOOTSIZE = 458240
 # Strings used to retrieve the start location for the Symbols.dylib module
 #
 SYMBOLS_MODULE = Symbols.dylib
-SYMBOL_START= _symbols_module_start
-SYMBOL_ADDR = $(shell printf "%d" 0x`nm -s __DATA __data $(SYMROOT)/boot.sys | grep " $(SYMBOL_START)$$" | cut -f 1 -d " "`)
-DATA_OFFSET = $(shell otool -l $(SYMROOT)/boot.sys | grep __data -A 4  | grep __DATA -A 3 | tail -n 1 | cut -f 6 -d " ")
-DATA_ADDR   = $(shell printf "%d" `otool -l $(SYMROOT)/boot.sys | grep __data -A 4  | grep __DATA -A 3 | head -n 2 | tail -n 1 | cut -f 8 -d " "`)
-PATCH_ADDR  = $(shell echo ${SYMBOL_ADDR}-${DATA_ADDR}+${DATA_OFFSET} | bc)
-
-#### NOTE #### This value is currently *not* calculated and *should* be. It is currently determined experimentally…
-DATA_PAD = 3582
 
 all: $(DIRS_NEEDED) ${SYMROOT}/boot.elf all-recursive
 
@@ -83,10 +75,26 @@ endif
 ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@${MKDIRS} $(OBJROOT)/../boot2_modules/
 	
-	@### First pass, don't worry abount segment alignment.
+	@### First pass
+	@## Create Dummy linker file.
+	@echo "" > $(SYMROOT)/${SYMBOLS_MODULE}.ld
 	@echo "	[LD] boot.elf"
-	@#$(X86_ELF_CC) $(CFLAGS) $(DEFINES) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
+	@#$(X86_ELF_CC) $(LDFLAGS) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
 	@$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
+
+ifeq (${CONFIG_MODULES}, y)
+	@# Generate the Symbols.dylib file
+	@echo "	[dyldsymboltool] Symbols.dylib"
+	@$(SYMROOT)/dyldsymboltool $@ $(SYMROOT)/${SYMBOLS_MODULE}
+	@cat $(SYMROOT)/${SYMBOLS_MODULE} | hexdump -v -e '"BYTE(0x" 1/1 "%02X" ")\n"' > $(SYMROOT)/${SYMBOLS_MODULE}.ld
+
+	@### Second pass
+	@echo "	[LD] boot.elf"
+	@$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
+	@rm $(SYMROOT)/${SYMBOLS_MODULE}.ld
+
+endif
+	@echo "	[OBJCOPY] boot"
 	@/opt/xZenue/bin/objcopy i386 $@ -O binary ${SYMROOT}/boot
 
 $(SYMROOT)/art.h:
