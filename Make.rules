@@ -15,6 +15,8 @@ CPP = c++
 
 X86_ELF_CC = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-unknown-linux
 X86_ELF_CPP = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-unknown-linux
+X86_MACH_CC = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-apple-darwin10
+X86_MACH_CPP = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-apple-darwin10
 
 PAX = /bin/pax
 NASM = $(shell which nasm) -p $(SRCROOT)/autoconf.inc
@@ -85,6 +87,26 @@ $(OBJROOT)/%.x86.elf.o: %.S
 	@echo "	[AS] $<"
 	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
 	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -o $@
+
+$(OBJROOT)/%.x86.mach.o: %.c
+	@echo "	[CC] $<"
+	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+
+$(OBJROOT)/%.x86.mach.o: %.m
+	@echo "	[M] $<"
+	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+
+$(OBJROOT)/%.x86.macho.o: %.cpp
+	@echo "	[CPP] $<"
+	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
+	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+
+$(OBJROOT)/%.x86.mach.o: %.S
+	@echo "	[AS] $<"
+	@$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
+	@$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -o $@
 
 
 
