@@ -8,19 +8,19 @@ MODULE_DEPENDENCIES =
 
 DIR = klibc
 
-MODULE_OBJS = 	klibc.x86.elf.o \
-		__ashldi3.x86.elf.o __ashrdi3.x86.elf.o __clzsi2.x86.elf.o __divdi3.x86.elf.o __divsi3.x86.elf.o \
-		__lshrdi3.x86.elf.o __moddi3.x86.elf.o __modsi3.x86.elf.o __udivdi3.x86.elf.o \
-		__udivmoddi4.x86.elf.o __udivmodsi4.x86.elf.o __udivsi3.x86.elf.o \
-		__umoddi3.x86.elf.o __umodsi3.x86.elf.o \
-		strntoumax.x86.elf.o strntoimax.x86.elf.o atol.x86.elf.o atoll.x86.elf.o \
-		strcasecmp.x86.elf.o strncasecmp.x86.elf.o strlcat.x86.elf.o strndup.x86.elf.o strnlen.x86.elf.o \
-		strsep.x86.elf.o strtoimax.x86.elf.o strtok_r.x86.elf.o strtok.x86.elf.o strtol.x86.elf.o strtoll.x86.elf.o strtotimespec.x86.elf.o strtotimeval.x86.elf.o \
-		strtoul.x86.elf.o strtoull.x86.elf.o strtoumax.x86.elf.o strxspn.x86.elf.o strpbrk.x86.elf.o \
-		bsearch.x86.elf.o calloc.x86.elf.o \
-		jrand48.x86.elf.o lrand48.x86.elf.o mrand48.x86.elf.o srand48.x86.elf.o nrand48.x86.elf.o seed48.x86.elf.o \
-		memccpy.x86.elf.o memchr.x86.elf.o memmem.x86.elf.o memmove.x86.elf.o memrchr.x86.elf.o memswap.x86.elf.o  \
-		qsort.x86.elf.o sha1hash.x86.elf.o onexit.x86.elf.o atexit.x86.elf.o exit.x86.elf.o \
-		snprintf.x86.elf.o vsnprintf.x86.elf.o sscanf.x86.elf.o vsscanf.x86.elf.o\
+MODULE_OBJS = 	klibc.x86.mach.o \
+		__ashldi3.x86.mach.o __ashrdi3.x86.mach.o __clzsi2.x86.mach.o __divdi3.x86.mach.o __divsi3.x86.mach.o \
+		__lshrdi3.x86.mach.o __moddi3.x86.mach.o __modsi3.x86.mach.o __udivdi3.x86.mach.o \
+		__udivmoddi4.x86.mach.o __udivmodsi4.x86.mach.o __udivsi3.x86.mach.o \
+		__umoddi3.x86.mach.o __umodsi3.x86.mach.o \
+		strntoumax.x86.mach.o strntoimax.x86.mach.o atol.x86.mach.o atoll.x86.mach.o \
+		strcasecmp.x86.mach.o strncasecmp.x86.mach.o strlcat.x86.mach.o strndup.x86.mach.o strnlen.x86.mach.o \
+		strsep.x86.mach.o strtoimax.x86.mach.o strtok_r.x86.mach.o strtok.x86.mach.o strtol.x86.mach.o strtoll.x86.mach.o strtotimespec.x86.mach.o strtotimeval.x86.mach.o \
+		strtoul.x86.mach.o strtoull.x86.mach.o strtoumax.x86.mach.o strxspn.x86.mach.o strpbrk.x86.mach.o \
+		bsearch.x86.mach.o calloc.x86.mach.o \
+		jrand48.x86.mach.o lrand48.x86.mach.o mrand48.x86.mach.o srand48.x86.mach.o nrand48.x86.mach.o seed48.x86.mach.o \
+		memccpy.x86.mach.o memchr.x86.mach.o memmem.x86.mach.o memmove.x86.mach.o memrchr.x86.mach.o memswap.x86.mach.o  \
+		qsort.x86.mach.o sha1hash.x86.mach.o onexit.x86.mach.o atexit.x86.mach.o exit.x86.mach.o \
+		snprintf.x86.mach.o vsnprintf.x86.mach.o sscanf.x86.mach.o vsscanf.x86.mach.o\
 
 include ../MakeInc.dir

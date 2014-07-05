@@ -7,16 +7,16 @@ MODULE_START = $(MODULE_NAME)_start
 MODULE_DEPENDENCIES = klibc
 
 DIR = uClibc++
-# sstream.x86.elf.o fstream.x86.elf.o
-MODULE_OBJS = uClibc++.x86.elf.o abi.x86.elf.o algorithm.x86.elf.o associative_base.x86.elf.o bitset.x86.elf.o \
-		complex.x86.elf.o del_op.x86.elf.o del_opnt.x86.elf.o del_opv.x86.elf.o del_opvnt.x86.elf.o \
-		deque.x86.elf.o eh_alloc.x86.elf.o eh_globals.x86.elf.o exception.x86.elf.o \
-		func_exception.x86.elf.o iomanip.x86.elf.o  char_traits.x86.elf.o \
-		iterator.x86.elf.o limits.x86.elf.o list.x86.elf.o locale.x86.elf.o \
-		map.x86.elf.o new_handler.x86.elf.o new_op.x86.elf.o new_opnt.x86.elf.o new_opv.x86.elf.o \
-		new_opvnt.x86.elf.o numeric.x86.elf.o queue.x86.elf.o set.x86.elf.o \
-		stack.x86.elf.o stdexcept.x86.elf.o streambuf.x86.elf.o string.x86.elf.o typeinfo.x86.elf.o \
-		utility.x86.elf.o valarray.x86.elf.o vector.x86.elf.o support.x86.elf.o \
-		ios.x86.elf.o iostream.x86.elf.o istream.x86.elf.o ostream.x86.elf.o 
+# sstream.x86.mach.o fstream.x86.mach.o
+MODULE_OBJS = uClibc++.x86.mach.o abi.x86.mach.o algorithm.x86.mach.o associative_base.x86.mach.o bitset.x86.mach.o \
+		complex.x86.mach.o del_op.x86.mach.o del_opnt.x86.mach.o del_opv.x86.mach.o del_opvnt.x86.mach.o \
+		deque.x86.mach.o eh_alloc.x86.mach.o eh_globals.x86.mach.o exception.x86.mach.o \
+		func_exception.x86.mach.o iomanip.x86.mach.o  char_traits.x86.mach.o \
+		iterator.x86.mach.o limits.x86.mach.o list.x86.mach.o locale.x86.mach.o \
+		map.x86.mach.o new_handler.x86.mach.o new_op.x86.mach.o new_opnt.x86.mach.o new_opv.x86.mach.o \
+		new_opvnt.x86.mach.o numeric.x86.mach.o queue.x86.mach.o set.x86.mach.o \
+		stack.x86.mach.o stdexcept.x86.mach.o streambuf.x86.mach.o string.x86.mach.o typeinfo.x86.mach.o \
+		utility.x86.mach.o valarray.x86.mach.o vector.x86.mach.o support.x86.mach.o \
+		ios.x86.mach.o iostream.x86.mach.o istream.x86.mach.o ostream.x86.mach.o 
 
 include ../MakeInc.dir

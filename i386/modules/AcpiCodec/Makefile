@@ -8,6 +8,6 @@ MODULE_DEPENDENCIES =
 
 DIR = AcpiCodec
 
-MODULE_OBJS = ACPICodec.x86.elf.o acpi_tools.x86.elf.o acpi_codec.x86.elf.o acpidecode.x86.elf.o acpicode.x86.elf.o 
+MODULE_OBJS = ACPICodec.x86.mach.o acpi_tools.x86.mach.o acpi_codec.x86.mach.o acpidecode.x86.mach.o acpicode.x86.mach.o 
 
 include ../MakeInc.dir
