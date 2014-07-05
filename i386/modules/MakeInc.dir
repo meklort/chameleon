@@ -111,14 +111,14 @@ MODULE_OBJS := $(addprefix $(OBJROOT)/, ${MODULE_OBJS})
 ifeq ($(BUILT_IN),yes)
 $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author Makefile
 	@echo "	[LD] $(MODULE_NAME).dylib"
-	@$(X86_ELF_CC) $(LDFLAGS) -shared $(INC) -o $@ ${filter %.o %.a, $^}
+	@$(X86_MACH_CC) $(LDFLAGS) -shared $(INC) -o $@ ${filter %.o %.a, $^}
 
 	### TODO: add         -sectcreate __INFO __author $(OBJROOT)/$(MODULE_NAME).author         -sectcreate __INFO __description $(OBJROOT)/$(MODULE_NAME).desc 
 else
 
 $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author $(SRCROOT)/sym/i386/boot.elf Makefile
 	@echo "	[LD] $(MODULE_NAME).dylib"
-	@$(X86_ELF_CC) $(LDFLAGS) -shared $(INC) -o $@ ${filter %.o %.a, $^}
+	@$(X86_MACH_CC) $(LDFLAGS) -shared $(INC) -o $@ ${filter %.o %.a, $^}
 
 	### TODO: add         -sectcreate __INFO __author $(OBJROOT)/$(MODULE_NAME).author         -sectcreate __INFO __description $(OBJROOT)/$(MODULE_NAME).desc 
 endif
