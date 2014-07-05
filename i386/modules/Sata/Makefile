@@ -8,6 +8,6 @@ MODULE_DEPENDENCIES =
 
 DIR = Sata
 
-MODULE_OBJS = Sata.o
+MODULE_OBJS = Sata.x86.elf.o
 
 include ../MakeInc.dir

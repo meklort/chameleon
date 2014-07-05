@@ -9,6 +9,6 @@ MODULE_DEPENDENCIES =
 DIR = Keylayout
 SUBDIRS += layouts
 
-MODULE_OBJS = Keylayout.o
+MODULE_OBJS = Keylayout.x86.elf.o
 
 include ../MakeInc.dir
