@@ -17,7 +17,7 @@
 
 
 #define DYLIB_NAME "Symbols"
-#define VOID_SYMBOL "_load_all_modules"
+#define VOID_SYMBOL "load_all_modules"
 #define START_SYMBOL "start"
 
 typedef struct symbols_dylib
