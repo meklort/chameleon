@@ -98,7 +98,7 @@ $(OBJROOT)/%.x86.mach.o: %.m
 	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
 	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
-$(OBJROOT)/%.x86.macho.o: %.cpp
+$(OBJROOT)/%.x86.mach.o: %.cpp
 	@echo "	[CPP] $<"
 	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
 	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
