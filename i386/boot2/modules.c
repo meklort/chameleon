@@ -50,8 +50,8 @@ int init_module_system()
 	int retVal = 0;
 	void (*module_start)(void) = NULL;
 
-	extern char  symbols_start  __asm("section$start$__DATA$__Symbols");
-	char* module_data = &symbols_start;
+	extern char  __data_start;
+	char* module_data = &__data_start;
 
 	// Intialize module system
 	if(module_data)
