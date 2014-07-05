@@ -52,7 +52,7 @@ all: $(DIRS_NEEDED) $(SYMPROG) all-recursive
 
 $(SYMPROG): $(OBJS)
 	@echo "	[LD] $(@F)"
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) $(OBJROOT)/$(@F).o
+	@$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) $(OBJROOT)/$(@F).o
 
 #dependencies
 -include $(OBJROOT)/Makedep
