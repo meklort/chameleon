@@ -36,6 +36,9 @@ extern char *LoadableFamilies;
 
 bool sysConfigValid;
 
+#if UNUSED
+
+
 /*
  * Compare a string to a key with quoted characters
  */
@@ -69,8 +72,6 @@ keyncmp(const char *str, const char *key, int n)
     }
     return 0;
 }
-
-#if UNUSED
 
 static void eatThru(char val, const char **table_p)
 {
