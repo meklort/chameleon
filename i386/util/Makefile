@@ -40,7 +40,19 @@ OBJS += dyldsymboltool.o
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 
 #LDFLAGS += -framework IOKit -framework CoreFoundation -mmacosx-version-min=10.5
+
+ifeq ($(OS),Windows_NT)
 CFLAGS += -I${SRCROOT}/i386/util/include/
+else
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+else
+CFLAGS += -I${SRCROOT}/i386/util/include/
+endif
+endif
+
+
+CFLAGS += 
 
 SYMPROG = $(addprefix $(SYMROOT)/, $(PROGRAMS))
 
