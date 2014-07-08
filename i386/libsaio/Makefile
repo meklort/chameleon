@@ -54,7 +54,7 @@ $(LIBS): $(SAIO_OBJS)
 	@echo "	[RM] $@"
 	@rm -f $@
 	@echo "	[AR] $(@F)"
-	@ar q $@ $^ &> /dev/null
+	@${AR} q $@ $^ &> /dev/null
 	@echo "	[RANLIB] $(@F)"
 	@${RANLIB} $(SYMROOT)/$(@F)
 
