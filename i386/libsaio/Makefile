@@ -56,7 +56,7 @@ $(LIBS): $(SAIO_OBJS)
 	@echo "	[AR] $(@F)"
 	@ar q $@ $^ &> /dev/null
 	@echo "	[RANLIB] $(@F)"
-	@ranlib $(SYMROOT)/$(@F)
+	@${RANLIB} $(SYMROOT)/$(@F)
 
 clean-local:
 	@rm -f $(LIBS) $(SAIO_OBJS)

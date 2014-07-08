@@ -18,6 +18,8 @@ X86_ELF_CPP = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target
 X86_MACH_CC = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-apple-darwin10
 X86_MACH_CPP = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-apple-darwin10
 
+RANLIB = /opt/xZenue/bin/i386-linux-ranlib
+
 PAX = /bin/pax
 NASM = $(shell which nasm) -p $(SRCROOT)/autoconf.inc
 

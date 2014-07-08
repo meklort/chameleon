@@ -39,7 +39,7 @@ $(LIBS): $(OBJS)
 	@echo "	[AR] $(@F)"
 	@ar q $@ $^ &> /dev/null
 	@echo "	[RANLIB] $(@F)"
-	@ranlib $@
+	@${RANLIB} $@
 
 # dependencies
 -include $(OBJROOT)/Makedep
