@@ -13,6 +13,11 @@
 #include <time.h>
 #include <unistd.h>
 
+#ifndef strncpy
+extern char *stpncpy(char *s1, const char * s2, size_t n);
+#endif /* strncpy */
+
+
 #define LKC_DIRECT_LINK
 #include "lkc.h"
 
