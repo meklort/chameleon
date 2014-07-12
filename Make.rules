@@ -145,7 +145,7 @@ $(RECURSIVE_TARGETS):
 				target=`echo $@ | sed s/-recursive//`; \
 				list='$(SUBDIRS)'; for subdir in $$list; do \
 					echo ================= Making $$target in $$subdir =================; 	\
-					$(MAKE) --no-print-directory -C $$subdir $$target			\
+					$(MAKE) --no-print-directory -C $$subdir OBJROOT=${OBJROOT}/$$subdir $$target			\
 					|| eval $$failcom;							\
 				done;
 
