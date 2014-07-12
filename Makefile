@@ -74,6 +74,7 @@ dist-local image-local:
 	@cp -rf ${SYMROOT}/i386/modules ${IMGROOT}/Extra/
 	@cp -f ${SRCROOT}/artwork/themes/default/* ${IMGROOT}/Extra/Themes/Default
 	@cp -f ${SYMROOT}/i386/boot ${IMGROOT}/usr/standalone/i386
+	@cp -f ${SYMROOT}/i386/boot ${IMGROOT}/
 	@cp -f ${SYMROOT}/i386/boot0 ${IMGROOT}/usr/standalone/i386
 	@cp -f ${SYMROOT}/i386/boot0hfs ${IMGROOT}/usr/standalone/i386
 	@cp -f ${SYMROOT}/i386/boot0md ${IMGROOT}/usr/standalone/i386
