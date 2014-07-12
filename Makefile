@@ -8,6 +8,8 @@ IMGSKELROOT = $(SRCROOT)/imgskel
 CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 PKG_BUILD_DIR = $(SYMROOT)/package
 
+MAKEOPTS=SYMROOT=${SYMROOT}/i386
+
 include Make.rules
 
 
@@ -21,7 +23,7 @@ ISOIMAGE = ${SYMROOT}/${CDLABEL}.iso
 DISTFILE = ${SYMROOT}/${PRODUCT}
 
 IMGROOT = $(SRCROOT)/sym/${PRODUCT}
-DISTROOT= ./${PRODUCT}
+DISTROOT= ${DSTROOT}
 
 
 EXCLUDE = --exclude=.svn --exclude=.DS_Store --exclude=sym --exclude=obj \
@@ -53,8 +55,10 @@ dist image: all
 
 dist-local image-local:
 	@echo "================= Distrib ================="
-	@echo "	[RM] ${IMGROOT}"
-	@rm -rf ${IMGROOT}	
+	@echo "	[RM] ${IMGROOT}/Extra"
+	@rm -rf ${IMGROOT}/Extra 	
+	@echo "	[RM] ${IMGROOT}/usr/standalone/i386"
+	@rm -rf ${IMGROOT}/usr/standalone/i386	
 	@echo "	[MKDIR] ${IMGROOT}/usr/standalone/i386"			  	  
 	@mkdir -p ${IMGROOT}/usr/standalone/i386
 	@echo "	[MKDIR] ${IMGROOT}/Extra/Themes/Default"
@@ -74,14 +78,14 @@ dist-local image-local:
 	@cp -f ${SYMROOT}/i386/boot0md ${IMGROOT}/usr/standalone/i386
 	@cp -f ${SYMROOT}/i386/boot1h ${IMGROOT}/usr/standalone/i386
 	@cp -f ${SYMROOT}/i386/boot1f32 ${IMGROOT}/usr/standalone/i386
-ifdef CONFIG_FDISK440
-	@cp -f ${SYMROOT}/i386/fdisk440 ${IMGROOT}/usr/bin
-endif
-ifdef CONFIG_BDMESG
-	@cp -f ${SYMROOT}/i386/bdmesg ${IMGROOT}/usr/bin    
-endif
+#ifdef CONFIG_FDISK440
+#	@cp -f ${SYMROOT}/i386/fdisk440 ${IMGROOT}/usr/bin
+#endif
+#ifdef CONFIG_BDMESG
+#	@cp -f ${SYMROOT}/i386/bdmesg ${IMGROOT}/usr/bin    
+#endif
 ifdef CONFIG_KEYLAYOUT_MODULE
-	@cp -f ${SYMROOT}/i386/cham-mklayout ${IMGROOT}/usr/bin
+#	@cp -f ${SYMROOT}/i386/cham-mklayout ${IMGROOT}/usr/bin
 	@echo "	[MKDIR] ${IMGROOT}/Extra/Keymaps"
 	@mkdir -p ${IMGROOT}/Extra/Keymaps
 	@echo "	[CP] Keymaps ${IMGROOT}/Extra/Keymaps"
@@ -97,7 +101,7 @@ endif
 	@echo "	[GZ] ${DISTFILE}.tgz"
 	@rm -f ${DISTFILE}.tar.gz
 	@cd ${SYMROOT} && tar -cf ${DISTFILE}.tar ${DISTROOT}
-	@gzip --best ${DISTFILE}.tar
+	@cd ${SYMROOT} && gzip --best ${DISTFILE}.tar
 	@mv ${DISTFILE}.tar.gz ${DISTFILE}.tgz
 
 clean-local:
