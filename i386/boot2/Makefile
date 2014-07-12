@@ -32,10 +32,10 @@ CPPFLAGS := $(CPPFLAGS) -nostdinc++ -include $(SRCROOT)/autoconf.h
 DEFINES=
 CONFIG = hd
 SYMDIR = $(SYMROOT)
-LIBSADIR = ../libsa
-LIBSAIODIR = ../libsaio
+LIBSADIR = $(SRCROOT)/i386/libsa
+LIBSAIODIR = $(SRCROOT)/i386/libsaio
 THEME = $(CONFIG_EMBEDED_THEME)
-THEMEDIR = ../../artwork/themes/$(THEME)
+THEMEDIR = $(SRCROOT)/artwork/themes/$(THEME)
 INC = -I. -I$(SRCROOT) -I$(SYMDIR) -I$(LIBSADIR) -I$(LIBSAIODIR) -I${SRCROOT}/i386/include
 
 LIBS= -L$(SYMDIR) -lsaio -lsa -lklibc -lcompiler-rt
@@ -53,7 +53,7 @@ OBJS = boot2.x86.elf.o boot.x86.elf.o graphics.x86.elf.o drivers.x86.elf.o \
 # button.o browser.o scrollbar.o == NOTYET
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 
-UTILDIR = ../util
+UTILDIR = $(SRCROOT)/i386/util
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
 BOOT2ADDR = 20200
 MAXBOOTSIZE = 458240
@@ -80,7 +80,7 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@echo "" > $(SYMROOT)/${SYMBOLS_MODULE}.ld
 	@echo "	[LD] boot.elf"
 	@#$(X86_ELF_CC) $(LDFLAGS) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
-	@$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
+	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 
 ifeq (${CONFIG_MODULES}, y)
 	@# Generate the Symbols.dylib file
@@ -90,7 +90,7 @@ ifeq (${CONFIG_MODULES}, y)
 
 	@### Second pass
 	@echo "	[LD] boot.elf"
-	@$(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
+	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 	@rm $(SYMROOT)/${SYMBOLS_MODULE}.ld
 
 endif
@@ -124,7 +124,7 @@ $(SYMROOT)/art.h:
 	@echo "#endif /* !__BOOT2_ART_H */"  >> $(SYMROOT)/art.h ;\
 
 $(SYMROOT)/embedded.h:
-	@cd $(SYMROOT)/../../doc && cat BootHelp.txt | $(SYMROOT)/bin2h BootHelp_txt > $(SYMROOT)/embedded.h
+	@cd $(SRCROOT)/doc && cat BootHelp.txt | $(SYMROOT)/bin2h BootHelp_txt > $(SYMROOT)/embedded.h
 
 
 #dependencies
