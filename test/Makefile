@@ -1,6 +1,8 @@
 test:
 
 all:
-clean:
-dist:
 
+clean:
+distclean:
+
+dist:
