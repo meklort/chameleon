@@ -1,8 +1,6 @@
 /* File added by David F. Elliott <dfe@cox.net> on 2007/06/27 */
 #include "multiboot.h"
 
-extern struct multiboot_info *gMI;
-
 /*
 The following DWORD tells the loader what features we require of it.
 bit  0 set: Align modules on 4KB. We have no modules, we may not need this.
@@ -20,4 +18,8 @@ bit 16 set: This is not ELF, use the multiboot_header fields.
 
 #ifndef __ASSEMBLER__
 /* Put any desired prototypes or other C stuff here. */
+
+extern struct multiboot_info *gMI;
+
+
 #endif
