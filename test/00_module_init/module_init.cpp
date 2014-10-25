@@ -42,7 +42,8 @@ void helloWorld(void* binary, void* arg2, void* arg3, void* arg4)
 
 void HelloWorld_start()
 {
-	//printf("Hooking 'ExecKernel'\n");
+	printf("Hooking 'ExecKernel'\n");
+	while(1);
 	register_hook_callback("ExecKernel", &helloWorld);
 	register_hook_callback("Kernel Start", &helloWorld);
 }
