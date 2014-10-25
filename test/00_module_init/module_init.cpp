@@ -3,62 +3,38 @@
  *
  */
 #include <cstdlib>
-#include <iostream>
 #include <modules>
+#include "libsaio.h"
 
 extern "C"
 {
-    void HelloWorld_start();
+    void module_init_start();
 }
 
+void system_shutdown (void);
 
-using namespace std;
 
-class HW {
-private:
-	int id;
-public:
-	virtual void setId( int id );
-	virtual void printHello( void );
-	virtual ~HW();
-
-};
-
-void helloWorld(void* binary, void* arg2, void* arg3, void* arg4)
-{
-	HW* obj = new HW;
-	HW* obj2 = new HW;
-	obj->setId(1);
-	obj->printHello();
-	delete obj;
-	
-	obj2->setId(2);
-	obj2->printHello();
-	delete obj2;
-
-	printf("Hello world from ExecKernel hook. Binary located at 0x%X\n", binary);
-	getchar();
-}
-
-void HelloWorld_start()
+void module_init_start()
 {
 	printf("Hooking 'ExecKernel'\n");
-	while(1);
-	register_hook_callback("ExecKernel", &helloWorld);
-	register_hook_callback("Kernel Start", &helloWorld);
+	system_shutdown();
 }
 
-void HW::printHello()
+void system_shutdown (void)
 {
-	//cout << "[" << id << "] HelloWorld from a c++ function\n";
-	printf("[%d] HelloWorld from a c++ function\n", id);
+  asm volatile ("cli");
+  for (;;)
+    {
+      // (phony) ACPI shutdown (http://forum.osdev.org/viewtopic.php?t=16990)
+      // Works for qemu and bochs.
+      outw (0xB004, 0x2000);
+
+      // Magic shutdown code for bochs and qemu.
+      for (const char *s = "Shutdown"; *s; ++s)
+        outb (0x8900, *s);
+
+      // Magic code for VMWare. Also a hard lock.
+      asm volatile ("cli; hlt");
+    }
 }
 
-void HW::setId(int id)
-{
-	this->id = id;
-}
-
-HW::~HW()
-{
-}
