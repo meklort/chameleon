@@ -33,8 +33,8 @@ EXCLUDE = --exclude=.svn --exclude=.DS_Store --exclude=sym --exclude=obj \
 #RC_CFLAGS = i386
 ARCHLESS_RC_CFLAGS=`echo $(RC_CFLAGS) | sed 's/-arch [a-z0-9]*//g'`
 
-GENERIC_SUBDIRS = test
-SUBDIRS = $(GENERIC_SUBDIRS) i386
+GENERIC_SUBDIRS =
+SUBDIRS = $(GENERIC_SUBDIRS) i386 test
 DIST_SUBDIRS = $(SUBDIRS)
 
 $(SRCROOT)/revision:
