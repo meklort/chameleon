@@ -33,7 +33,7 @@ EXCLUDE = --exclude=.svn --exclude=.DS_Store --exclude=sym --exclude=obj \
 #RC_CFLAGS = i386
 ARCHLESS_RC_CFLAGS=`echo $(RC_CFLAGS) | sed 's/-arch [a-z0-9]*//g'`
 
-GENERIC_SUBDIRS =
+GENERIC_SUBDIRS = test
 SUBDIRS = $(GENERIC_SUBDIRS) i386
 DIST_SUBDIRS = $(SUBDIRS)
 
@@ -153,3 +153,4 @@ help:
 .PHONY: pkg
 .PHONY: installer
 .PHONY: help
+.PNONY: test
