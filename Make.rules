@@ -116,10 +116,10 @@ $(OBJROOT)/%.x86.mach.o: %.S
 
 #CONFIG_FILES=$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
 CONFIG_FILES=$(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
-.PHONY: ${CONFIG_FILES}
+.PHONY: $(CONFIG_FILES)
 $(CONFIG_FILES): 
 	@echo "	[MAKE] config"
-	@make -C $(SRCROOT)/i386/config rebuild_config
+	@${MAKE} -C $(SRCROOT)/i386/config rebuild_config
 
 HEADER_VERSION=$(SRCROOT)/vers.h
 $(HEADER_VERSION): $(SRCROOT)/version
@@ -145,7 +145,7 @@ $(RECURSIVE_TARGETS):
 				target=`echo $@ | sed s/-recursive//`; \
 				list='$(SUBDIRS)'; for subdir in $$list; do \
 					echo ================= Making $$target in $$subdir =================; 	\
-					$(MAKE) ${MAKEOPTS} --no-print-directory -C $$subdir OBJROOT=${OBJROOT}/$$subdir $$target			\
+					$(MAKE) ${MAKEOPTS} --no-print-directory -C $$subdir $$target			\
 					|| eval $$failcom;							\
 				done;
 
