@@ -7,7 +7,7 @@ dist:
 ${SUBDIRS}:
 	@if [ -d $@ ]; 				\
 	then					\
-		make -C $@ ${MAKECMDGOALS}; 	\
+		${MAKE} --no-print-directory -C $@ ${MAKECMDGOALS}; 	\
 	fi
 
 
