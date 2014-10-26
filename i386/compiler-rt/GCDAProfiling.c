@@ -22,109 +22,43 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "../libsaio/io_inline.h"
 
+typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long int uint64_t;
 
+static void write_bytes(const char* data, uint32_t len);
+
+#define COMMAND_OPEN_FILE       'o'
+#define COMMAND_CLOSE_FILE      'c'
+#define COMMAND_EMIT_ARCS       'a'
+#define COMMAND_EMIT_FUNCS      'f'
+
+typedef struct __attribute__((packed)) serial_command {
+    uint8_t command;
+    uint32_t length;
+} serial_command_t;
+
+
+/*** Local versions of std lib functions to ensure we don't prifile recursivly... ***/
+#define UCHAR_MAX 255
+#define ALIGN (sizeof(size_t))
+#define ONES ((size_t)-1/UCHAR_MAX)
+#define HIGHS (ONES * (UCHAR_MAX/2+1))
+#define HASZERO(x) ((x)-ONES & ~(x) & HIGHS)
+
+static size_t strlen(const char *s)
+{
+    const char *a = s;
+    const size_t *w;
+    for (; (uintptr_t)s % ALIGN; s++) if (!*s) return s-a;
+    for (w = (const void *)s; !HASZERO(*w); w++);
+    for (s = (const void *)w; *s; s++);
+    return s-a;
+}
+
 /* #define DEBUG_GCDAPROFILING */
-
-/*
- * --- GCOV file format I/O primitives ---
- */
-
-static FILE *output_file = NULL;
-
-static void write_int32(uint32_t i) {
-  fwrite(&i, 4, 1, output_file);
-}
-
-static void write_int64(uint64_t i) {
-  uint32_t lo = i >>  0;
-  uint32_t hi = i >> 32;
-  write_int32(lo);
-  write_int32(hi);
-}
-
-static uint32_t length_of_string(const char *s) {
-  return (strlen(s) / 4) + 1;
-}
-
-static void write_string(const char *s) {
-  uint32_t len = length_of_string(s);
-  write_int32(len);
-  fwrite(s, strlen(s), 1, output_file);
-  fwrite("\0\0\0\0", 4 - (strlen(s) % 4), 1, output_file);
-}
-
-static uint32_t read_int32() {
-  uint32_t tmp;
-
-  if (fread(&tmp, 1, 4, output_file) != 4)
-    return (uint32_t)-1;
-
-  return tmp;
-}
-
-static uint64_t read_int64() {
-  uint64_t tmp;
-
-  if (fread(&tmp, 1, 8, output_file) != 8)
-    return (uint64_t)-1;
-
-  return tmp;
-}
-
-static char *mangle_filename(const char *orig_filename) {
-  char *filename = 0;
-  int prefix_len = 0;
-  int prefix_strip = 0;
-  int level = 0;
-  const char *fname = orig_filename, *ptr = NULL;
-  const char *prefix = getenv("GCOV_PREFIX");
-  const char *tmp = getenv("GCOV_PREFIX_STRIP");
-
-  if (!prefix)
-    return strdup(orig_filename);
-
-  if (tmp) {
-    prefix_strip = atoi(tmp);
-
-    /* Negative GCOV_PREFIX_STRIP values are ignored */
-    if (prefix_strip < 0)
-      prefix_strip = 0;
-  }
-
-  prefix_len = strlen(prefix);
-  filename = malloc(prefix_len + 1 + strlen(orig_filename) + 1);
-  strcpy(filename, prefix);
-
-  if (prefix[prefix_len - 1] != '/')
-    strcat(filename, "/");
-
-  for (ptr = fname + 1; *ptr != '\0' && level < prefix_strip; ++ptr) {
-    if (*ptr != '/') continue;
-    fname = ptr;
-    ++level;
-  }
-
-  strcat(filename, fname);
-
-  return filename;
-}
-
-static void recursive_mkdir(char *filename) {
-#if 0
-  int i;
-
-  for (i = 1; filename[i] != '\0'; ++i) {
-    if (filename[i] != '/') continue;
-    filename[i] = '\0';
-    mkdir(filename, 0755);  /* Some of these will fail, ignore it. */
-    filename[i] = '/';
-  }
-#endif
-}
 
 /*
  * --- LLVM line counter API ---
@@ -135,39 +69,14 @@ static void recursive_mkdir(char *filename) {
  * started at a time.
  */
 void llvm_gcda_start_file(const char *orig_filename) {
-  char *filename = mangle_filename(orig_filename);
+    serial_command_t command;
+    command.command = COMMAND_OPEN_FILE;
+    command.length = strlen(orig_filename);
 
-  /* Try just opening the file. */
-  output_file = fopen(filename, "r+b");
-
-  if (!output_file) {
-    /* Try opening the file, creating it if necessary. */
-    output_file = fopen(filename, "w+b");
-    if (!output_file) {
-      /* Try creating the directories first then opening the file. */
-      recursive_mkdir(filename);
-      output_file = fopen(filename, "w+b");
-      if (!output_file) {
-        /* Bah! It's hopeless. */
-        fprintf(stderr, "profiling:%s: cannot open\n", filename);
-        free(filename);
-        return;
-      }
-    }
-  }
-
-  /* gcda file, version 404*, stamp LLVM. */
-#ifdef __APPLE__
-  fwrite("adcg*204MVLL", 12, 1, output_file);
-#else
-  fwrite("adcg*404MVLL", 12, 1, output_file);
-#endif
-
-  free(filename);
-
-#ifdef DEBUG_GCDAPROFILING
-  fprintf(stderr, "llvmgcda: [%s]\n", orig_filename);
-#endif
+    // write command.
+    write_bytes((void*)&command, sizeof(command));
+    // write orig_filename
+    write_bytes(orig_filename, command.length);
 }
 
 /* Given an array of pointers to counters (counters), increment the n-th one,
@@ -187,87 +96,57 @@ void llvm_gcda_increment_indirect_counter(uint32_t *predecessor,
      or because of a TODO in GCOVProfiling.cpp buildEdgeLookupTable(). */
   if (counter)
     ++*counter;
-#ifdef DEBUG_GCDAPROFILING
-  else
-    fprintf(stderr,
-            "llvmgcda: increment_indirect_counter counters=%08llx, pred=%u\n",
-            *counter, *predecessor);
-#endif
 }
 
 void llvm_gcda_emit_function(uint32_t ident, const char *function_name) {
-#ifdef DEBUG_GCDAPROFILING
-  fprintf(stderr, "llvmgcda: function id=0x%08x\n", ident);
-#endif
-  if (!output_file) return;
+    serial_command_t command;
+    command.command = COMMAND_EMIT_FUNCS;
+    command.length = sizeof(ident) + strlen(function_name);
 
-  /* function tag */
-  fwrite("\0\0\0\1", 4, 1, output_file);
-  write_int32(3 + 1 + length_of_string(function_name));
-  write_int32(ident);
-  write_int32(0);
-  write_int32(0);
-  write_string(function_name);
+    // write command.
+    write_bytes((void*)&command, sizeof(command));
+    write_bytes((void*)&ident, sizeof(ident));
+    write_bytes((void*)function_name, strlen(function_name));
 }
 
 void llvm_gcda_emit_arcs(uint32_t num_counters, uint64_t *counters) {
-  uint32_t i;
-  uint64_t *old_ctrs = NULL;
-  uint32_t val = 0;
-  long pos = 0;
+    serial_command_t command;
+    command.command = COMMAND_EMIT_ARCS;
+    command.length = num_counters * sizeof(uint64_t);
 
-  if (!output_file) return;
-
-  pos = ftell(output_file);
-  val = read_int32();
-
-  if (val != (uint32_t)-1) {
-    /* There are counters present in the file. Merge them. */
-    uint32_t j;
-
-    if (val != 0x01a10000) {
-      fprintf(stderr, "profiling: invalid magic number (0x%08x)\n", val);
-      return;
-    }
-
-    val = read_int32();
-    if (val == (uint32_t)-1 || val / 2 != num_counters) {
-      fprintf(stderr, "profiling: invalid number of counters (%d)\n", val);
-      return;
-    }
-
-    old_ctrs = malloc(sizeof(uint64_t) * num_counters);
-
-    for (j = 0; j < num_counters; ++j)
-      old_ctrs[j] = read_int64();
-  }
-
-  /* Reset for writing. */
-  fseek(output_file, pos, SEEK_SET);
-
-  /* Counter #1 (arcs) tag */
-  fwrite("\0\0\xa1\1", 4, 1, output_file);
-  write_int32(num_counters * 2);
-  for (i = 0; i < num_counters; ++i)
-    write_int64(counters[i] + (old_ctrs ? old_ctrs[i] : 0));
-
-  free(old_ctrs);
-
-#ifdef DEBUG_GCDAPROFILING
-  fprintf(stderr, "llvmgcda:   %u arcs\n", num_counters);
-  for (i = 0; i < num_counters; ++i)
-    fprintf(stderr, "llvmgcda:   %llu\n", (unsigned long long)counters[i]);
-#endif
+    // write command.
+    write_bytes((void*)&command, sizeof(command));
+    // write counters
+    write_bytes((void*)counters, command.length);
 }
 
 void llvm_gcda_end_file() {
-  /* Write out EOF record. */
-  if (!output_file) return;
-  fwrite("\0\0\0\0\0\0\0\0", 8, 1, output_file);
-  fclose(output_file);
-  output_file = NULL;
+    serial_command_t command;
+    command.command = COMMAND_CLOSE_FILE;
+    command.length = 0;
 
-#ifdef DEBUG_GCDAPROFILING
-  fprintf(stderr, "llvmgcda: -----\n");
-#endif
+    // write command.
+    write_bytes((void*)&command, sizeof(command));
+}
+
+
+
+
+/***** Serial Port Routines *****/
+// FIXME: Serial port init must also be done.
+#define PORT 0x3f8   /* COM1 */
+
+static int is_transmit_empty() {
+   return inb(PORT + 5) & 0x20;
+}
+
+static void write_serial(char a) {
+   while (is_transmit_empty() == 0);
+
+   outb(PORT,a);
+}
+
+static void write_bytes(const char* data, uint32_t len)
+{
+    while(len--) write_serial(*data++);
 }
