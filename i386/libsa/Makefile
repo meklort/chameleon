@@ -17,7 +17,7 @@ CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
 	      -march=pentium4 -msse2 -msoft-float -fno-stack-protector \
 	      -nostdinc -include $(SRCROOT)/autoconf.h
 
-ifeq(${CONFIG_COVERAGE},y)
+ifeq (${CONFIG_COVERAGE},y)
 CFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
