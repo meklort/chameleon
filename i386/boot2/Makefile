@@ -19,10 +19,14 @@ PNGOPTIONS = -rem cHRM -rem gAMA -rem iCCP -rem sRGB
 DIR = boot2
 include ${SRCROOT}/Make.rules
 
-OPTIM = -Os 
+OPTIM = -Os
 CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -g -Wmost -Werror \
 		-fno-builtin -DSAIO_INTERNAL_USER -static $(OMIT_FRAME_POINTER_CFLAG) -fno-stack-protector \
 		-march=pentium4 -msse2 -msoft-float -nostdinc -include $(SRCROOT)/autoconf.h
+
+ifeq(${CONFIG_COVERAGE},y)
+CFLAGS += -fprofile-arcs -ftest-coverage
+endif
 
 LDFLAGS = -fno-builtin -static -fno-stack-protector $(OMIT_FRAME_POINTER_CFLAG) -DSAIO_INTERNAL_USER \
 		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float -Wl,-T,${abspath linker.cfg}
@@ -74,7 +78,7 @@ endif
 
 ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@${MKDIRS} $(OBJROOT)/../boot2_modules/
-	
+
 	@### First pass
 	@## Create Dummy linker file.
 	@echo "" > $(SYMROOT)/${SYMBOLS_MODULE}.ld

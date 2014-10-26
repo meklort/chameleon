@@ -17,6 +17,11 @@ CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
 	      -march=pentium4 -msse2 -msoft-float -fno-stack-protector \
 	      -nostdinc -include $(SRCROOT)/autoconf.h
 
+ifeq(${CONFIG_COVERAGE},y)
+CFLAGS += -fprofile-arcs -ftest-coverage
+endif
+
+
 CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
 INC = -I. -I$(SYMROOT) -I$(LIBSAIODIR) -I${SRCROOT}/i386/include
