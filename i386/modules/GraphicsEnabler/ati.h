@@ -16,7 +16,7 @@
 #include "device_inject.h"
 #include "ati_reg.h"
 
-
+bool setup_ati_devprop(pci_dt_t *ati_dev);
 
 /* DEFINES */
 #define OFFSET_TO_GET_ATOMBIOS_STRINGS_START 0x6e

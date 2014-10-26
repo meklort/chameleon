@@ -37,7 +37,7 @@ SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
 	smbios.x86.elf.o smbios_getters.x86.elf.o smbios_decode.x86.elf.o \
 	fake_efi.x86.elf.o ext2fs.x86.elf.o \
 	hpet.x86.elf.o dram_controllers.x86.elf.o spd.x86.elf.o usb.x86.elf.o pci_setup.x86.elf.o \
-	device_inject.x86.elf.o nvidia_helper.x86.elf.o nvidia.x86.elf.o ati.x86.elf.o gma.x86.elf.o hda.x86.elf.o pci_root.x86.elf.o \
+	device_inject.x86.elf.o hda.x86.elf.o pci_root.x86.elf.o \
 	convert.x86.elf.o aml_generator.x86.elf.o console.x86.elf.o exfat.x86.elf.o base64-decode.x86.elf.o
 
 SAIO_OBJS := $(addprefix $(OBJROOT)/, $(SAIO_OBJS))

@@ -12,4 +12,5 @@ source "i386/modules/Keylayout/Cconfig"
 source "i386/modules/AcpiCodec/Cconfig"
 #source "i386/modules/KextPatcher/Cconfig"
 #source "i386/modules/HDAEnabler/Cconfig"
+source "i386/modules/GraphicsEnabler/Cconfig"
 endmenu
