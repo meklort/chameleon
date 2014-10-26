@@ -162,7 +162,7 @@ void load_all_modules()
 	struct dirstuff* moduleDir = opendir("/Extra/modules/");
 	if(!moduleDir)
 	{
-		verbose("Warning: Unable to open modules folder at '/Extra/modules/'. Ingoring modules.\n");
+		verbose("Warning: Unable to open modules folder at '/Extra/modules/'. Ignoring modules.\n");
 		return;
 	}
 	while (readdir(moduleDir, (const char**)&name, &flags, &time) >= 0) {
