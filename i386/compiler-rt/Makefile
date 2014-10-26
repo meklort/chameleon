@@ -29,6 +29,10 @@ INC = -I. -I$(SRCROOT) -I$(SYMROOT) -I$(LIBSADIR) -I$(BOOT2DIR) -I${SRCROOT}/i38
 
 COMPILER_RT_OBJS = udivdi3.x86.elf.o umoddi3.x86.elf.o moddi3.x86.elf.o divdi3.x86.elf.o
 
+ifeq (${CONFIG_COVERAGE},y)
+COMPILER_RT_OBJS += GCDAProfiling.x86.elf.o
+endif
+
 COMPILER_RT_OBJS := $(addprefix $(OBJROOT)/, $(COMPILER_RT_OBJS))
 
 LIBS  = libcompiler-rt.a
