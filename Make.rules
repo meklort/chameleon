@@ -1,6 +1,11 @@
 
 -include $(SRCROOT)/auto.conf
 
+V ?= 0
+PRINT = ${PRINT_${V}}
+PRINT_0 = @
+PRINT_1 =
+
 export USE_APPLE_PB_SUPPORT = all
 
 ifneq "" "$(wildcard /bin/mkdirs)"
@@ -53,63 +58,63 @@ OMIT_FRAME_POINTER_CFLAG=
 $(OBJROOT)/%.o: %.c
 	@echo "	[CC] $<"
 	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.o: %.m
 	@echo "	[M] $<"
 	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.o: %.cpp
 	@echo "	[CPP] $<"
 	@$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
-	@$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+	${PRINT}$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
 
 $(OBJROOT)/%.o: %.s
 	@echo "	[AS] $<"
 	@$(CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(CC) $(CPPFLAGS) -c $(INC) $< -o $@
+	${PRINT}$(CC) $(CPPFLAGS) -c $(INC) $< -o $@
 
 
 $(OBJROOT)/%.x86.elf.o: %.c
 	@echo "	[CC] $<"
 	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.x86.elf.o: %.m
 	@echo "	[M] $<"
 	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.x86.elf.o: %.cpp
 	@echo "	[CPP] $<"
 	@$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
-	@$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+	${PRINT}$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
 
 $(OBJROOT)/%.x86.elf.o: %.S
 	@echo "	[AS] $<"
 	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -o $@
+	${PRINT}$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -o $@
 
 $(OBJROOT)/%.x86.mach.o: %.c
 	@echo "	[CC] $<"
 	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.x86.mach.o: %.m
 	@echo "	[M] $<"
 	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
 
 $(OBJROOT)/%.x86.mach.o: %.cpp
 	@echo "	[CPP] $<"
 	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
-	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+	${PRINT}$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
 
 $(OBJROOT)/%.x86.mach.o: %.S
 	@echo "	[AS] $<"
 	@$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
-	@$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -o $@
+	${PRINT}$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -o $@
 
 
 
