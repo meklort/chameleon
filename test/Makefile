@@ -1,4 +1,4 @@
-include ../Make.rules
+OSNAME = ${shell uname -s}
 
 SUBDIRS = ${wildcard *}
 
