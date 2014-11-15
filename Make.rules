@@ -18,6 +18,8 @@ LD = ld
 CC = cc
 CPP = c++
 
+OSNAME = ${shell uname -s}
+
 X86_ELF_CC = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-unknown-linux
 X86_ELF_CPP = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-unknown-linux
 X86_MACH_CC = /opt/xZenue/bin/unknown-unknown-linux-clang -integrated-as -target i386-apple-darwin10
