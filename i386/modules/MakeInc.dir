@@ -19,11 +19,11 @@ include ${SRCROOT}/Make.rules
 
 ifeq ($(BUILT_IN),yes)
 
-CFLAGS	:= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -g -Wmost -Werror \
+CFLAGS	:= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -g -Werror \
 		-fno-builtin -DSAIO_INTERNAL_USER -static $(OMIT_FRAME_POINTER_CFLAG) -fno-stack-protector \
 		-msse2 -msoft-float -nostdinc -include $(SRCROOT)/autoconf.h
 
-CPPFLAGS := $(CPPFLAGS) -static -nostdinc -Wmost -Werror \
+CPPFLAGS := $(CPPFLAGS) -static -nostdinc -Werror \
 	-fno-builtin -fno-stack-protector \
 	-march=pentium4 -msse2  -msoft-float \
 	-include $(SRCROOT)/autoconf.h
@@ -34,12 +34,12 @@ LDFLAGS = -fno-builtin -static -fno-stack-protector $(OMIT_FRAME_POINTER_CFLAG) 
 
 else
 
-CFLAGS := $(CLFAGS) -nostdinc -Wmost -Werror \
+CFLAGS := $(CLFAGS) -nostdinc -Werror \
 	-fno-builtin -fno-stack-protector \
 	-march=pentium4 -msse2 -msoft-float \
 	-include $(SRCROOT)/autoconf.h
 
-CPPFLAGS := $(CPPFLAGS) -nostdinc -Wmost -Werror \
+CPPFLAGS := $(CPPFLAGS) -nostdinc -Werror \
 	-fno-builtin -fno-stack-protector \
 	-march=pentium4 -msse2 -msoft-float \
 	-include $(SRCROOT)/autoconf.h
