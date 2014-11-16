@@ -11,7 +11,7 @@
 #include "nvidia.h"
 #include "ati.h"
 
-void found_pci_device(void* device, void* arg1, void* arg2, void* arg3);
+static void found_pci_device(void* device, void* arg1, void* arg2, void* arg3);
 
 
 void GraphicsEnabler_init()
@@ -19,7 +19,7 @@ void GraphicsEnabler_init()
 	register_hook_callback("PCIDevice", &found_pci_device);
 }
 
-void found_pci_device(void* device, void* arg1, void* arg2, void* arg3)
+static void found_pci_device(void* device, void* arg1, void* arg2, void* arg3)
 {
 	bool doit, do_gfx_devprop = false;
 	getBoolForKey(kGraphicsEnabler, &do_gfx_devprop, &bootInfo->chameleonConfig);

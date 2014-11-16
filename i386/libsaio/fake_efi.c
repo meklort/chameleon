@@ -689,7 +689,6 @@ static void setupSmbiosConfigFile(const char *filename)
 	char		dirSpecSMBIOS[128];
 	const char	*override_pathname = NULL;
 	int		len = 0, err = 0;
-	extern void scan_mem();
 
 	// Take in account user overriding
 	if (getValueForKey(kSMBIOSKey, &override_pathname, &len, &bootInfo->chameleonConfig) && len > 0)
@@ -714,11 +713,6 @@ static void setupSmbiosConfigFile(const char *filename)
 	{
 		verbose("No SMBIOS replacement found.\n");
 	}
-
-	// get a chance to scan mem dynamically if user asks for it while having the config options
-	// loaded as well, as opposed to when it was in scan_platform(); also load the orig. smbios
-	// so that we can access dmi info, without patching the smbios yet.
-	scan_mem(); 
 }
 
 /*

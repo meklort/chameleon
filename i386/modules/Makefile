@@ -57,6 +57,11 @@ ifdef CONFIG_GRAPHICSENABLER_MODULE
 SUBDIRS += GraphicsEnabler
 endif
 
+ifdef CONFIG_MEMORYINFO_MODULE
+SUBDIRS += MemoryInfo
+endif
+
+
 CFLAGS= -O3 $(MORECPP) -arch i386 -g -static
 DEFINES=
 CONFIG = hd
