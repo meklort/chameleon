@@ -8,7 +8,6 @@
 
 extern bool setup_hda_devprop(pci_dt_t *hda_dev);
 extern void set_eth_builtin(pci_dt_t *eth_dev);
-extern void notify_usb_dev(pci_dt_t *pci_dev);
 extern void force_enable_hpet(pci_dt_t *lpc_dev);
 
 void setup_pci_devs(pci_dt_t *pci_dt)
@@ -40,10 +39,6 @@ void setup_pci_devs(pci_dt_t *pci_dt)
 				{
 					setup_hda_devprop(current);
 				}
-				break;
-
-			case PCI_CLASS_SERIAL_USB:
-				notify_usb_dev(current);
 				break;
 		}
 		

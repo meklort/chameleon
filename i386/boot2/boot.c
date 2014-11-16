@@ -177,9 +177,7 @@ static int ExecKernel(void *binary)
 	if (getBoolForKey(kWaitForKeypressKey, &dummyVal, &bootInfo->chameleonConfig) && dummyVal) {
 		showTextBuffer(msgbuf, strlen(msgbuf));
 	}
-
-	usb_loop();
-
+    
 	setupBooterLog();
 
 	finalizeBootStruct();

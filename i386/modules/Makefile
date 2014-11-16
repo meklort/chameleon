@@ -65,6 +65,11 @@ ifdef CONFIG_HPETENABLER_MODULE
 SUBDIRS += HPETEnabler
 endif
 
+ifdef CONFIG_USBFIX_MODULE
+SUBDIRS += USBFix
+endif
+
+
 #ifdef CONFIG_GUI_MODULE
 #SUBDIRS += GUI
 #endif

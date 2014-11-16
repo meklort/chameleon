@@ -208,11 +208,6 @@ extern void initialize_runtime();
 extern void common_boot(int biosdev);
 
 /*
- * usb.c
- */
-extern int usb_loop();
-
-/*
  * graphics.c
  */
 extern void printVBEModeInfo();
