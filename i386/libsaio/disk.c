@@ -76,7 +76,6 @@
 #include "befs.h"
 #include "freebsd.h"
 #include "openbsd.h"
-#include "xml.h"
 #include "disk.h"
 // For EFI_GUID
 #include "efi.h"
@@ -1783,17 +1782,7 @@ BVRef newFilteredBVChain(int minBIOSDev, int maxBIOSDev, unsigned int allowFlags
 
 	struct DiskBVMap * map = NULL;
 	int bvCount = 0;
-
-	const char *raw = 0;
-	char* val = 0;
-	int len;
     
-	getValueForKey(kHidePartition, &raw, &len, &bootInfo->chameleonConfig);
-	if(raw)
-	{
-		val = XMLDecode(raw);  
-	}
-
 	/*
 	 * Traverse gDISKBVmap to get references for
 	 * individual bvr chains of each drive.
@@ -1834,25 +1823,6 @@ BVRef newFilteredBVChain(int minBIOSDev, int maxBIOSDev, unsigned int allowFlags
 			}
 
 			/*
-			 * Looking for "Hide Partition" entries in 'hd(x,y)|uuid|"label" hd(m,n)|uuid|"label"' format,
-			 * to be able to hide foreign partitions from the boot menu.
-			 *
-			 */
-			if ( (newBVR->flags & kBVFlagForeignBoot) ) {
-				char *start, *next = val;
-				long len = 0;  
-				do
-				{
-					start = strbreak(next, &next, &len);
-					if(len && matchVolumeToString(newBVR, start, len) )
-					{
-						newBVR->visible = false;
-					}
-				}
-				while ( next && *next );
-			}
-
-			/*
 			 * Use the first bvr entry as the starting chain pointer.
 			 */
 			if (!chain) {
@@ -1883,7 +1853,6 @@ BVRef newFilteredBVChain(int minBIOSDev, int maxBIOSDev, unsigned int allowFlags
 
 	*count = bvCount;
 
-	free(val);  
 	return chain;
 }
 
@@ -1984,66 +1953,6 @@ bool matchVolumeToString( BVRef bvr, const char* match, long matchLen)
 
 //==============================================================================
 
-/* If Rename Partition has defined an alias, then extract it for description purpose.
- * The format for the rename string is the following:
- * hd(x,y)|uuid|"label" "alias";hd(m,n)|uuid|"label" "alias"; etc...
- */
-
-bool getVolumeLabelAlias(BVRef bvr, char* str, long strMaxLen)
-{
-	char *aliasList, *entryStart, *entryNext;
-    
-	if ( !str || strMaxLen <= 0)
-	{
-		return false;
-	}
-
-	aliasList = XMLDecode(getStringForKey(kRenamePartition, &bootInfo->chameleonConfig));
-	if ( !aliasList )
-	{
-		return false;
-	}
-
-	for ( entryStart = entryNext = aliasList; entryNext && *entryNext; entryStart = entryNext )
-	{
-		char *volStart, *volEnd, *aliasStart;
-		long volLen, aliasLen;
-        
-		// Delimit current entry
-		entryNext = strchr(entryStart, ';');
-		if ( entryNext )
-		{
-			*entryNext = '\0';
-			entryNext++;
-		}
-        
-		volStart = strbreak(entryStart, &volEnd, &volLen);
-		if(!volLen)
-		{
-			continue;
-		}
-
-		aliasStart = strbreak(volEnd, 0, &aliasLen);
-		if(!aliasLen)
-		{
-			continue;
-		}
-
-		if ( matchVolumeToString(bvr, volStart, volLen) )
-		{
-			strncat(str, aliasStart, MIN(strMaxLen, aliasLen));
-			free(aliasList);
-
-			return true;
-		}
-	}
-    
-	free(aliasList);
-	return false;
-}
-
-//==============================================================================
-
 void getBootVolumeDescription( BVRef bvr, char * str, long strMaxLen, bool useDeviceDescription )
 {
 	unsigned char type;
@@ -2068,13 +1977,6 @@ void getBootVolumeDescription( BVRef bvr, char * str, long strMaxLen, bool useDe
 		len += bvr->OSisInstaller ? 13 : 1;
 		strMaxLen -= len;
 		p += len;
-	}
-
-	/* See if a partition rename is preferred */
-	if (getVolumeLabelAlias(bvr, p, strMaxLen))
-	{
-		strncpy(bvr->label, p, strMaxLen); 
-		return; // we're done here no need to seek for real name
 	}
 
 	// Get the volume label using filesystem specific functions or use the alternate volume label if available.
