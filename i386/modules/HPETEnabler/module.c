@@ -14,7 +14,7 @@
 
 static void found_pci_device(void* device, void* arg1, void* arg2, void* arg3);
 
-void MemoryInfo_init()
+void HPETEnabler_init()
 {
     register_hook_callback("PCIDevice", &found_pci_device);
 }

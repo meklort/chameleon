@@ -19,7 +19,7 @@ static void fix_usb(void* device, void* arg1, void* arg2, void* arg3);
 extern int usb_loop();
 extern void notify_usb_dev(pci_dt_t *pci_dev);
 
-void MemoryInfo_init()
+void USBFix_init()
 {
     register_hook_callback("PCIDevice", &found_pci_device);
     register_hook_callback("Kernel Start", &fix_usb);
