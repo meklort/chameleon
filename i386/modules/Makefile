@@ -61,9 +61,13 @@ ifdef CONFIG_MEMORYINFO_MODULE
 SUBDIRS += MemoryInfo
 endif
 
-ifdef CONFIG_GUI_MODULE
-SUBDIRS += GUI
+ifdef CONFIG_HPETENABLER_MODULE
+SUBDIRS += HPETEnabler
 endif
+
+#ifdef CONFIG_GUI_MODULE
+#SUBDIRS += GUI
+#endif
 
 
 

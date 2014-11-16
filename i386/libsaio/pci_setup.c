@@ -14,14 +14,13 @@ extern void force_enable_hpet(pci_dt_t *lpc_dev);
 void setup_pci_devs(pci_dt_t *pci_dt)
 {
 	char *devicepath;
-	bool do_eth_devprop, do_enable_hpet, do_hda_devprop;
+	bool do_eth_devprop, do_hda_devprop;
 	pci_dt_t *current = pci_dt;
 
-	do_eth_devprop = do_enable_hpet = do_hda_devprop = false;
+	do_eth_devprop = do_hda_devprop = false;
 
 	getBoolForKey(kEthernetBuiltIn, &do_eth_devprop, &bootInfo->chameleonConfig);
 	getBoolForKey(kHDAEnabler, &do_hda_devprop, &bootInfo->chameleonConfig);
-	getBoolForKey(kForceHPET, &do_enable_hpet, &bootInfo->chameleonConfig);
 
 	while (current)
 	{
@@ -45,13 +44,6 @@ void setup_pci_devs(pci_dt_t *pci_dt)
 
 			case PCI_CLASS_SERIAL_USB:
 				notify_usb_dev(current);
-				break;
-
-			case PCI_CLASS_BRIDGE_ISA:
-				if (do_enable_hpet)
-				{
-					force_enable_hpet(current);
-				}
 				break;
 		}
 		
