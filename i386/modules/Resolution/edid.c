@@ -12,7 +12,6 @@
 //#include "libsaio.h"
 #include "edid.h"
 #include "vbe.h"
-#include "graphics.h"
 #include "boot.h"
 //----------------------------------------------------------------------------------
 
