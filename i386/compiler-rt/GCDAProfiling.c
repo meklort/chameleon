@@ -28,6 +28,10 @@ typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long int uint64_t;
 
+typedef void (*writeout_fn)();
+typedef void (*flush_fn)();
+
+
 static void write_bytes(const char* data, uint32_t len);
 
 #define COMMAND_OPEN_FILE       'o'
@@ -129,12 +133,20 @@ void llvm_gcda_end_file() {
     write_bytes((void*)&command, sizeof(command));
 }
 
-
-
-
 /***** Serial Port Routines *****/
-// FIXME: Serial port init must also be done.
 #define PORT 0x3f8   /* COM1 */
+
+void llvm_gcov_init(writeout_fn wfn, flush_fn ffn)
+{
+    // Init serial port.
+    outb(PORT + 1, 0x00);    // Disable all interrupts
+    outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
+    outb(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
+    outb(PORT + 1, 0x00);    //                  (hi byte)
+    outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
+    outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
+    outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+}
 
 static int is_transmit_empty() {
    return inb(PORT + 5) & 0x20;
