@@ -26,7 +26,6 @@
 #include "bootstruct.h"
 #include "fdisk.h"
 #include "ramdisk.h"
-#include "gui.h"
 #include "term.h"
 #include "embedded.h"
 #include "pci.h"
@@ -108,24 +107,8 @@ static int countdown( const char * msg, int row, int timeout )
 	
     flushKeyboardBuffer();
 
-	if( bootArgs->Video.v_display == VGA_TEXT_MODE )
-	{
-		moveCursor( 0, row );
-		printf(msg);
-
-	} else {
-
-		position_t p = pos( gui.screen.width / 2 + 1 , ( gui.devicelist.pos.y + 3 ) + ( ( gui.devicelist.height - gui.devicelist.iconspacing ) / 2 ) );
-	
-		char dummy[80];
-		getBootVolumeDescription( gBootVolume, dummy, sizeof(dummy) - 1, true );
-		drawDeviceIcon( gBootVolume, gui.screen.pixmap, p, true );
-		drawStrCenteredAt( (char *) msg, &font_small, gui.screen.pixmap, gui.countdown.pos );
-		
-		// make this screen the new background
-		memcpy( gui.backbuffer->pixels, gui.screen.pixmap->pixels, gui.backbuffer->width * gui.backbuffer->height * 4 );
-		
-	}
+    moveCursor( 0, row );
+    printf(msg);
 
 	int multi_buff = 18 * (timeout);
     int multi = ++multi_buff;
@@ -156,20 +139,9 @@ static int countdown( const char * msg, int row, int timeout )
             time += 18;
             timeout--;
 
-			if( bootArgs->Video.v_display == VGA_TEXT_MODE )
-			{
-				moveCursor( col, row );
-				printf("(%d) ", timeout);
-			}
+            moveCursor( col, row );
+            printf("(%d) ", timeout);
         }
-	
-		if( bootArgs->Video.v_display != VGA_TEXT_MODE )
-		{
-			drawProgressBar( gui.screen.pixmap, 100, gui.progressbar.pos , ( multi * 100 / multi_buff ) );
-			gui.redraw = true;
-			updateVRAM();
-		}
-
     }
 
     flushKeyboardBuffer();
@@ -190,9 +162,6 @@ static void clearBootArgs(void)
 	gBootArgsPtr = gBootArgs;
 	memset(gBootArgs, '\0', BOOT_STRING_LEN);
 
-	if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-		clearGraphicBootPrompt();
-	}
 	execute_hook("ClearArgs", NULL, NULL, NULL, NULL);
 }
 
@@ -213,28 +182,20 @@ static void showBootPrompt(int row, bool visible)
 	extern char bootPrompt[];
 	extern char bootRescanPrompt[];
 
-	if( bootArgs->Video.v_display == VGA_TEXT_MODE ) {
-		changeCursor( 0, row, kCursorTypeUnderline, 0 );    
-		clearScreenRows( row, kScreenLastRow );
-	}
-
+    changeCursor( 0, row, kCursorTypeUnderline, 0 );
+    clearScreenRows( row, kScreenLastRow );
+	
 	clearBootArgs();
 
 	if (visible) {
-		if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-			if (gEnableCDROMRescan) {
-				printf( bootRescanPrompt );
-			} else {
-				printf( bootPrompt );
-				printf( gBootArgs );
-			}
-		}
+        if (gEnableCDROMRescan) {
+            printf( bootRescanPrompt );
+        } else {
+            printf( bootPrompt );
+            printf( gBootArgs );
+        }
 	} else {
-		if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-			clearGraphicBootPrompt();
-		} else {
-			printf("Press Enter to start up the foreign OS. ");
-		}
+        printf("Press Enter to start up the foreign OS. ");
 	}
 }
 
@@ -260,16 +221,8 @@ static void updateBootArgs( int key )
                 if (x) {
 			x--;
 		}
-
-				if( bootArgs->Video.v_display == VGA_TEXT_MODE )
-				{
-					setCursorPosition( x, y, 0 );
-					putca(' ', 0x07, 1);
-				}
-                else
-                {
-                    updateGraphicBootPrompt();
-                }
+                setCursorPosition( x, y, 0 );
+                putca(' ', 0x07, 1);
             }
 			break;
 
@@ -278,8 +231,7 @@ static void updateBootArgs( int key )
             {
                 *gBootArgsPtr++ = key;
 
-                if( bootArgs->Video.v_display != VGA_TEXT_MODE ) updateGraphicBootPrompt();
-                else if ( key >= ' ' && key < 0x7f) putchar(key);
+                if ( key >= ' ' && key < 0x7f) putchar(key);
 			}
             
 			break;
@@ -336,7 +288,7 @@ static void showMenu( const MenuItem * items, int count,
     gMenuSelection	= selection;
 
     gMenuStart		= 0;
-    gMenuEnd	    = MIN( count, gui.maxdevices ) - 1;
+    gMenuEnd	    = count - 1;
 	
 	// If the selected item is not visible, shift the list down.
 
@@ -352,23 +304,13 @@ static void showMenu( const MenuItem * items, int count,
         gMenuEnd = gMenuSelection;
     }
 	
-	// Draw the visible items.
+    changeCursor( 0, row, kCursorTypeHidden, &cursorState );
 
-	if( bootArgs->Video.v_display != VGA_TEXT_MODE )
-	
-		drawDeviceList(gMenuStart, gMenuEnd, gMenuSelection);
-
-	else {
-		
-		changeCursor( 0, row, kCursorTypeHidden, &cursorState );
-
-		for ( i = gMenuTop; i <= gMenuBottom; i++ )
-		{
-			printMenuItem( &items[i], (i == gMenuSelection) );
-		}
-
-		restoreCursor( &cursorState );
+    for ( i = gMenuTop; i <= gMenuBottom; i++ )
+    {
+        printMenuItem( &items[i], (i == gMenuSelection) );
     }
+    restoreCursor( &cursorState );
 }
 
 //==========================================================================
@@ -391,109 +333,22 @@ static int updateMenu( int key, void ** paramPtr )
     if ( gMenuItems == NULL )
 		return 0;
 
-	if( bootArgs->Video.v_display != VGA_TEXT_MODE )
-	{
-		int res;
-		
-		// set navigation keys for horizontal layout as defaults
-		int previous	= 0x4B00;		// left arrow
-		int subsequent	= 0x4D00;		// right arrow
-		int menu		= 0x5000;		// down arrow
-		
-		if ( gui.layout == VerticalLayout )
-		{
-			// set navigation keys for vertical layout
-			previous	= 0x4800;		// up arrow
-			subsequent	= 0x5000;		// down arrow
-			menu		= 0x4B00;		// right arrow
-		} 
-
-		if ( key == previous )
-		{
-			if ( gMenuSelection > gMenuTop )
-				draw.f.selectionUp = 1;
-			else if ( gMenuTop > 0 )
-				draw.f.scrollDown = 1;
-			
-		}
-		
-		else if ( key ==  subsequent )
-		{
-			if ( gMenuSelection != gMenuBottom)
-				draw.f.selectionDown = 1;
-			else if ( gMenuBottom < ( gMenuItemCount - 1 ) )
-				draw.f.scrollUp = 1;
-		}
-		
-		else if ( key == menu )
-		{
-			if ( gui.menu.draw )
-				updateInfoMenu(key);
-			else
-				drawInfoMenu();
-		}
-
-		else if ( gui.menu.draw )
-		{
-			res = updateInfoMenu(key);
-
-			if ( res == CLOSE_INFO_MENU )
-				gui.menu.draw = false;
-			else
-			{
-				shouldboot = ( res != DO_NOT_BOOT );
-				
-				if ( shouldboot )
-					gui.menu.draw = false;
-
-				switch (res)
-				{
-					case BOOT_NORMAL:
-						gVerboseMode = false;
-						gBootMode = kBootModeNormal;
-						break;
-						
-					case BOOT_VERBOSE:
-						gVerboseMode = true;
-						gBootMode = kBootModeNormal;
-						addBootArg(kVerboseModeFlag);
-						break;
-						
-					case BOOT_IGNORECACHE:
-						gVerboseMode = false;
-						gBootMode = kBootModeNormal;
-						addBootArg(kIgnoreCachesFlag);
-						break;
-						
-					case BOOT_SINGLEUSER:
-						gVerboseMode = true;
-						gBootMode = kBootModeNormal;
-						addBootArg(kSingleUserModeFlag);
-						break;
-				}
-				
-			}
-			
-		}	
-			
-	} else {
-		switch ( key )
-		{
-        	case 0x4800:  // Up Arrow
-				if ( gMenuSelection != gMenuTop )
-					draw.f.selectionUp = 1;
-				else if ( gMenuTop > 0 )
-					draw.f.scrollDown = 1;
-				break;
-
-			case 0x5000:  // Down Arrow
-				if ( gMenuSelection != gMenuBottom )
-					draw.f.selectionDown = 1;
-				else if ( gMenuBottom < (gMenuItemCount - 1) ) 
-					draw.f.scrollUp = 1;
-				break;
-		}
-	}
+    switch ( key )
+    {
+        case 0x4800:  // Up Arrow
+            if ( gMenuSelection != gMenuTop )
+                draw.f.selectionUp = 1;
+            else if ( gMenuTop > 0 )
+                draw.f.scrollDown = 1;
+            break;
+            
+        case 0x5000:  // Down Arrow
+            if ( gMenuSelection != gMenuBottom )
+                draw.f.selectionDown = 1;
+            else if ( gMenuBottom < (gMenuItemCount - 1) )
+                draw.f.scrollUp = 1;
+            break;
+    }
 
     if ( draw.w )
     {
@@ -519,12 +374,8 @@ static int updateMenu( int key, void ** paramPtr )
 			CursorState cursorState;
 
 			// Set cursor at current position, and clear inverse video.
-	
-			if( bootArgs->Video.v_display == VGA_TEXT_MODE )
-			{
-				changeCursor( 0, gMenuRow + gMenuSelection - gMenuTop, kCursorTypeHidden, &cursorState );
-				printMenuItem( &gMenuItems[gMenuSelection], 0 );
-			}
+            changeCursor( 0, gMenuRow + gMenuSelection - gMenuTop, kCursorTypeHidden, &cursorState );
+            printMenuItem( &gMenuItems[gMenuSelection], 0 );
 
 			if ( draw.f.selectionUp )
 			{
@@ -537,23 +388,16 @@ static int updateMenu( int key, void ** paramPtr )
 				
 			} else {
 			gMenuSelection++;
-			if(( gMenuSelection - ( gui.maxdevices - 1) - gMenuStart) > 0 )
+			if(( gMenuSelection - gMenuStart) > 0 )
 			{
 				gMenuStart++;
 				gMenuEnd++;
 			}
 	    }
 
-		if( bootArgs->Video.v_display == VGA_TEXT_MODE )
-	    {
-			moveCursor( 0, gMenuRow + gMenuSelection - gMenuTop );
-			printMenuItem( &gMenuItems[gMenuSelection], 1 );
-			restoreCursor( &cursorState );
-
-	    } else
-
-			drawDeviceList (gMenuStart, gMenuEnd, gMenuSelection);
-
+        moveCursor( 0, gMenuRow + gMenuSelection - gMenuTop );
+        printMenuItem( &gMenuItems[gMenuSelection], 1 );
+        restoreCursor( &cursorState );
 	}
 
         *paramPtr = gMenuItems[gMenuSelection].param;        
@@ -675,19 +519,15 @@ char *getMemoryInfoString()
 
 void lspci(void)
 {
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) { 
-		setActiveDisplayPage(1);
-		clearScreenRows(0, 24);
-		setCursorPosition(0, 0, 1);
-	}
-
+    setActiveDisplayPage(1);
+    clearScreenRows(0, 24);
+    setCursorPosition(0, 0, 1);
+	
 	dump_pci_dt(root_pci_dev->children);
 
 	pause();
 
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-		setActiveDisplayPage(0);
-	}
+    setActiveDisplayPage(0);
 }
 
 //==========================================================================
@@ -710,12 +550,6 @@ int getBootOptions(bool firstRun)
 		isCDROM = true;
 	} else {
 		isCDROM = false;
-	}
-
-	// ensure we're in graphics mode if gui is setup
-	if (firstRun && gui.initialised && bootArgs->Video.v_display == VGA_TEXT_MODE)
-	{
-		setVideoMode(GRAPHICS_MODE, 0);
 	}
 
 	// Clear command line boot arguments
@@ -772,17 +606,15 @@ int getBootOptions(bool firstRun)
 		addBootArg(kSingleUserModeFlag);
 	}
 
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-		setCursorPosition(0, 0, 0);
-		clearScreenRows(0, kScreenLastRow);
-		if (!(gBootMode & kBootModeQuiet)) {
-			// Display banner and show hardware info.
-			printf(bootBanner, (bootInfo->convmem + bootInfo->extmem) / 1024);
-			printf(getVBEInfoString());
-		}
-		changeCursor(0, kMenuTopRow, kCursorTypeUnderline, 0);
-		verbose("Scanning device %x...", gBIOSDev);
-	}
+    setCursorPosition(0, 0, 0);
+    clearScreenRows(0, kScreenLastRow);
+    if (!(gBootMode & kBootModeQuiet)) {
+        // Display banner and show hardware info.
+        printf(bootBanner, (bootInfo->convmem + bootInfo->extmem) / 1024);
+//        printf(getVBEInfoString());
+    }
+    changeCursor(0, kMenuTopRow, kCursorTypeUnderline, 0);
+    verbose("Scanning device %x...", gBIOSDev);
 
 	// When booting from CD, default to hard drive boot when possible. 
 	if (isCDROM && firstRun) {
@@ -890,37 +722,15 @@ int getBootOptions(bool firstRun)
 		}
 	}
 
-	if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-		// redraw the background buffer
-		gui.logo.draw = true;
-		drawBackground();
-		gui.devicelist.draw = true;
-		gui.redraw = true;
-		if (!(gBootMode & kBootModeQuiet)) {
- 
-			// Check if "Boot Banner"=N switch is present in config file.
-			getBoolForKey(kBootBannerKey, &showBootBanner, &bootInfo->chameleonConfig); 
-			if (showBootBanner) {
-				// Display banner and show hardware info.
-				gprintf(&gui.screen, bootBanner + 1, (bootInfo->convmem + bootInfo->extmem) / 1024);
-			}
-
-			// redraw background
-			memcpy(gui.backbuffer->pixels, gui.screen.pixmap->pixels, gui.backbuffer->width * gui.backbuffer->height * 4);
-		}
-	} else {
-		// Clear screen and hide the blinking cursor.
-		clearScreenRows(kMenuTopRow, kMenuTopRow + 2);
-		changeCursor(0, kMenuTopRow, kCursorTypeHidden, 0);
-	}
-
+    // Clear screen and hide the blinking cursor.
+    clearScreenRows(kMenuTopRow, kMenuTopRow + 2);
+    changeCursor(0, kMenuTopRow, kCursorTypeHidden, 0);
+	
 	nextRow = kMenuTopRow;
 	showPrompt = true;
 
 	if (gDeviceCount) {
-		if( bootArgs->Video.v_display == VGA_TEXT_MODE ) {
-			printf("Use \30\31 keys to select the startup volume.");
-		}
+        printf("Use \30\31 keys to select the startup volume.");
 		showMenu( menuItems, gDeviceCount, selectIndex, kMenuTopRow + 2, kMenuMaxItems );
 		nextRow += MIN( gDeviceCount, kMenuMaxItems ) + 3;
 	}
@@ -930,12 +740,6 @@ int getBootOptions(bool firstRun)
 	showBootPrompt( nextRow, showPrompt );
 	
 	do {
-		if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-			// redraw background
-			memcpy( gui.backbuffer->pixels, gui.screen.pixmap->pixels, gui.backbuffer->width * gui.backbuffer->height * 4 );
-			// reset cursor co-ords
-			gui.debug.cursor = pos( gui.screen.width - 160 , 10 );
-		}
 		key = getchar();
 		updateMenu( key, (void **) &menuBVR );
 		newShowPrompt = (gDeviceCount == 0) || (menuBVR->flags & kBVFlagNativeBoot);
@@ -951,10 +755,6 @@ int getBootOptions(bool firstRun)
 
 		switch (key) {
 		case KEY_ENTER:
-			if (gui.menu.draw) { 
-				key=0;
-				break;
-			}
 			if (*gBootArgs == '?') {
 				char * argPtr = gBootArgs;
 
@@ -966,18 +766,11 @@ int getBootOptions(bool firstRun)
 				/*
 				* TODO: this needs to be refactored.
 				*/
-				if (strcmp( booterCommand, "video" ) == 0) {
-					if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-						showInfoBox(getVBEInfoString(), getVBEModeInfoString());
-					} else {
-						printVBEModeInfo();
-					}
-				} else if ( strcmp( booterCommand, "memory" ) == 0) {
-					if (bootArgs->Video.v_display != VGA_TEXT_MODE ) {
-						showInfoBox("Memory Map", getMemoryInfoString());
-					} else {
-						printMemoryInfo();
-					}
+//				if (strcmp( booterCommand, "video" ) == 0) {
+//                    printVBEModeInfo();
+//				} else
+                if ( strcmp( booterCommand, "memory" ) == 0) {
+                    printMemoryInfo();
 				} else if (strcmp(booterCommand, "lspci") == 0) {
 					lspci();
 				} else if (strcmp(booterCommand, "log") == 0) {
@@ -1026,42 +819,6 @@ int getBootOptions(bool firstRun)
 			break;
 
 		case KEY_TAB:
-			// New behavior:
-			// Switch between text & graphic interfaces
-			// Only Permitted if started in graphics interface
-			if (useGUI) {
-				if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-					setVideoMode(VGA_TEXT_MODE, 0);
-
-					setCursorPosition(0, 0, 0);
-					clearScreenRows(0, kScreenLastRow);
-
-					// Display banner and show hardware info.
-					printf(bootBanner, (bootInfo->convmem + bootInfo->extmem) / 1024);
-					printf(getVBEInfoString());
-
-					clearScreenRows(kMenuTopRow, kMenuTopRow + 2);
-					changeCursor(0, kMenuTopRow, kCursorTypeHidden, 0);
-
-					nextRow = kMenuTopRow;
-					showPrompt = true;
-
-					if (gDeviceCount) {
-						printf("Use \30\31 keys to select the startup volume.");
-						showMenu(menuItems, gDeviceCount, selectIndex, kMenuTopRow + 2, kMenuMaxItems);
-						nextRow += MIN(gDeviceCount, kMenuMaxItems) + 3;
-					}
-
-					showPrompt = (gDeviceCount == 0) || (menuBVR->flags & kBVFlagNativeBoot);
-					showBootPrompt(nextRow, showPrompt);
-					//changeCursor( 0, kMenuTopRow, kCursorTypeUnderline, 0 );
-				} else {
-					gui.redraw = true;
-					setVideoMode(GRAPHICS_MODE, 0);
-					updateVRAM();
-                    			updateGraphicBootPrompt();
-				}
-			}
 			key = 0;
 			break;
 
@@ -1072,12 +829,10 @@ int getBootOptions(bool firstRun)
 	} while (0 == key);
 
 done:
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-		clearScreenRows(kMenuTopRow, kScreenLastRow);
-		changeCursor(0, kMenuTopRow, kCursorTypeUnderline, 0);
-	}
-	shouldboot = false;
-	gui.menu.draw = false;
+    clearScreenRows(kMenuTopRow, kScreenLastRow);
+    changeCursor(0, kMenuTopRow, kCursorTypeUnderline, 0);
+
+    shouldboot = false;
 	if (menuItems) {
 		free(menuItems);
 		menuItems = NULL;
@@ -1370,11 +1125,6 @@ void showTextBuffer(char *buf_orig, int size)
 	int	line_offset;
 	int	c;
 
-	if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-		showInfoBox( "Press q to continue, space for next page.\n",buf_orig );
-		return;
-	}
-
 	// Create a copy so that we don't mangle the original
 	buf = malloc(size + 1);
 	memcpy(buf, buf_orig, size);
@@ -1438,11 +1188,7 @@ void showTextBuffer(char *buf_orig, int size)
 
 void showHelp(void)
 {
-	if (bootArgs->Video.v_display != VGA_TEXT_MODE) {
-		showInfoBox("Help. Press q to quit.\n", (char *)BootHelp_txt);
-	} else {
-		showTextBuffer((char *)BootHelp_txt, BootHelp_txt_len);
-	}
+    showTextBuffer((char *)BootHelp_txt, BootHelp_txt_len);
 }
 
 void showTextFile(const char * filename)
@@ -1541,4 +1287,26 @@ bool promptForRescanOption(void)
 	} else {
 		return false;
 	}
+}
+
+static int currentIndicator = 0;
+static char indicator[] = {'-', '\\', '|', '/', '-', '\\', '|', '/', '\0'};
+
+
+void
+clearActivityIndicator( void )
+{
+    putchar(' ');
+    putchar('\b');
+}
+
+void
+spinActivityIndicator(int sectors)
+{
+    if (currentIndicator >= sizeof(indicator))
+    {
+        currentIndicator = 0;
+    }
+    putchar(indicator[currentIndicator++]);
+    putchar('\b');
 }

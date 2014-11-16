@@ -155,18 +155,18 @@ void HibernateBoot(char *image_filename)
 		uint8_t progressSaveUnder[kIOHibernateProgressCount][kIOHibernateProgressSaveUnderSize];
 
 		ReadFileAtOffset (image_filename, (char *)buffer, sizeof(IOHibernateImageHeader), preview_offset+header->previewSize);
-		drawPreview ((void *)(long)(buffer+preview_offset + header->previewPageListSize), &(progressSaveUnder[0][0]));
-		previewTotalSectors = (imageSize-(preview_offset+header->previewSize))/512;
-		previewLoadedSectors = 0;
-		previewSaveunder = &(progressSaveUnder[0][0]);
+//		drawPreview ((void *)(long)(buffer+preview_offset + header->previewPageListSize), &(progressSaveUnder[0][0]));
+//		previewTotalSectors = (imageSize-(preview_offset+header->previewSize))/512;
+//		previewLoadedSectors = 0;
+//		previewSaveunder = &(progressSaveUnder[0][0]);
 		if (preview_offset+header->previewSize<imageSize) {
 			ReadFileAtOffset (image_filename, (char *)(long)(buffer+preview_offset+header->previewSize),
 							  sizeof(IOHibernateImageHeader)+preview_offset+header->previewSize,
 							  imageSize-(preview_offset+header->previewSize));
 		}
-		previewTotalSectors = 0;
-		previewLoadedSectors = 0;
-		previewSaveunder = 0;
+//		previewTotalSectors = 0;
+//		previewLoadedSectors = 0;
+//		previewSaveunder = 0;
 #if 0
 	//	AsereBLN:
 	//	check_vga_nvidia() didn't work as expected (recursion level > 0 & return value).

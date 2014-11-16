@@ -56,7 +56,6 @@
 #include "sl.h"
 #include "libsa.h"
 #include "ramdisk.h"
-#include "gui.h"
 #include "platform.h"
 #include "modules.h"
 
@@ -66,7 +65,7 @@
  */
 #define kBootErrorTimeout 5
 
-bool		gOverrideKernel, gEnableCDROMRescan, gScanSingleDrive, useGUI;
+bool		gOverrideKernel, gEnableCDROMRescan, gScanSingleDrive;
 static bool	gUnloadPXEOnExit = false;
 
 static char	gCacheNameAdler[64 + 256];
@@ -152,8 +151,8 @@ static int ExecKernel(void *binary)
 
 	execute_hook("DriversLoaded", (void*)binary, NULL, NULL, NULL);
 
-	clearActivityIndicator();
-
+    clearActivityIndicator();
+    
 	if (gErrors) {
 		printf("Errors encountered while starting up the computer.\n");
 		printf("Pausing %d seconds...\n", kBootErrorTimeout);
@@ -181,14 +180,6 @@ static int ExecKernel(void *binary)
 
 	usb_loop();
 
-	// If we were in text mode, switch to graphics mode.
-	// This will draw the boot graphics unless we are in
-	// verbose mode.
-	if (gVerboseMode) {
-		setVideoMode( GRAPHICS_MODE, 0 );
-	} else {
-		drawBootGraphics();
-	}
 	setupBooterLog();
 
 	finalizeBootStruct();
@@ -383,8 +374,6 @@ void common_boot(int biosdev)
 	initBooterLog();
 
 	// Setup VGA text mode.
-	// Not sure if it is safe to call setVideoMode() before the
-	// config table has been loaded. Call video_mode() instead.
 #if DEBUG
 	printf("before video_mode\n");
 #endif
@@ -462,14 +451,7 @@ void common_boot(int biosdev)
 	getchar();
 #endif
 
-	useGUI = true;
-	// Override useGUI default
-	getBoolForKey(kGUIKey, &useGUI, &bootInfo->chameleonConfig);
-	if (useGUI && initGUI())
-	{
-		// initGUI() returned with an error, disabling GUI.
-		useGUI = false;
-	}
+    execute_hook("InitDone", NULL, NULL, NULL, NULL);
 
 	setBootGlobals(bvChain);
 
@@ -511,24 +493,13 @@ void common_boot(int biosdev)
 				
 				bvChain = newFilteredBVChain(0x80, 0xFF, allowBVFlags, denyBVFlags, &gDeviceCount);
 				setBootGlobals(bvChain);
-				setupDeviceList(&bootInfo->themeConfig);
 			}
 			continue;
 		}
 
 		// Other status (e.g. 0) means that we should proceed with boot.
 
-		// Turn off any GUI elements
-		if ( bootArgs->Video.v_display == GRAPHICS_MODE )
-		{
-			gui.devicelist.draw = false;
-			gui.bootprompt.draw = false;
-			gui.menu.draw = false;
-			gui.infobox.draw = false;
-			gui.logo.draw = false;
-			drawBackground();
-			updateVRAM();
-		}
+        execute_hook("ClearScreen", NULL, NULL, NULL, NULL);
 
 		// Find out which version mac os we're booting.
 		getOSVersion();
@@ -686,8 +657,8 @@ void common_boot(int biosdev)
 			}
 		} while (0);
 
-		clearActivityIndicator();
-
+        clearActivityIndicator();
+        
 #if DEBUG
 		printf("Pausing...");
 		sleep(8);
@@ -707,14 +678,6 @@ void common_boot(int biosdev)
 		} else {
 			/* Won't return if successful. */
 			ret = ExecKernel(binary);
-		}
-	}
-	
-	// chainboot
-	if (status == 1) {
-		// if we are already in graphics-mode,
-		if (getVideoMode() == GRAPHICS_MODE) {
-			setVideoMode(VGA_TEXT_MODE, 0); // switch back to text mode.
 		}
 	}
 	

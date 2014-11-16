@@ -14,4 +14,5 @@ source "i386/modules/KernelPatcher/Cconfig"
 #source "i386/modules/HDAEnabler/Cconfig"
 source "i386/modules/GraphicsEnabler/Cconfig"
 source "i386/modules/MemoryInfo/Cconfig"
+source "i386/modules/GUI/Cconfig"
 endmenu

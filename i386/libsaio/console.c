@@ -48,8 +48,6 @@
 #include "bootstruct.h"
 #include <vers.h>
 
-extern int	vprf(const char * fmt, va_list ap);
-
 bool gVerboseMode = false;
 bool gErrors = false;
 
@@ -175,11 +173,7 @@ int printf(const char * fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-		prf(fmt, ap, putchar, 0);
-	} else {
-		vprf(fmt, ap);
-	}
+    prf(fmt, ap, putchar, 0);
 
 	{
 		// Kabyl: BooterLog
@@ -208,11 +202,7 @@ int verbose(const char * fmt, ...)
 
 	va_start(ap, fmt);
 	if (gVerboseMode) {
-		if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-			prf(fmt, ap, putchar, 0);
-		} else {
-			vprf(fmt, ap);
-		}
+        prf(fmt, ap, putchar, 0);
 	}
 
 	{
@@ -241,11 +231,7 @@ int error(const char * fmt, ...)
 	va_list ap;
 	gErrors = true;
 	va_start(ap, fmt);
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-		prf(fmt, ap, putchar, 0);
-	} else {
-		vprf(fmt, ap);
-	}
+    prf(fmt, ap, putchar, 0);
 	va_end(ap);
 	return(0);
 }
@@ -256,11 +242,7 @@ void stop(const char * fmt, ...)
 
 	printf("\n");
 	va_start(ap, fmt);
-	if (bootArgs->Video.v_display == VGA_TEXT_MODE) {
-		prf(fmt, ap, putchar, 0);
-	} else {
-		vprf(fmt, ap);
-	}
+    prf(fmt, ap, putchar, 0);
 	va_end(ap);
 	printf("\nThis is a non recoverable error! System HALTED!!!");
 	halt();

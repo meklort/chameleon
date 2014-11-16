@@ -61,6 +61,11 @@ ifdef CONFIG_MEMORYINFO_MODULE
 SUBDIRS += MemoryInfo
 endif
 
+ifdef CONFIG_GUI_MODULE
+SUBDIRS += GUI
+endif
+
+
 
 CFLAGS= -O3 $(MORECPP) -arch i386 -g -static
 DEFINES=
