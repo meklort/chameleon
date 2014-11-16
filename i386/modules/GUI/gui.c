@@ -11,7 +11,6 @@
 #include "gui.h"
 #include "term.h"
 #include "appleboot.h"
-#include "vers.h"
 
 #define IMG_REQUIRED -1
 #define THEME_NAME_DEFAULT	"Default"

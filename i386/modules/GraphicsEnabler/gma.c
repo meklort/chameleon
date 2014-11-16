@@ -41,7 +41,7 @@
 #include "device_inject.h"
 #include "gma.h"
 #include "vbe.h"
-#include "graphics.h"
+#include "boot.h"
 
 #ifndef DEBUG_GMA
 #define DEBUG_GMA 0
@@ -344,6 +344,29 @@ static intel_gfx_info_t intel_gfx_chipsets[] = {
 #define GFX_DEVICES_LEN (sizeof(intel_gfx_chipsets) / sizeof(intel_gfx_chipsets[0]))
 
 /* END http://cgit.freedesktop.org/xorg/driver/xf86-video-intel/tree/src/intel_module.c */
+
+
+//==========================================================================
+// getVBEVideoRam
+
+uint32_t getVBEVideoRam()
+{
+    VBEInfoBlock vbeInfo;
+    int err, small;
+    
+    bzero( &vbeInfo, sizeof(vbeInfo) );
+    strcpy( (char*)&vbeInfo, "VBE2" );
+    err = getVBEInfo( &vbeInfo );
+    if (err != errSuccess)
+        return 0;
+    
+    if ( strncmp( (char *)vbeInfo.VESASignature, "VESA", 4 ) )
+        return 0;
+    
+    small = (vbeInfo.TotalMemory < 16);
+    
+    return vbeInfo.TotalMemory * 64 * 1024;
+}
 
 /* Get Intel GFX device name */
 static char *get_gma_controller_name(uint16_t device_id, uint16_t vendor_id)
