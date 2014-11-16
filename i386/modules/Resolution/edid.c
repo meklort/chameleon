@@ -266,8 +266,8 @@ void getResolution(UInt32* x, UInt32* y, UInt32* bp)
 		
 		if(fb_parse_edid((struct EDID *)edidInfo, &mode) == 0)
 		{
-			xResolution = DEFAULT_SCREEN_WIDTH;
-			yResolution = DEFAULT_SCREEN_HEIGHT;
+			xResolution = 800;
+			yResolution = 600;
 		}
 		else {
 			xResolution = mode.h_active;
