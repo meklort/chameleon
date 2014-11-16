@@ -546,11 +546,7 @@ int getBootOptions(bool firstRun)
 	// Initialize default menu selection entry.
 	gBootVolume = menuBVR = selectBootVolume(bvChain);
 
-	if (biosDevIsCDROM(gBIOSDev)) {
-		isCDROM = true;
-	} else {
-		isCDROM = false;
-	}
+    isCDROM = (biosDevIsCDROM(gBIOSDev) == true);
 
 	// Clear command line boot arguments
 	clearBootArgs();
