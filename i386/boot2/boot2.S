@@ -147,7 +147,7 @@ start_chain_boot:
 # we simply specify exactly 1 MB higher than we want.
 # This means of course that when we enter we are not where the assembler
 # and linker expect us to be.  Please remember this when modifying code.
-#define OFFSET_1MEG 0x100000
+#define OFFSET_2MEG 0x200000
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # NOTE: While we would ideally place the header in say __TEXT,__const we
@@ -163,15 +163,15 @@ _multiboot_header:
     # checksum
     .long   -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
     # header_addr
-    .long   (_multiboot_header + OFFSET_1MEG)
+    .long   (_multiboot_header + OFFSET_2MEG)
     # load_addr
-    .long   (boot2 + OFFSET_1MEG)
+    .long   (boot2 + OFFSET_2MEG)
     # load_end_addr # Tell multiboot to load the whole file
     .long   0 
     # bss_end_addr # boot() will zero its own bss
     .long   0
     # entry_addr
-    .long   (_multiboot_entry + OFFSET_1MEG)
+    .long   (_multiboot_entry + OFFSET_2MEG)
 
 # Stick a couple of nop here so that we hopefully make disassemblers realize we have instructions again
     nop
@@ -201,17 +201,17 @@ _multiboot_entry:
     # variable which we will use later.  However, we are still in extended
     # memory so even if we added 1 MB to _Gdtr the contents of it would
     # still be pointing in low memory.  Therefore we have a _Gdtr_high
-    # which points to _Gdt + OFFSET_1MEG (see bottom of file)
+    # which points to _Gdt + OFFSET_2MEG (see bottom of file)
     # Notice that _Gdtr_high itself is located 1 MB above where the
     # assembler/linker thinks it is.
-    lgdt    _Gdtr_high + OFFSET_1MEG
+    lgdt    _Gdtr_high + OFFSET_2MEG
 
     # Now that we have a GDT we want to first reload the CS register. We do
     # that using a far jump to the desired selector with the desired offset.
     # The desired offset in this case is exactly 1 MB higher than the
     # assembler/linker thinks it is.  As mentioned above, we use the kernel
     # init code selector instead of the boot code selector.
-    jmp     $0x28,$(Lpost_gdt_switch+OFFSET_1MEG)
+    jmp     $0x28,$(Lpost_gdt_switch+OFFSET_2MEG)
 Lpost_gdt_switch:
 
     # Now that we have the right code selector we also want the rest of the
@@ -281,7 +281,7 @@ Lhltloop:
 continue_at_low_address:
     # Our stack frame has been set up with the return address on top
     # First, fix that to be 1 MB lower
-    subl    $OFFSET_1MEG, (%esp)
+    subl    $OFFSET_2MEG, (%esp)
     # Now load the proper low-memory GDTR from the low-memory location which
     # will cause the low-memory GDT to be used.
     lgdt    _Gdtr
@@ -336,11 +336,11 @@ _cause_crash:
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # _Gdtr_high is a pointer to the extended-memory loaded _Gdt
-# See the comments above as to why we have OFFSET_1MEG.
+# See the comments above as to why we have OFFSET_2MEG.
     //.data
     .section "__INIT,__data"	// turbo
     .align 4, 0x90
 _Gdtr_high:
     .word GDTLIMIT
-    .long vtop(Gdt + OFFSET_1MEG)
+    .long vtop(Gdt + OFFSET_2MEG)
 

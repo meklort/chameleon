@@ -31,17 +31,17 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig);
 // prototype dochainload for the same reason.
 void dochainload();
 
-#define OFFSET_1MEG 0x100000
+#define OFFSET_2MEG 0x200000
 #define BAD_BOOT_DEVICE 0xffffffff
 
 // This assumes that the address of the first argument to the function will
 // be exactly 4 bytes above the address of the return address.
-// It is intended to be used as an lvalue with a statement like this -= OFFSET_1MEG;
+// It is intended to be used as an lvalue with a statement like this -= OFFSET_2MEG;
 #define RETURN_ADDRESS_USING_FIRST_ARG(arg) \
     (*(uint32_t*)((char*)&(arg) - 4))
 
 #define FIX_RETURN_ADDRESS_USING_FIRST_ARG(arg) \
-    RETURN_ADDRESS_USING_FIRST_ARG(arg) -= OFFSET_1MEG
+    RETURN_ADDRESS_USING_FIRST_ARG(arg) -= OFFSET_2MEG
 
 extern void jump_to_chainbooter();
 extern unsigned char chainbootdev;
@@ -281,7 +281,7 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig)
 
     // We cannot possibly be more than 447k and copying extra won't really hurt anything
     // We use the address of the assembly entrypoint to get our starting location.
-    memcpy(&boot2_sym, (char*)&boot2_sym + OFFSET_1MEG, BOOT2_MAX_LENGTH /* 447k */);
+    memcpy(&boot2_sym, (char*)&boot2_sym + OFFSET_2MEG, BOOT2_MAX_LENGTH /* 447k */);
 
     // This is a little assembler routine that returns to us in the correct selector
     // instead of the kernel selector we're running in now and at the correct
