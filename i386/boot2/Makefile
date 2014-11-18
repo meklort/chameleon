@@ -31,11 +31,7 @@ endif
 LDFLAGS = -fno-builtin -static -fno-stack-protector $(OMIT_FRAME_POINTER_CFLAG) -DSAIO_INTERNAL_USER \
 		-march=pentium4 -msse2  -Wl,-static -nostdlib -g -msoft-float 
 
-ifeq (${CONFIG_COVERAGE},y)
-LDFLAGS += -Wl,-T,${abspath linker.coverage.cfg}
-else
 LDFLAGS += -Wl,-T,${abspath linker.cfg}
-endif
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc++ -include $(SRCROOT)/autoconf.h
 
