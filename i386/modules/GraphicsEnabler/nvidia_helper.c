@@ -5,7 +5,7 @@
 
 #include "libsaio.h"
 #include <libsaio/bootstruct.h>
-#include "xml.h"
+#include <libsaio/xml.h>
 #include "nvidia_helper.h"
 #include <libsaio/pci.h>
 #include "nvidia.h"

@@ -45,7 +45,7 @@
 #include "acpi_codec.h"
 #include <libsaio/platform.h>
 #include <libsaio/cpu.h>
-#include "xml.h"
+#include <libsaio/xml.h>
 #include "sl.h"
 #include "convert.h"
 #include "modules.h"
