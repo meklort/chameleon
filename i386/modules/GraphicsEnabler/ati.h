@@ -10,10 +10,10 @@
 #define Chameleon_ati_h
 
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "platform.h"
-#include "device_inject.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/platform.h>
+#include <libsaio/device_inject.h>
 #include "ati_reg.h"
 
 bool setup_ati_devprop(pci_dt_t *ati_dev);

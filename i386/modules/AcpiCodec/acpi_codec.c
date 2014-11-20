@@ -36,21 +36,21 @@
  */
 
 #include "libsaio.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "acpi.h"
 #include "acpidecode.h"
 #include "acpicode.h"
 #include "efi_tables.h"
-#include "fake_efi.h"
+#include <libsaio/fake_efi.h>
 #include "acpi_codec.h"
-#include "platform.h"
-#include "cpu.h"
+#include <libsaio/platform.h>
+#include <libsaio/cpu.h>
 #include "xml.h"
 #include "sl.h"
 #include "convert.h"
 #include "modules.h"
-#include "pci.h"
-#include "pci_root.h"
+#include <libsaio/pci.h>
+#include <libsaio/pci_root.h>
 
 U64 rsd_p;
 ACPI_TABLES acpi_tables;

@@ -5,10 +5,10 @@
 
 #include "libsaio.h"
 #include "modules.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "device_inject.h"
-#include "platform.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/device_inject.h>
+#include <libsaio/platform.h>
 
 #ifndef DEBUG_SATA
 #define DEBUG_SATA 0

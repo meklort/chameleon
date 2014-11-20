@@ -35,10 +35,10 @@
 
 #include "libsa.h"
 #include "saio_internal.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "platform.h"
-#include "device_inject.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/platform.h>
+#include <libsaio/device_inject.h>
 #include "gma.h"
 #include "vbe.h"
 #include "boot.h"

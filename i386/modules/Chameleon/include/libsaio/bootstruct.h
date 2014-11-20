@@ -90,6 +90,7 @@ typedef struct {
 /*
  * ACPI defined memory range types.
  */
+#if 0
 enum {
 	kMemoryRangeUsable   = 1,    // RAM usable by the OS.
 	kMemoryRangeReserved = 2,    // Reserved. (Do not use)
@@ -98,6 +99,7 @@ enum {
 
 	/* Undefined types should be treated as kMemoryRangeReserved */
 };
+#endif
 
 /*!
     PrivateBootInfo has fields used by the booter that used to be part of

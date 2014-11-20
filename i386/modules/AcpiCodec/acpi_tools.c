@@ -26,7 +26,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "libsaio.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "datatype.h"
 #include "intel_acpi.h"
 #include "ppm.h"

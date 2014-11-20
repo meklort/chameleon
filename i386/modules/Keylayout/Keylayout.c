@@ -11,7 +11,7 @@
 #include "term.h"
 #include "modules.h"
 #include "Keylayout.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 
 #define kKeyboardLayout "KeyboardLayout"
 
