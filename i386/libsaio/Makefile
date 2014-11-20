@@ -31,17 +31,18 @@ CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
 INC = -I. -I$(SRCROOT) -I$(SYMROOT) -I$(LIBSADIR) -I$(BOOT2DIR) -I${SRCROOT}/i386/include
 
+#sys.x86.elf.o 
 SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
-	disk.x86.elf.o sys.x86.elf.o cache.x86.elf.o bootstruct.x86.elf.o \
-	stringTable.x86.elf.o load.x86.elf.o pci.x86.elf.o allocate.x86.elf.o misc.x86.elf.o \
+	disk.x86.elf.o cache.x86.elf.o \
+	load.x86.elf.o misc.x86.elf.o \
 	befs.x86.elf.o freebsd.x86.elf.o openbsd.x86.elf.o \
 	vbe.x86.elf.o nbp.x86.elf.o hfs.x86.elf.o hfs_compare.x86.elf.o \
-	xml.x86.elf.o ntfs.x86.elf.o msdos.x86.elf.o md5c.x86.elf.o device_tree.x86.elf.o \
-	cpu.x86.elf.o platform.x86.elf.o acpi_patcher.x86.elf.o \
-	smbios.x86.elf.o smbios_getters.x86.elf.o smbios_decode.x86.elf.o \
-	fake_efi.x86.elf.o ext2fs.x86.elf.o \
-	pci_setup.x86.elf.o \
-	device_inject.x86.elf.o hda.x86.elf.o pci_root.x86.elf.o \
+	xml.x86.elf.o ntfs.x86.elf.o msdos.x86.elf.o md5c.x86.elf.o \
+	\
+	\
+	ext2fs.x86.elf.o \
+	\
+	\
 	convert.x86.elf.o aml_generator.x86.elf.o console.x86.elf.o exfat.x86.elf.o base64-decode.x86.elf.o
 
 SAIO_OBJS := $(addprefix $(OBJROOT)/, $(SAIO_OBJS))

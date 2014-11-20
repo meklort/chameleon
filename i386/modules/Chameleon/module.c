@@ -10,28 +10,17 @@
 #include <boot.h>
 #include <bootstruct.h>
 
-#include "hpet.h"
+static void main_app(void* device, void* arg1, void* arg2, void* arg3);
 
-static void found_pci_device(void* device, void* arg1, void* arg2, void* arg3);
-
-void HPETEnabler_init()
+void Chameleon_init()
 {
-    register_hook_callback("PCIDevice", &found_pci_device);
+    register_hook_callback("Main", &main_app);
 }
 
-static void found_pci_device(void* device, void* arg1, void* arg2, void* arg3)
+static void main_app(void* device, void* arg1, void* arg2, void* arg3)
 {
-    bool do_enable_hpet = false;
-    pci_dt_t *current = device;
-
+    int dev = (int)device;
+    extern void common_boot(int biosdev);
+    common_boot(dev);
     
-    if(current->class_id == PCI_CLASS_BRIDGE_ISA)
-    {
-        getBoolForKey(kForceHPET, &do_enable_hpet, &bootInfo->chameleonConfig);
-
-        if (do_enable_hpet)
-        {
-            force_enable_hpet(current);
-        }
-    }
 }

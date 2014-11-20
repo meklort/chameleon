@@ -40,7 +40,8 @@
     - Added ebiosEjectMedia
  */
 
-#include "bootstruct.h"
+//#include "bootstruct.h"
+#include "bios.h"
 #include "libsaio.h"
 
 
@@ -979,6 +980,7 @@ ReadEISAFuncInfo(EISA_func_info_t *ep, int slot, int function)
 
 #define PCI_SIGNATURE 0x20494350  /* "PCI " */
 
+#if 0
 int
 ReadPCIBusInfo(PCI_bus_info_t *pp)
 {
@@ -997,6 +999,7 @@ ReadPCIBusInfo(PCI_bus_info_t *pp)
 	}
 	return -1;
 }
+#endif
 
 void sleep(int n)
 {

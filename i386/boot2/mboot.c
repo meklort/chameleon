@@ -4,7 +4,6 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
 
 #include "mboot.h"
 
@@ -303,19 +302,6 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig)
 
     gMI = mi_p;
 
-    /*  Set up a temporary bootArgs so we can call console output routines
-        like printf that check the v_display.  Note that we purposefully
-        do not initialize anything else at this early stage.
-
-        We are reasonably sure we're already in text mode if GRUB booted us.
-        This is the same assumption that initKernBootStruct makes.
-        We could check the multiboot info I guess, but why bother?
-     */
-    boot_args temporaryBootArgsData;
-    bzero(&temporaryBootArgsData, sizeof(boot_args));
-    bootArgs = &temporaryBootArgsData;
-    bootArgs->Video.v_display = VGA_TEXT_MODE;
-
     // Install ramdisk and extra driver hooks
     p_get_ramdisk_info = &multiboot_get_ramdisk_info;
     p_ramdiskReadBytes = &multibootRamdiskReadBytes;
@@ -349,8 +335,6 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig)
     // However, there doesn't seem to be any point in returning to assembly
     // particularly when the remaining code merely halts the processor.
 
-    // We're about to exit and temporaryBootArgs will no longer be valid
-    bootArgs = NULL;
     return bootdevice;
 }
 

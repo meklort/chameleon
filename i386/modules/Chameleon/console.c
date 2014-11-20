@@ -45,6 +45,7 @@
  */
 
 #include "libsaio.h"
+#include "bootstruct.h"
 #include <vers.h>
 
 bool gVerboseMode = false;
@@ -111,6 +112,18 @@ void msglog(const char * fmt, ...)
 	va_end(ap);
 	cursor += strlen((char *)cursor);
 }
+
+void setupBooterLog(void)
+{
+	if (!msgbuf) {
+		return;
+	}
+
+	Node *node = DT__FindNode("/", false);
+	if (node)
+		DT__AddProperty(node, "boot-log", strlen((char *)msgbuf) + 1, msgbuf);
+}
+/* Kabyl: !BooterLog */
 
 /*
  * write one character to console

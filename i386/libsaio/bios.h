@@ -78,7 +78,7 @@ typedef struct {
 
 #define BASE_HD_DRIVE			0x80
 
-#if 0
+#if 1
 /* 
  * ACPI defined memory range types.
  */
