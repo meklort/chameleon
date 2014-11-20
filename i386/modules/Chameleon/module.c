@@ -6,9 +6,6 @@
  */
 
 #include <modules.h>
-#include <pci.h>
-#include <boot.h>
-#include <bootstruct.h>
 
 static void main_app(void* device, void* arg1, void* arg2, void* arg3);
 

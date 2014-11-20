@@ -51,12 +51,12 @@
  */
 
 #include "boot.h"
-#include "bootstruct.h"
-#include "fake_efi.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/fake_efi.h>
 #include "sl.h"
 #include "libsa.h"
 #include "ramdisk.h"
-#include "platform.h"
+#include <libsaio/platform.h>
 #include "modules.h"
 
 /*
