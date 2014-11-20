@@ -74,6 +74,11 @@ endif
 #SUBDIRS += GUI
 #endif
 
+ifdef CONFIG_CHAMELEON_MODULE
+SUBDIRS += Chameleon
+endif
+
+
 
 
 CFLAGS= -O3 $(MORECPP) -arch i386 -g -static

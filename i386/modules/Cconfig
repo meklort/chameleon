@@ -17,4 +17,6 @@ source "i386/modules/MemoryInfo/Cconfig"
 source "i386/modules/HPETEnabler/Cconfig"
 source "i386/modules/USBFix/Cconfig"
 source "i386/modules/GUI/Cconfig"
+source "i386/modules/Chameleon/Cconfig"
+
 endmenu
