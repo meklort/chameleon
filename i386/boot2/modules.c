@@ -236,7 +236,7 @@ int load_module(char* module)
 			getchar();
 		}
 #else
-		else msglog("WARNING: Unable to start %s\n", module);
+		else verbose("WARNING: Unable to start %s\n", module);
 #endif
 	}
 	else
@@ -300,11 +300,11 @@ void module_loaded(const char* name, void* start, const char* author, const char
 	new_entry->version = version;
 	new_entry->compat = compat;
 
-	msglog("Module '%s' by '%s' Loaded.\n", name, author);
-	msglog("\tInitialization: 0x%X\n", start);
-	msglog("\tDescription: %s\n", description);
-	msglog("\tVersion: %d\n", version); // todo: sperate to major.minor.bugfix
-	msglog("\tCompat:  %d\n", compat);  // todo: ^^^ major.minor.bugfix
+	verbose("Module '%s' by '%s' Loaded.\n", name, author);
+	verbose("\tInitialization: 0x%X\n", start);
+	verbose("\tDescription: %s\n", description);
+	verbose("\tVersion: %d\n", version); // todo: sperate to major.minor.bugfix
+	verbose("\tCompat:  %d\n", compat);  // todo: ^^^ major.minor.bugfix
 }
 
 int is_module_loaded(const char* name)
