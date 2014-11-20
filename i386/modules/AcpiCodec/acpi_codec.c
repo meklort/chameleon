@@ -47,7 +47,7 @@
 #include <libsaio/cpu.h>
 #include <libsaio/xml.h>
 #include "sl.h"
-#include "convert.h"
+#include <libsaio/convert.h>
 #include "modules.h"
 #include <libsaio/pci.h>
 #include <libsaio/pci_root.h>
