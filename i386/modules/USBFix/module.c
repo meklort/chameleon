@@ -6,9 +6,9 @@
  */
 
 #include <modules.h>
-#include <pci.h>
+#include <libsaio/pci.h>
 #include <boot.h>
-#include <bootstruct.h>
+#include <libsaio/bootstruct.h>
 
 static void found_pci_device(void* device, void* arg1, void* arg2, void* arg3);
 static void fix_usb(void* device, void* arg1, void* arg2, void* arg3);

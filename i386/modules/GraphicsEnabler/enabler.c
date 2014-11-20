@@ -6,7 +6,7 @@
  */
 
 #include <modules.h>
-#include <pci.h>
+#include <libsaio/pci.h>
 #include "gma.h"
 #include "nvidia.h"
 #include "ati.h"

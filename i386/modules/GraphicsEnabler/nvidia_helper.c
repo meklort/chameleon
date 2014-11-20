@@ -4,10 +4,10 @@
  */
 
 #include "libsaio.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "xml.h"
 #include "nvidia_helper.h"
-#include "pci.h"
+#include <libsaio/pci.h>
 #include "nvidia.h"
 
 /*

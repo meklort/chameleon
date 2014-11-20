@@ -6,9 +6,9 @@
  */
 
 #include <modules.h>
-#include <pci.h>
+#include <libsaio/pci.h>
 #include <boot.h>
-#include <bootstruct.h>
+#include <libsaio/bootstruct.h>
 
 #include "spd.h"
 #include "dram_controllers.h"

@@ -3,7 +3,7 @@
  */
 
 #include "libsaio.h"
-#include "pci.h"
+#include <libsaio/pci.h>
 #include "hpet.h"
 
 #ifndef DEBUG_HPET

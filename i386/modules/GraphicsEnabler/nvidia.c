@@ -48,10 +48,10 @@
  */
 
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "platform.h"
-#include "device_inject.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/platform.h>
+#include <libsaio/device_inject.h>
 #include "nvidia.h"
 #include "nvidia_helper.h"
 

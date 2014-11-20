@@ -7,12 +7,12 @@
  */
 
 #include "libsaio.h"
-#include "pci.h"
-#include "platform.h"
+#include <libsaio/pci.h>
+#include <libsaio/platform.h>
 #include "spd.h"
-#include "cpu.h"
+#include <libsaio/cpu.h>
 #include "saio_internal.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "memvendors.h"
 
 #ifndef DEBUG_SPD

@@ -9,8 +9,8 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
 
 #ifndef DEBUG_USB
 #define DEBUG_USB 0

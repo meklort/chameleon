@@ -4,7 +4,7 @@ MODULE_DESCRIPTION = This module enables the HPET is not done so by the bios
 MODULE_VERSION = "1.0.0"
 MODULE_COMPAT_VERSION = "1.0.0"
 MODULE_START = $(MODULE_NAME)_start
-MODULE_DEPENDENCIES =
+MODULE_DEPENDENCIES = Chameleon
 
 DIR = ${MODULE_NAME}
 
