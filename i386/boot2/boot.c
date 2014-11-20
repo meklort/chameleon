@@ -136,11 +136,6 @@ void common_boot(int biosdev)
 	// Record the device that the booter was loaded from.
 	gBIOSDev = biosdev & kBIOSDevMask;
 
-	// Initialize boot info structure.
-	initKernBootStruct();
-
-	initBooterLog();
-
 	// Setup VGA text mode.
 #if DEBUG
 	printf("before video_mode\n");

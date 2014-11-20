@@ -61,7 +61,10 @@
 
 #include "libsaio.h"
 #include "boot.h"
+#include "bootstruct.h"
 #include "disk.h"
+#include "ramdisk.h"
+#include "xml.h"
 
 #include <libkern/crypto/md5.h>
 //#include <uuid/uuid.h>
@@ -116,16 +119,6 @@ BVRef gBootVolume;
 
 //static BVRef getBootVolumeRef( const char * path, const char ** outPath );
 static BVRef newBootVolumeRef( int biosdev, int partno );
-
-
-char * newString(const char * oldString)
-{
-    if ( oldString ) {
-        return strcpy(malloc(strlen(oldString)+1), oldString);
-    } else {
-        return NULL;
-    }
-}
 
 //==========================================================================
 // LoadVolumeFile - LOW-LEVEL FILESYSTEM FUNCTION.
@@ -186,6 +179,64 @@ long ReadFileAtOffset(const char * fileSpec, void *buffer, uint64_t offset, uint
 	return bvr->fs_readfile(bvr, (char *)filePath, buffer, offset, length);
 }
 
+//==========================================================================
+
+long LoadThinFatFile(const char *fileSpec, void **binary)
+{
+	const char	*filePath;
+	FSReadFile	readFile;
+	BVRef		bvr;
+	unsigned long length, length2;
+
+	// Resolve the boot volume from the file spec.
+
+	if ((bvr = getBootVolumeRef(fileSpec, &filePath)) == NULL) {
+		return -1;
+	}
+
+	*binary = (void *)kLoadAddr;
+  
+	// Read file into load buffer. The data in the load buffer will be
+	// overwritten by the next LoadFile() call.
+
+	gFSLoadAddress = (void *) LOAD_ADDR;
+
+	readFile = bvr->fs_readfile;
+  
+	if (readFile != NULL) {
+		// Read the first 4096 bytes (fat header)
+		length = readFile(bvr, (char *)filePath, *binary, 0, 0x1000);
+
+		if (length > 0) {
+			if (ThinFatFile(binary, &length) == 0) {
+				if (length == 0) {
+					return 0;
+				}
+
+				// We found a fat binary; read only the thin part
+				length = readFile(bvr, (char *)filePath, (void *)kLoadAddr, (unsigned long)(*binary) - kLoadAddr, length);
+				*binary = (void *)kLoadAddr;
+			} else 	{
+				// Not a fat binary; read the rest of the file
+				length2 = readFile(bvr, (char *)filePath, (void *)(kLoadAddr + length), length, 0);
+
+				if (length2 == -1) {
+					return -1;
+				}
+
+				length += length2;
+			}
+		}
+	} else {
+		length = bvr->fs_loadfile(bvr, (char *)filePath);
+
+		if (length > 0) {
+			ThinFatFile(binary, &length);
+		}
+	}
+  
+	return length;
+}
 
 //==========================================================================
 
@@ -823,6 +874,22 @@ BVRef selectBootVolume( BVRef chain )
 	}
 
 	/*
+	 * Checking "Default Partition" key in system configuration - use format: hd(x,y), the volume UUID or label -
+	 * to override the default selection.
+	 * We accept only kBVFlagSystemVolume or kBVFlagForeignBoot volumes.
+	 */
+	char *val = XMLDecode(getStringForKey(kDefaultPartition, &bootInfo->chameleonConfig));
+	if (val) {
+		for ( bvr = chain; bvr; bvr = bvr->next ) {
+			if (matchVolumeToString(bvr, val, false)) {
+				free(val);
+				return bvr;
+			}
+		}
+		free(val);
+	}
+
+	/*
 	 * Scannig the volume chain backwards and trying to find 
 	 * a HFS+ volume with valid boot record signature.
 	 * If not found any active partition then we will
@@ -1037,23 +1104,36 @@ static BVRef newBootVolumeRef( int biosdev, int partno )
 
 	bvr = bvr1 = NULL;
 
-    // Fetch the volume list from the device.
-    
-    scanBootVolumes( biosdev, NULL );
-    bvrChain = getBVChainForBIOSDev(biosdev);
-    
-    // Look for a perfect match based on device and partition number.
-    
-    for ( bvr1 = NULL, bvr = bvrChain; bvr; bvr = bvr->next ) {
-        if ( ( bvr->flags & kBVFlagNativeBoot ) == 0 ) {
-            continue;
-        }
-        
-        bvr1 = bvr;
-        if ( bvr->part_no == partno ) {
-            break;
-        }
-    }
+	// Try resolving "rd" and "bt" devices first.
+	if (biosdev == kPseudoBIOSDevRAMDisk) {
+		if (gRAMDiskVolume) {
+			bvr1 = gRAMDiskVolume;
+		}
+	} else if (biosdev == kPseudoBIOSDevBooter) {
+		if (gRAMDiskVolume != NULL && gRAMDiskBTAliased) {
+			bvr1 = gRAMDiskVolume;
+		} else {
+			bvr1 = gBIOSBootVolume;
+		}
+	} else {
+		// Fetch the volume list from the device.
+
+		scanBootVolumes( biosdev, NULL );
+		bvrChain = getBVChainForBIOSDev(biosdev);
+
+		// Look for a perfect match based on device and partition number.
+
+		for ( bvr1 = NULL, bvr = bvrChain; bvr; bvr = bvr->next ) {
+			if ( ( bvr->flags & kBVFlagNativeBoot ) == 0 ) {
+				continue;
+			}
+
+			bvr1 = bvr;
+			if ( bvr->part_no == partno ) {
+				break;
+			}
+		}
+	}
 
 	return bvr ? bvr : bvr1;
 }

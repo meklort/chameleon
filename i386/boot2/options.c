@@ -24,7 +24,6 @@
 
 #include "boot.h"
 #include "fdisk.h"
-#include "ramdisk.h"
 #include "term.h"
 #include "embedded.h"
 #include "modules.h"

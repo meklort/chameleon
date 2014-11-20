@@ -305,7 +305,6 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig)
     // Install ramdisk and extra driver hooks
     p_get_ramdisk_info = &multiboot_get_ramdisk_info;
     p_ramdiskReadBytes = &multibootRamdiskReadBytes;
-    LoadExtraDrivers_p = &multiboot_LoadExtraDrivers;
 
     // Since we call multiboot ourselves, its return address will be correct.
     // That is unless it's inlined in which case it does not matter.
@@ -375,6 +374,7 @@ static inline uint32_t multiboot(int multiboot_magic, struct multiboot_info *mi)
         const char *val;
         int size;
         
+#if 0
         if(getValueForBootKey(mi->mi_cmdline, "biosdev", &val, &size))
         {
             char *endptr;
@@ -423,6 +423,7 @@ static inline uint32_t multiboot(int multiboot_magic, struct multiboot_info *mi)
                 multiboot_skip_partition_set = 1;
             }
         }
+#endif
     }
     if(doSelectDevice)
     {

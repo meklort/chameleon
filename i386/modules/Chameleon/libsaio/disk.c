@@ -129,6 +129,8 @@ int (*p_ramdiskReadBytes)( int biosdev, unsigned int blkno,
                       unsigned int byteCount, void * buffer ) = NULL;
 int (*p_get_ramdisk_info)(int biosdev, struct driveInfo *dip) = NULL;
 
+static bool getOSVersion(BVRef bvr, char *str);
+
 extern void spinActivityIndicator(int sectors);
 
 //==========================================================================
@@ -1544,6 +1546,58 @@ static BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 
 //==============================================================================
 
+static bool getOSVersion(BVRef bvr, char *str)
+{
+	bool valid = false;	
+	config_file_t systemVersion;
+	char  dirSpec[512];	
+
+	sprintf(dirSpec, "hd(%d,%d)/System/Library/CoreServices/SystemVersion.plist", BIOS_DEV_UNIT(bvr), bvr->part_no);
+	
+	if (!loadConfigFile(dirSpec, &systemVersion)) {
+		valid = true;
+	} else {
+		sprintf(dirSpec, "hd(%d,%d)/System/Library/CoreServices/ServerVersion.plist", BIOS_DEV_UNIT(bvr), bvr->part_no);
+
+		if (!loadConfigFile(dirSpec, &systemVersion))
+		{	
+			bvr->OSisServer = true;
+			valid = true;
+		}
+	}
+	
+	if (valid) {		
+		const char *val;
+		int len;
+		
+		if  (getValueForKey(kProductVersion, &val, &len, &systemVersion)) {
+			// getValueForKey uses const char for val
+			// so copy it and trim
+			*str = '\0';
+			strncat(str, val, MIN(len, 4));
+		} else {
+			valid = false;
+		}
+	}
+	
+	if(!valid) {
+		int fh = -1;
+		sprintf(dirSpec, "hd(%d,%d)/.PhysicalMediaInstall", BIOS_DEV_UNIT(bvr), bvr->part_no);
+		fh = open(dirSpec, 0);
+
+		if (fh >= 0) {
+			valid = true;
+			bvr->OSisInstaller = true;
+			strcpy(bvr->OSVersion, "10.7"); // 10.7 +
+		} else {
+			close(fh);
+		}
+	}
+	return valid;
+}
+
+//==============================================================================
+
 static void scanFSLevelBVRSettings(BVRef chain)
 {
 	BVRef bvr;
@@ -1581,6 +1635,14 @@ static void scanFSLevelBVRSettings(BVRef chain)
 					label[fileSize] = '\0';
 					strcpy(bvr->altlabel, label);
 				}
+			}
+		}
+
+		// Check for SystemVersion.plist or ServerVersion.plist to determine if a volume hosts an installed system.
+
+		if (bvr->flags & kBVFlagNativeBoot) {
+			if (getOSVersion(bvr,bvr->OSVersion) == true) {
+				bvr->flags |= kBVFlagSystemVolume;
 			}
 		}
 	}

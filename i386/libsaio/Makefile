@@ -31,14 +31,14 @@ CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
 INC = -I. -I$(SRCROOT) -I$(SYMROOT) -I$(LIBSADIR) -I$(BOOT2DIR) -I${SRCROOT}/i386/include
 
-#sys.x86.elf.o 
+
 SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
 	disk.x86.elf.o cache.x86.elf.o \
-	load.x86.elf.o misc.x86.elf.o \
+	misc.x86.elf.o \
 	befs.x86.elf.o freebsd.x86.elf.o openbsd.x86.elf.o \
 	vbe.x86.elf.o nbp.x86.elf.o hfs.x86.elf.o hfs_compare.x86.elf.o \
 	xml.x86.elf.o ntfs.x86.elf.o msdos.x86.elf.o md5c.x86.elf.o \
-	\
+	sys.x86.elf.o \
 	\
 	ext2fs.x86.elf.o \
 	\
