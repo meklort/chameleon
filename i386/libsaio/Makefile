@@ -24,7 +24,7 @@ CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
     -march=pentium4 -msse2 -msoft-float -nostdinc -include $(SRCROOT)/autoconf.h
 
 ifeq (${CONFIG_COVERAGE},y)
-CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
 endif
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc++

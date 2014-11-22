@@ -18,7 +18,7 @@ CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
 	      -nostdinc -include $(SRCROOT)/autoconf.h
 
 ifeq (${CONFIG_COVERAGE},y)
-CFLAGS += -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
 endif
 
 

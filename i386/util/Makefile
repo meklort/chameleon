@@ -27,6 +27,11 @@ OBJS += dyldsymboltool.o
 #OBJS = machOconv.o segsize.o
 
 
+ifeq (${CONFIG_COVERAGE}, y)
+PROGRAMS += cham2gcov
+OBJS += cham2gcov.o
+endif
+
 #ifeq (${CONFIG_BDMESG}, y)
 #PROGRAMS += bdmesg
 #OBJS += bdmesg.o32 bdmesg.o64
