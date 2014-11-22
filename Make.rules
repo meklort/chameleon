@@ -59,64 +59,64 @@ OMIT_FRAME_POINTER_CFLAG=
 
 $(OBJROOT)/%.o: %.c
 	@echo "	[CC] $<"
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -MM -M -o ${abspath $@.Makedep}
+	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -o ${abspath $@}
 
 $(OBJROOT)/%.o: %.m
 	@echo "	[M] $<"
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -MM -M -o $@.Makedep
+	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -o $@
 
 $(OBJROOT)/%.o: %.cpp
 	@echo "	[CPP] $<"
-	@$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
-	${PRINT}$(CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+	@$(CPP) $(CPPFLAGS) $(CFLAGS) -c ${abspath $<} $(INC) -MM -M -o $@.Makedep
+	${PRINT}$(CPP) $(CPPFLAGS) $(CFLAGS) -c ${abspath $<} $(INC) -o ${abspath $@}
 
 $(OBJROOT)/%.o: %.s
 	@echo "	[AS] $<"
-	@$(CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(CC) $(CPPFLAGS) -c $(INC) $< -o $@
+	@$(CC) $(CPPFLAGS) -c $(INC) ${abspath $<} -MM -M -o $@.Makedep
+	${PRINT}$(CC) $(CPPFLAGS) -c $(INC) ${abspath $<} -o $@
 
 
 $(OBJROOT)/%.x86.elf.o: %.c
 	@echo "	[CC] $<"
-	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -MM -M -o $@.Makedep
+	${PRINT}$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -o ${abspath $@}
 
 $(OBJROOT)/%.x86.elf.o: %.m
 	@echo "	[M] $<"
-	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	@$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -MM -M -o $@.Makedep
+	${PRINT}$(X86_ELF_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -o ${abspath $@}
 
 $(OBJROOT)/%.x86.elf.o: %.cpp
 	@echo "	[CPP] $<"
-	@$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
-	${PRINT}$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+	@$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c ${abspath $<} $(INC) -MM -M -o $@.Makedep
+	${PRINT}$(X86_ELF_CPP) $(CPPFLAGS) $(CFLAGS) -c ${abspath $<} $(INC) -o ${abspath $@}
 
 $(OBJROOT)/%.x86.elf.o: %.S
 	@echo "	[AS] $<"
-	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) $< -o $@
+	@$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) ${abspath $<} -MM -M -o $@.Makedep
+	${PRINT}$(X86_ELF_CC) $(CPPFLAGS) -c $(INC) ${abspath $<} -o ${abspath $@}
 
 $(OBJROOT)/%.x86.mach.o: %.c
 	@echo "	[CC] $<"
 	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o ${abspath $@}
 
 $(OBJROOT)/%.x86.mach.o: %.m
 	@echo "	[M] $<"
-	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $@ 
+	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<}  -MM -M -o $@.Makedep
+	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<}  -o ${abspath $@}
 
 $(OBJROOT)/%.x86.mach.o: %.cpp
 	@echo "	[CPP] $<"
-	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -MM -M -o $@.Makedep
-	${PRINT}$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c "$<" $(INC) -o $@ 
+	@$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c ${abspath $<}  $(INC) -MM -M -o $@.Makedep
+	${PRINT}$(X86_MACH_CPP) $(CPPFLAGS) $(CFLAGS) -c ${abspath $<}  $(INC) -o ${abspath $@}
 
 $(OBJROOT)/%.x86.mach.o: %.S
 	@echo "	[AS] $<"
-	@$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) $< -o $@
+	@$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) ${abspath $<}  -MM -M -o $@.Makedep
+	${PRINT}$(X86_MACH_CC) $(CPPFLAGS) -c $(INC) ${abspath $<}  -o ${abspath $@}
 
 
 
@@ -124,7 +124,7 @@ $(OBJROOT)/%.x86.mach.o: %.S
 #CONFIG_FILES=$(SRCROOT)/auto.conf $(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
 CONFIG_FILES=$(SRCROOT)/autoconf.h $(SRCROOT)/autoconf.inc $(SRCROOT)/.config
 .PHONY: $(CONFIG_FILES)
-$(CONFIG_FILES): 
+$(CONFIG_FILES):
 	@echo "	[MAKE] config"
 	@${MAKE} -C $(SRCROOT)/i386/config rebuild_config
 
@@ -198,7 +198,7 @@ clean: clean-recursive clean-dep
 		echo "	[RMDIR] $(SRCROOT)/i386/modules/module_includes"; \
 	 fi
 	@rm -rf $(OBJROOT) $(SYMROOT) $(DSTROOT)        \
-            $(SRCROOT)/i386/modules/module_includes 
+            $(SRCROOT)/i386/modules/module_includes
 
 distclean: distclean-recursive clean-local clean-dep
 		@find . $(FIND_IGNORE) \
