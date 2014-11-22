@@ -54,7 +54,7 @@
 #include "sl.h"
 #include "libsa.h"
 #include "modules.h"
-
+#include "vers.h"
 /*
  * How long to wait (in seconds) to load the
  * kernel after displaying the "boot:" prompt.
@@ -80,8 +80,24 @@ static void zeroBSS(void)
 	extern char*  __bss_stop;
 	extern char*  __bss_start;
 	bzero(&__bss_start, (&__bss_stop - &__bss_start));
-
 }
+
+typedef void (*linker_function_t)();
+static void callInit(void)
+{
+    extern linker_function_t __init_array_start;
+    extern linker_function_t __init_array_end;
+    
+    linker_function_t *fn = &__init_array_start;
+    linker_function_t *end = &__init_array_end;
+    while(fn < end)
+    {
+        fn[0]();
+        fn++;
+    }
+    
+}
+
 
 //==========================================================================
 // Malloc error function
@@ -98,7 +114,9 @@ static void malloc_error(char *addr, size_t size, const char *file, int line)
 void initialize_runtime(void)
 {
 	zeroBSS();
-	malloc_init(0, 0, 0, malloc_error);
+    malloc_init(0, 0, 0, malloc_error);
+    // init needs malloc
+    callInit();
 }
 //==========================================================================
 // This is the entrypoint from real-mode which functions exactly as it did
@@ -164,6 +182,9 @@ void common_boot(int biosdev)
 	init_module_system();
 
     execute_hook("InitDone", NULL, NULL, NULL, NULL);
-
+    printf("Chameleon %s build %s\n", I386BOOT_CHAMELEONVERSION, I386BOOT_CHAMELEONREVISION);
+    
+    extern void llvm_do_exit();
+    llvm_do_exit();
     while(1) execute_hook("Main", (void*) biosdev, NULL, NULL, NULL);
 }
