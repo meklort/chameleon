@@ -184,7 +184,11 @@ void common_boot(int biosdev)
     execute_hook("InitDone", NULL, NULL, NULL, NULL);
     printf("Chameleon %s build %s\n", I386BOOT_CHAMELEONVERSION, I386BOOT_CHAMELEONREVISION);
     
+
+///////// Temp code untill actual exit exists.
     extern void llvm_do_exit();
-    llvm_do_exit();
+#pragma weak llvm_do_exit
+    if(&llvm_do_exit) llvm_do_exit();
+
     while(1) execute_hook("Main", (void*) biosdev, NULL, NULL, NULL);
 }
