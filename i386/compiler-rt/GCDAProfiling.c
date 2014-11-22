@@ -24,12 +24,49 @@
 #include <stdlib.h>
 #include "../libsaio/io_inline.h"
 
+
+/*
+ * zalloc.c
+ */
+#define malloc(size) safe_malloc(size, __FILE__, __LINE__)
+extern void   malloc_init(char * start, int size, int nodes, void (*malloc_error)(char *, size_t, const char *, int));
+extern void * safe_malloc(size_t size,const char *file, int line);
+extern void   free(void * start);
+extern void * realloc(void * ptr, size_t size);
+
+
+
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long int uint64_t;
 
+/*
+ * A list of functions to write out the data.
+ */
 typedef void (*writeout_fn)();
+
+struct writeout_fn_node {
+  writeout_fn fn;
+  struct writeout_fn_node *next;
+};
+
+static struct writeout_fn_node *writeout_fn_head = NULL;
+static struct writeout_fn_node *writeout_fn_tail = NULL;
+
+/*
+ *  A list of flush functions that our __gcov_flush() function should call.
+ */
 typedef void (*flush_fn)();
+
+struct flush_fn_node {
+  flush_fn fn;
+  struct flush_fn_node *next;
+};
+
+static struct flush_fn_node *flush_fn_head = NULL;
+static struct flush_fn_node *flush_fn_tail = NULL;
+
+
 
 
 static void write_bytes(const char* data, uint32_t len);
@@ -136,8 +173,94 @@ void llvm_gcda_end_file() {
 /***** Serial Port Routines *****/
 #define PORT 0x3f8   /* COM1 */
 
-void llvm_gcov_init(writeout_fn wfn, flush_fn ffn)
+void llvm_register_writeout_function(writeout_fn fn) {
+  struct writeout_fn_node *new_node = malloc(sizeof(struct writeout_fn_node));
+  new_node->fn = fn;
+  new_node->next = NULL;
+
+  if (!writeout_fn_head) {
+    writeout_fn_head = writeout_fn_tail = new_node;
+  } else {
+    writeout_fn_tail->next = new_node;
+    writeout_fn_tail = new_node;
+  }
+}
+
+void llvm_writeout_files() {
+  struct writeout_fn_node *curr = writeout_fn_head;
+
+  while (curr) {
+    curr->fn();
+    curr = curr->next;
+  }
+}
+
+void llvm_delete_writeout_function_list() {
+  while (writeout_fn_head) {
+    struct writeout_fn_node *node = writeout_fn_head;
+    writeout_fn_head = writeout_fn_head->next;
+    free(node);
+  }
+
+  writeout_fn_head = writeout_fn_tail = NULL;
+}
+
+void llvm_register_flush_function(flush_fn fn) {
+  struct flush_fn_node *new_node = malloc(sizeof(struct flush_fn_node));
+  new_node->fn = fn;
+  new_node->next = NULL;
+
+  if (!flush_fn_head) {
+    flush_fn_head = flush_fn_tail = new_node;
+  } else {
+    flush_fn_tail->next = new_node;
+    flush_fn_tail = new_node;
+  }
+}
+
+void __gcov_flush() {
+  struct flush_fn_node *curr = flush_fn_head;
+
+  while (curr) {
+    curr->fn();
+    curr = curr->next;
+  }
+}
+
+void llvm_delete_flush_function_list() {
+  while (flush_fn_head) {
+    struct flush_fn_node *node = flush_fn_head;
+    flush_fn_head = flush_fn_head->next;
+    free(node);
+  }
+
+  flush_fn_head = flush_fn_tail = NULL;
+}
+
+
+void llvm_do_exit(void* arg0, void* arg1, void* arg2, void* arg3)
 {
+    llvm_writeout_files();
+}
+
+void llvm_gcov_init(writeout_fn wfn, flush_fn ffn) {
+  static int atexit_ran = 0;
+
+  if (wfn)
+    llvm_register_writeout_function(wfn);
+
+  if (ffn)
+    llvm_register_flush_function(ffn);
+
+  if (atexit_ran == 0) {
+    atexit_ran = 1;
+
+    /* Make sure we write out the data and delete the data structures. */
+    //atexit(llvm_delete_flush_function_list);
+    //atexit(llvm_delete_writeout_function_list);
+    //atexit(llvm_writeout_files);
+    //register_("Exit", &llvm_do_exit);
+
     // Init serial port.
     outb(PORT + 1, 0x00);    // Disable all interrupts
     outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
@@ -146,7 +269,9 @@ void llvm_gcov_init(writeout_fn wfn, flush_fn ffn)
     outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
     outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
     outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+  }
 }
+
 
 static int is_transmit_empty() {
    return inb(PORT + 5) & 0x20;
@@ -161,4 +286,8 @@ static void write_serial(char a) {
 static void write_bytes(const char* data, uint32_t len)
 {
     while(len--) write_serial(*data++);
+}
+
+void llvm_gcda_summary_info()
+{
 }
