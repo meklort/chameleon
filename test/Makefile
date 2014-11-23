@@ -11,7 +11,7 @@ COV_OUTPUT=../sym/i386/coverage/
 
 CHAM2GCOV=../sym/i386/cham2gcov
 
-distclean all clean test: ${SUBDIRS}
+distclean all clean test: ${sort ${SUBDIRS}}
 
 dist:
 
