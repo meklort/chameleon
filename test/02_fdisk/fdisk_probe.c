@@ -6,7 +6,7 @@
 #include <modules.h>
 #include "libsaio.h"
 
-void fdisk_prone_start();
+void fdisk_probe_start();
 
 void system_shutdown (void);
 
