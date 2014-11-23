@@ -53,7 +53,6 @@ int multibootRamdiskReadBytes( int biosdev, unsigned int blkno,
                       unsigned int byteoff,
                       unsigned int byteCount, void * buffer );
 int multiboot_get_ramdisk_info(int biosdev, struct driveInfo *dip);
-static long multiboot_LoadExtraDrivers(FileLoadDrivers_t FileLoadDrivers_p);
 
 // Starts off in the multiboot context 1 MB high but eventually gets into low memory
 // and winds up with a bootdevice in eax which is all that boot() wants
@@ -302,10 +301,6 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig)
 
     gMI = mi_p;
 
-    // Install ramdisk and extra driver hooks
-    p_get_ramdisk_info = &multiboot_get_ramdisk_info;
-    p_ramdiskReadBytes = &multibootRamdiskReadBytes;
-
     // Since we call multiboot ourselves, its return address will be correct.
     // That is unless it's inlined in which case it does not matter.
     uint32_t bootdevice = multiboot(multiboot_magic, mi_p);
@@ -434,70 +429,3 @@ static inline uint32_t multiboot(int multiboot_magic, struct multiboot_info *mi)
     return bootdevice;
 }
 
-///////////////////////////////////////////////////////////////////////////
-// Ramdisk and extra drivers code
-
-int multibootRamdiskReadBytes( int biosdev, unsigned int blkno,
-                      unsigned int byteoff,
-                      unsigned int byteCount, void * buffer )
-{
-    int module_count = gMI->mi_mods_count;
-    struct multiboot_module *modules = (void*)gMI->mi_mods_addr;
-    if(biosdev < 0x100)
-        return -1;
-    if(biosdev >= (0x100 + module_count))
-        return -1;
-    struct multiboot_module *module = modules + (biosdev - 0x100);
-
-    void *p_initrd = (void*)module->mm_mod_start;
-    bcopy(p_initrd + blkno*512 + byteoff, buffer, byteCount);
-    return 0;
-}
-
-int multiboot_get_ramdisk_info(int biosdev, struct driveInfo *dip)
-{
-    int module_count = gMI->mi_mods_count;
-    struct multiboot_module *modules = (void*)gMI->mi_mods_addr;
-    if(biosdev < 0x100)
-        return -1;
-    if(biosdev >= (0x100 + module_count))
-        return -1;
-    struct multiboot_module *module = modules + (biosdev - 0x100);
-    dip->biosdev = biosdev;
-    dip->uses_ebios = true;	// XXX aserebln uses_ebios isn't a boolean at all
-    dip->di.params.phys_sectors = (module->mm_mod_end - module->mm_mod_start + 511) / 512;
-    dip->valid = true;
-    return 0;
-}
-
-static long multiboot_LoadExtraDrivers(FileLoadDrivers_t FileLoadDrivers_p)
-{
-    char extensionsSpec[1024];
-    int ramdiskUnit;
-    for(ramdiskUnit = 0; ramdiskUnit < gMI->mi_mods_count; ++ramdiskUnit)
-    {
-        int partCount; // unused
-        BVRef ramdiskChain = diskScanBootVolumes(0x100 + ramdiskUnit, &partCount);
-        if(ramdiskChain == NULL)
-        {
-            verbose("Ramdisk contains no partitions\n");
-            continue;
-        }
-        for(; ramdiskChain != NULL; ramdiskChain = ramdiskChain->next)
-        {
-            sprintf(extensionsSpec, "rd(%d,%d)/Extra/", ramdiskUnit, ramdiskChain->part_no);
-            struct dirstuff *extradir = opendir(extensionsSpec);
-            closedir(extradir);
-            if(extradir != NULL)
-            {
-                int ret = FileLoadDrivers_p(extensionsSpec, 0 /* this is a kext root dir, not a kext with plugins */);
-                if(ret != 0)
-                {
-                    verbose("FileLoadDrivers failed on a ramdisk\n");
-                    return ret;
-                }
-            }
-        }
-    }
-    return 0;
-}

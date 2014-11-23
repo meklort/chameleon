@@ -123,12 +123,6 @@ struct DiskBVMap {
 static struct DiskBVMap * gDiskBVMap  = NULL;
 static struct disk_blk0 * gBootSector = NULL;
 
-// Function pointers to be filled in if ramdisks are available:
-int (*p_ramdiskReadBytes)( int biosdev, unsigned int blkno,
-                      unsigned int byteoff,
-                      unsigned int byteCount, void * buffer ) = NULL;
-int (*p_get_ramdisk_info)(int biosdev, struct driveInfo *dip) = NULL;
-
 extern void spinActivityIndicator(int sectors);
 
 //==========================================================================
@@ -137,30 +131,6 @@ static int getDriveInfo( int biosdev,  struct driveInfo *dip )
 {
 	static struct driveInfo cached_di;
 	int cc;
-
-	// Real BIOS devices are 8-bit, so anything above that is for internal use.
-	// Don't cache ramdisk drive info since it doesn't require several BIOS
-	// calls and is thus not worth it.
-	if (biosdev >= 0x100)
-	{
-		if (p_get_ramdisk_info != NULL)
-		{
-			cc = (*p_get_ramdisk_info)(biosdev, dip);
-		}
-		else
-		{
-			cc = -1;
-		}
-		if (cc < 0)
-		{
-			dip->valid = 0;
-			return -1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
 
 	if (!cached_di.valid || biosdev != cached_di.biosdev)
 	{
@@ -376,12 +346,6 @@ int testBiosread(int biosdev, unsigned long long secno)
 
 static int readBytes(int biosdev, unsigned long long blkno, unsigned int byteoff, unsigned int byteCount, void * buffer)
 {
-	// ramdisks require completely different code for reading.
-	if(p_ramdiskReadBytes != NULL && biosdev >= 0x100)
-	{
-		return (*p_ramdiskReadBytes)(biosdev, blkno, byteoff, byteCount, buffer);
-	}
-
 	char * cbuf = (char *) buffer;
 	int error;
 	int copy_len;
