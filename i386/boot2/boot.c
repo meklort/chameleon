@@ -185,10 +185,10 @@ void common_boot(int biosdev)
     printf("Chameleon %s build %s\n", I386BOOT_CHAMELEONVERSION, I386BOOT_CHAMELEONREVISION);
     
 
-///////// Temp code untill actual exit exists.
-    extern void llvm_do_exit();
-#pragma weak llvm_do_exit
-    if(&llvm_do_exit) llvm_do_exit();
+    execute_hook("Main", (void*) biosdev, NULL, NULL, NULL);
 
-    while(1) execute_hook("Main", (void*) biosdev, NULL, NULL, NULL);
+    printf("Main code exited.\n");
+    pause();
+    printf("It is now safe to shut down your computer.\n");
+    system_shutdown ();
 }

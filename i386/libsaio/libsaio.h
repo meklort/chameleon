@@ -32,4 +32,7 @@
 #include "saio_types.h"
 #include "saio_internal.h"
 
+void system_shutdown (void);
+
+
 #endif /* !__LIBSAIO_LIBSAIO_H */
