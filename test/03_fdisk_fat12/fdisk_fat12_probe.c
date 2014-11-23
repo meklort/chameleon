@@ -44,6 +44,6 @@ void fdisk_fat12_probe_start()
 
     struct dirstuff* dir = opendir("/");
 
-    if(bvChain && !dir) printf("PASS\n"); // We should have found a file system..
+    if(bvChain && dir) printf("PASS\n"); // We should have found a file system + root dir.
     system_shutdown();
 }
