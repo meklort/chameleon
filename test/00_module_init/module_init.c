@@ -11,7 +11,7 @@ void module_init_start();
 void system_shutdown (void);
 
 
-#define PORT 0x3f8   /* COM1 */
+#define PORT 0x2f8   /* COM2 */
 
 void init_serial() {
    outb(PORT + 1, 0x00);    // Disable all interrupts
