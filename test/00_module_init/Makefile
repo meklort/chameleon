@@ -23,7 +23,7 @@ include ${SRCROOT}/i386/modules/MakeInc.dir
 test: 
 	@echo "*** Running test ${MODULE_NAME}"
 	@rm -f ${SYMROOT}/output
-	timeout 10 qemu-system-i386 -m 512 \
+	@timeout 10 qemu-system-i386 -m 512 \
 		-kernel ${SRCROOT}/sym/i386/boot \
 		-initrd ${SYMROOT}/modules/${MODULE_NAME}.dylib \
 		-serial file:${COV_FILE}				\
