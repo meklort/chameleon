@@ -10,7 +10,7 @@ config OPTIMIZATION_LEVEL
 
 config COVERAGE
 	bool "Enable COM1-based code coverage."
-	default n
+	default y
 	---help---
 	  Slect this to enabled profiling support in chameleon using COM1 - NOTE: this is primaily usefull when executing under QEMU.
 
