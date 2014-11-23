@@ -14,7 +14,7 @@ int multiboot_partition_set=0;
 int multiboot_skip_partition=0;
 int multiboot_skip_partition_set=0;
 
-void boot(int biosdev);
+void common_boot(int biosdev);
 
 // Global multiboot info, if using multiboot.
 struct multiboot_info *gMI;
@@ -310,7 +310,7 @@ uint32_t hi_multiboot(int multiboot_magic, struct multiboot_info *mi_orig)
         // boot only returns to do a chain load.
         for(;;)
         {   // NOTE: boot only uses the last byte (the drive number)
-            boot(bootdevice);
+            common_boot(bootdevice);
             if(chainbootflag)
                 chainLoad();
             else
