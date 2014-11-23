@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../libsaio/io_inline.h"
-
+extern void register_hook_callback(const char* name, void(*callback)(void*, void*, void*, void*));
 
 /*
  * zalloc.c
@@ -259,7 +259,7 @@ void llvm_gcov_init(writeout_fn wfn, flush_fn ffn) {
     //atexit(llvm_delete_flush_function_list);
     //atexit(llvm_delete_writeout_function_list);
     //atexit(llvm_writeout_files);
-    //register_("Exit", &llvm_do_exit);
+    register_hook_callback("Exit", &llvm_do_exit);
 
     // Init serial port.
     outb(PORT + 1, 0x00);    // Disable all interrupts
