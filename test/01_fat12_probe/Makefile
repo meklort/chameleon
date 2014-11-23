@@ -29,4 +29,4 @@ test:
 		-hda fat12.qcow2 \
 		-serial file:${COV_FILE} \
 		-serial file:${SYMROOT}/output > /dev/null
-	@grep PASS ${SYMROOT}/output > /dev/null && echo "	${MODULE_NAME} test passed." || echo "	${MODULE_NAME} test FAILED"
+	@grep PASS ${SYMROOT}/output > /dev/null && echo "	${MODULE_NAME} test passed." || (echo "	${MODULE_NAME} test FAILED" && false)
