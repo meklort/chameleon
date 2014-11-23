@@ -877,7 +877,7 @@ static BVRef diskScanFDiskBootVolumes( int biosdev, int * countPtr )
                             MSDOSGetUUID,
                             MSDOSGetDescription,
                             MSDOSFree,
-                            0,
+                            1, // Probe func
                             kBIOSDevTypeHardDrive, 0);
                     break;
 

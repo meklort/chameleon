@@ -42,6 +42,8 @@ void fdisk_probe_start()
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
     replace_function("bios_putchar", (void*)&write_serial);
 
-    if(bvChain) printf("PASS\n"); // NO file system sshould hav ebeen found.
+    struct dirstuff* dir = opendir("/");
+
+    if(!bvChain && !dir) printf("PASS\n"); // NO file system sshould hav ebeen found, it has not been formatted yet.
     system_shutdown();
 }
