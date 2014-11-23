@@ -16,6 +16,7 @@ distclean all clean test: ${SUBDIRS}
 dist:
 
 ifneq (${OSNAME},Darwin)
+ifeq (${MAKECMDGOALS},test)
 ${SUBDIRS}:
 	@if [ -d $@ ]; 				\
 	then					\
@@ -27,6 +28,15 @@ ${SUBDIRS}:
 		mkdir -p ${COV_OUTPUT} > /dev/null &&						\
 		${GCOVR} --html --html-details --root . -o ${COV_OUTPUT}/index.html -s > /dev/null; \
 	fi
+else
+${SUBDIRS}:
+	@if [ -d $@ ]; 				\
+	then					\
+		${MAKE} --no-print-directory 				\
+			-C $@ ${MAKECMDGOALS}				\
+			 COV_FILE=${abspath ${COVERAGE_LOG}};		\
+	fi
+endif
 endif
 
 .PHONY: ${SUBDIRS}
