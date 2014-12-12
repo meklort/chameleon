@@ -63,7 +63,7 @@ MODULE_OBJS := $(addprefix $(OBJROOT)/, ${MODULE_OBJS})
 $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author ${BOOT_ELF} Makefile
 	@echo "	[LD] $(MODULE_NAME).dylib"
 	@#$(X86_MACH_CC) $(LDFLAGS) -m mach_i386 -shared $(INC) -o $@ ${filter %.o %.a, $^}
-	@/opt/xZenue/bin/i386-apple-darwin10-ld -arch i386 -undefined dynamic_lookup \
+	${PRINT}/opt/xZenue/bin/i386-apple-darwin10-ld -arch i386 -undefined dynamic_lookup \
 		-dylib -read_only_relocs suppress \
 		-alias _$(MODULE_START) start \
 		-S -Z -dead_strip_dylibs \
