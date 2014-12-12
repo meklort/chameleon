@@ -1,14 +1,14 @@
 PWD := ${dir $(abspath $(lastword $(MAKEFILE_LIST)))}
 SRCROOT = $(abspath $(PWD)/../..)
 OBJROOT = $(SRCROOT)/obj/i386/modules/$(DIR)
-SYMROOT = $(SRCROOT)/sym/i386
+SYMROOT = $(SRCROOT)/sym/i386/modules/
 DSTROOT = $(SRCROOT)/dst/i386
 DOCROOT = $(SRCROOT)/doc
 IMGROOT = $(SRCROOT)/sym/cache
 IMGSKELROOT = $(SRCROOT)/imgskel
 CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 
-BOOT_ELF = ${SYMROOT}/boot.elf
+BOOT_ELF = ${SYMROOT}/../boot.elf
 
 include ${SRCROOT}/Make.rules
 
@@ -34,7 +34,7 @@ MODULE_INCLUDES :=  $(foreach x,$(MODULE_DEPENDENCIES),-I$(SRCROOT)/i386/modules
 INC = -I$(SRCROOT)/i386/modules/include/ -Iinclude/ -I$(SRCROOT)/i386/libsaio/ -I$(SRCROOT)/i386/libsa/ -I$(SRCROOT)/i386/include/ -I$(SRCROOT)/i386/boot2/ $(MODULE_INCLUDES)
 DEFINES := -D__KLIBC__ $(DEFINES)
 
-MODULE_DEPENDENCIES :=  $(wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/modules/$(x).dylib)) \
+MODULE_DEPENDENCIES :=  $(wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/$(x).dylib)) \
 $(wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(OBJROOT)/../$(x).dylib))
 
 MODULE_DEPENDENCIES_CMD := $(foreach x,$(MODULE_DEPENDENCIES), -weak_library $(x))
@@ -56,11 +56,11 @@ all: $(CONFIG_HEADERS) $(HEADER_VERSION) all-recursive
 endif
 
 
-dylib: ${SYMROOT}/modules/ ${OBJROOT} $(SYMROOT)/modules/$(MODULE_NAME).dylib
+dylib: ${SYMROOT} ${OBJROOT} $(SYMROOT)/$(MODULE_NAME).dylib
 
 MODULE_OBJS := $(addprefix $(OBJROOT)/, ${MODULE_OBJS})
 
-$(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author ${BOOT_ELF} Makefile
+$(SYMROOT)/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author ${BOOT_ELF} Makefile
 	@echo "	[LD] $(MODULE_NAME).dylib"
 	@#$(X86_MACH_CC) $(LDFLAGS) -m mach_i386 -shared $(INC) -o $@ ${filter %.o %.a, $^}
 	${PRINT}/opt/xZenue/bin/i386-apple-darwin10-ld -arch i386 -undefined dynamic_lookup \
@@ -74,18 +74,18 @@ $(SYMROOT)/modules/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $
 		-macosx_version_min 10.6 \
 		-sectcreate __INFO __author $(OBJROOT)/$(MODULE_NAME).author \
 		-sectcreate __INFO __description $(OBJROOT)/$(MODULE_NAME).desc \
-		-o $(SYMROOT)/modules/$(MODULE_NAME).dylib
+		-o $@
 
 clean-local:
-	@if [ -f "$(SYMROOT)/modules/$(MODULE_NAME).dylib" ];then \
-		echo "	[RM] $(SYMROOT)/modules/$(MODULE_NAME).dylib";\
+	@if [ -f "$(SYMROOT)/$(MODULE_NAME).dylib" ];then \
+		echo "	[RM] $(SYMROOT)/$(MODULE_NAME).dylib";\
 	fi
 	@for o in $(MODULE_OBJS); do if [ -f "$${o}" ];then echo "	[RM] $${o}"; fi; done
-	@rm -f $(SYMROOT)/modules/$(MODULE_NAME).dylib
+	@rm -f $(SYMROOT)/$(MODULE_NAME).dylib
 	@rm -rf $(OBJROOT)
 
 
-${SYMROOT}/modules/:
+${SYMROOT}:
 	@echo "	[MKDIR] $@"
 	@$(MKDIRS) $@
 
