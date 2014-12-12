@@ -8,9 +8,12 @@ IMGROOT = $(SRCROOT)/sym/cache
 IMGSKELROOT = $(SRCROOT)/imgskel
 CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 
-BOOT_ELF = ${SYMROOT}/../boot.elf
+BOOT_ELF = ${abspath ${SYMROOT}/../boot.elf}
 
 include ${SRCROOT}/Make.rules
+
+${BOOT_ELF}:
+	${MAKE} -C ${SRCROOT}/i386/boot2
 
 
 CFLAGS := $(CLFAGS) -nostdinc -Werror \
