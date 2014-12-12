@@ -55,7 +55,9 @@ OBJS = boot2.x86.elf.o boot.x86.elf.o \
 	options.x86.elf.o mboot.x86.elf.o \
 	\
 	modules.x86.elf.o \
-	modules_support.x86.elf.o boot_modules.x86.elf.o
+	modules_support.x86.elf.o 
+
+# boot_modules.x86.elf.o
 # button.o browser.o scrollbar.o == NOTYET
 OBJS := $(addprefix $(OBJROOT)/, $(OBJS))
 

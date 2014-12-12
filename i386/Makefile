@@ -22,8 +22,5 @@ SUBDIRS_PRE += util
 
 SUBDIRS = $(SUBDIRS_PRE) compiler-rt klibc libsa libsaio boot0 boot1 boot2 cdboot modules
 
-modules-builtin:
-	@cd modules; ${MAKE} BUILT_IN=yes
-
-all: $(CONFIG_HEADERS) modules-builtin all-recursive
+all: $(CONFIG_HEADERS) all-recursive
 

@@ -4,7 +4,6 @@
  */
 #include "boot.h"
 #include "modules.h"
-#include "boot_modules.h"
 #include "mboot.h"
 #include <vers.h>
 
@@ -58,7 +57,7 @@ char *strrchr(const char *s, int c)
 int init_module_system()
 {
     // Start any modules that were compiled in first.
-    start_built_in_modules();
+    //start_built_in_modules();
 
 
 	int retVal = 0;
