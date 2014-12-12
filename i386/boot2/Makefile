@@ -1,4 +1,5 @@
-SRCROOT = $(abspath $(CURDIR)/../..)
+PWD := ${dir $(abspath $(lastword $(MAKEFILE_LIST)))}
+SRCROOT = $(abspath $(PWD)/../..)
 BINROOT = $(SRCROOT)/bin
 OBJROOT = $(SRCROOT)/obj/i386/boot2
 SYMROOT = $(SRCROOT)/sym/i386

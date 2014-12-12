@@ -3,7 +3,8 @@
 #
 # these paths are only valid in subdirectories of this directory
 #
-SRCROOT = $(abspath $(CURDIR)/..)
+PWD := ${dir $(abspath $(lastword $(MAKEFILE_LIST)))}
+SRCROOT = $(abspath $(PWD)/..)
 BINROOT = $(SRCROOT)/bin
 OBJROOT = $(SRCROOT)/obj/i386
 SYMROOT = $(SRCROOT)/sym/i386
