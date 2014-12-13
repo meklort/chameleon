@@ -88,10 +88,6 @@ clean-local:
 	@rm -rf $(OBJROOT)
 
 
-${SYMROOT}:
-	@echo "	[MKDIR] $@"
-	@$(MKDIRS) $@
-
 $(OBJROOT)/$(MODULE_NAME).author: Makefile
 	@echo "$(MODULE_AUTHOR)" > $@
 
