@@ -2,7 +2,7 @@
 PWD := ${dir $(abspath $(lastword $(MAKEFILE_LIST)))}
 SRCROOT = $(abspath $(PWD)/../..)
 OBJROOT = $(SRCROOT)/obj/i386/modules/
-SYMROOT = $(SRCROOT)/sym/i386
+SYMROOT = $(SRCROOT)/sym/i386/modules/
 DSTROOT = $(SRCROOT)/dst/i386
 DOCROOT = $(SRCROOT)/doc
 IMGROOT = $(SRCROOT)/sym/cache
@@ -20,6 +20,10 @@ endif
 
 ifdef CONFIG_UCLIBCXX_MODULE
 SUBDIRS += uClibcxx
+endif
+
+ifdef CONFIG_CHAMELEON_MODULE
+SUBDIRS += Chameleon
 endif
 
 ifdef CONFIG_RESOLUTION_MODULE
@@ -75,9 +79,6 @@ endif
 #SUBDIRS += GUI
 #endif
 
-ifdef CONFIG_CHAMELEON_MODULE
-SUBDIRS += Chameleon
-endif
 
 
 
