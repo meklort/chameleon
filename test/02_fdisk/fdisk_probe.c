@@ -40,7 +40,7 @@ void fdisk_probe_start()
     extern BVRef bvChain;
     init_serial();
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
-    replace_function("bios_putchar", (void*)&write_serial);
+    replace_function("_bios_putchar", (void*)&write_serial);
 
     struct dirstuff* dir = opendir("/");
 
