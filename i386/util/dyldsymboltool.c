@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2010 Evan Lojewski. All rights reserved.
  *	
@@ -232,6 +233,9 @@ void add_symbol(symbolList_t** list, char* name, uint32_t addr)
 	*list = entry;
 	
 	entry->addr = addr;
-	entry->name = malloc(strlen(name)+1);
-	strcpy(entry->name, name);
+	//entry->name = malloc(strlen(name)+1);
+	//strcpy(entry->name, name);
+	entry->name = malloc(strlen(name)+2);
+	strcpy(entry->name+1, name);
+	entry->name[0] = '_';
 }
