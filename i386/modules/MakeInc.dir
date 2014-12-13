@@ -41,7 +41,7 @@ DEFINES := -D__KLIBC__ $(DEFINES)
 MODULE_DEPS = ${wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/$(x).dylib)}
 
 SYMBOLS=${SYMROOT}/../Symbols.dylib
-MODULE_DEPS += ${SYMBOLS}
+MODULE_DEPS += ${wildcard ${SYMBOLS}}
 MODULE_DEPENDENCIES_CMD := $(foreach x,$(MODULE_DEPS), -weak_library $(x))
 
 INSTALLDIR = $(DSTROOT)/System/Library/Frameworks/System.framework/Versions/B/PrivateHeaders/standalone
