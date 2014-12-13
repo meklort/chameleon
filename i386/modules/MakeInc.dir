@@ -40,7 +40,8 @@ DEFINES := -D__KLIBC__ $(DEFINES)
 
 MODULE_DEPENDENCIES := ${wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/$(x).dylib)}
 
-MODULE_DEPENDENCIES_CMD := $(foreach x,$(MODULE_DEPENDENCIES), -weak_library $(x))
+SYMBOLS=${SYMROOT}/../Symbols.dylib
+MODULE_DEPENDENCIES_CMD := -weak_library ${SYMBOLS} $(foreach x,$(MODULE_DEPENDENCIES), -weak_library $(x))
 
 INSTALLDIR = $(DSTROOT)/System/Library/Frameworks/System.framework/Versions/B/PrivateHeaders/standalone
 
@@ -67,6 +68,7 @@ $(SYMROOT)/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT
 	@echo "	[LD] $@"
 	@#$(X86_MACH_CC) $(LDFLAGS) -m mach_i386 -shared $(INC) -o $@ ${filter %.o %.a, $^}
 	${PRINT}/opt/xZenue/bin/i386-apple-darwin10-ld -arch i386 -undefined dynamic_lookup \
+		${MODULE_DEPENDENCIES_CMD} \
 		-dylib -read_only_relocs suppress \
 		-alias _$(MODULE_START) start \
 		-S -Z -dead_strip_dylibs \
