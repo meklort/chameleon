@@ -20,7 +20,7 @@
 #define SYMBOLS_VERSION     0
 #define SYMBOLS_COMPAT      0
 
-#define VOID_SYMBOL		"dyld_void_start"
+#define VOID_SYMBOL		"_dyld_void_start"
 
 
 
