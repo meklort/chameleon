@@ -38,10 +38,11 @@ MODULE_INCLUDES :=  $(foreach x,$(MODULE_DEPENDENCIES),-I$(SRCROOT)/i386/modules
 INC = -I$(SRCROOT)/i386/modules/include/ -Iinclude/ -I$(SRCROOT)/i386/libsaio/ -I$(SRCROOT)/i386/libsa/ -I$(SRCROOT)/i386/include/ -I$(SRCROOT)/i386/boot2/ $(MODULE_INCLUDES)
 DEFINES := -D__KLIBC__ $(DEFINES)
 
-MODULE_DEPENDENCIES := ${wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/$(x).dylib)}
+MODULE_DEPS = ${wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/$(x).dylib)}
 
 SYMBOLS=${SYMROOT}/../Symbols.dylib
-MODULE_DEPENDENCIES_CMD := -weak_library ${SYMBOLS} $(foreach x,$(MODULE_DEPENDENCIES), -weak_library $(x))
+MODULE_DEPS += ${SYMBOLS}
+MODULE_DEPENDENCIES_CMD := $(foreach x,$(MODULE_DEPS), -weak_library $(x))
 
 INSTALLDIR = $(DSTROOT)/System/Library/Frameworks/System.framework/Versions/B/PrivateHeaders/standalone
 
@@ -64,7 +65,7 @@ dylib: ${SYMROOT} ${OBJROOT} $(SYMROOT)/$(MODULE_NAME).dylib
 
 MODULE_OBJS := $(addprefix $(OBJROOT)/, ${MODULE_OBJS})
 
-$(SYMROOT)/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPENDENCIES) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author ${BOOT_ELF} Makefile
+$(SYMROOT)/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPS) $(OBJROOT)/$(MODULE_NAME).desc $(OBJROOT)/$(MODULE_NAME).author ${BOOT_ELF} Makefile
 	@echo "	[LD] $@"
 	@#$(X86_MACH_CC) $(LDFLAGS) -m mach_i386 -shared $(INC) -o $@ ${filter %.o %.a, $^}
 	${PRINT}/opt/xZenue/bin/i386-apple-darwin10-ld -arch i386 -undefined dynamic_lookup \
