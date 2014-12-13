@@ -233,9 +233,15 @@ void add_symbol(symbolList_t** list, char* name, uint32_t addr)
 	*list = entry;
 	
 	entry->addr = addr;
-	//entry->name = malloc(strlen(name)+1);
-	//strcpy(entry->name, name);
-	entry->name = malloc(strlen(name)+2);
-	strcpy(entry->name+1, name);
-	entry->name[0] = '_';
+	if(strcmp(name, START_SYMBOL) == 0)
+	{
+		entry->name = malloc(strlen(name)+1);
+		strcpy(entry->name, name);
+	}
+	else
+	{
+		entry->name = malloc(strlen(name)+2);
+		strcpy(entry->name+1, name);
+		entry->name[0] = '_';
+	}
 }
