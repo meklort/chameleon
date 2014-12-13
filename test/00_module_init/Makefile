@@ -25,7 +25,7 @@ test:
 	@rm -f ${SYMROOT}/output
 	@timeout 10 qemu-system-i386 -m 512 \
 		-kernel ${SRCROOT}/sym/i386/boot \
-		-initrd ${SYMROOT}/modules/${MODULE_NAME}.dylib \
+		-initrd ${SYMROOT}/${MODULE_NAME}.dylib \
 		-serial file:${COV_FILE} \
 		-serial file:${SYMROOT}/output > /dev/null
 	@grep PASS ${SYMROOT}/output > /dev/null && echo "	${MODULE_NAME} test passed." || (echo "	${MODULE_NAME} test FAILED" && false)

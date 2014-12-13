@@ -25,7 +25,7 @@ test:
 	@rm -f ${SYMROOT}/output
 	@timeout 10 qemu-system-i386 -m 512 \
 		-kernel ${SRCROOT}/sym/i386/boot \
-		-initrd ${SYMROOT}/modules/${MODULE_NAME}.dylib \
+		-initrd ${SYMROOT}/${MODULE_NAME}.dylib \
 		-hda fdisk.qcow2 \
 		-serial file:${COV_FILE} \
 		-serial file:${SYMROOT}/output > /dev/null
