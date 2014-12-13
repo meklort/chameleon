@@ -25,6 +25,7 @@ typedef struct symbols_dylib
 	struct mach_header		header;
 	struct dylib_command	dylib_info;
 	char					module_name[sizeof(DYLIB_NAME)];	
+	struct dysymtab_command	dysymtab;
 	struct symtab_command	symtab;
 } symbols_dylib_t;
 
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
 	}
 	
 	/* Header command info */
-	dylib.header.ncmds = 2;
+	dylib.header.ncmds = 3;
 	dylib.header.sizeofcmds = sizeof(dylib) - sizeof(struct mach_header);// +  dylib.symtab.nsyms * sizeof(struct nlist) + dylib.symtab.strsize;
 	
 	dylib.header.magic = MH_MAGIC;
@@ -153,6 +154,11 @@ int main(int argc, char *argv[])
 	dylib.symtab.stroff = sizeof(dylib) + dylib.symtab.nsyms * sizeof(struct nlist);
 	dylib.symtab.strsize = string_size(symbols);
 	dylib.symtab.cmdsize = sizeof(struct symtab_command);
+
+	/* Load Commands - DySymtable */
+	bzero(&dylib.dysymtab, sizeof(struct dysymtab_command));
+	dylib.dysymtab.cmd = LC_DYSYMTAB;
+	dylib.dysymtab.cmdsize = sizeof(struct dysymtab_command);
 	
 	
     
