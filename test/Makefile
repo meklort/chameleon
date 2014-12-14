@@ -27,7 +27,7 @@ ${SUBDIRS}:
 		${CHAM2GCOV} ${COVERAGE_LOG} > /dev/null &&					\
 		rm -f ${COVERAGE_LOG} &&							\
 		mkdir -p ${COV_OUTPUT} > /dev/null &&						\
-		${GCOVR} --html --html-details --root ../ -o ${COV_OUTPUT}/index.html -s > /dev/null; \
+		${GCOVR} --html --html-details --root ../ -o ${COV_OUTPUT}/index.html -s; \
 	fi
 else
 ${SUBDIRS}:
