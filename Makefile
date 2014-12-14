@@ -8,8 +8,6 @@ IMGSKELROOT = $(SRCROOT)/imgskel
 CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 PKG_BUILD_DIR = $(SYMROOT)/package
 
-#MAKEOPTS=SYMROOT=${SYMROOT}/i386
-
 include Make.rules
 
 
