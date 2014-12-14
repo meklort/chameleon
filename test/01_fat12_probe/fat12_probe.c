@@ -42,6 +42,6 @@ void fat12_probe_start()
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
     replace_function("_bios_putchar", (void*)&write_serial);
 
-    if(!bvChain) printf("PASS\n"); // NO file system sshould hav ebeen found.
+    if(!bvChain) printf("PASS\n"); // NO file system should have been found.
     system_shutdown();
 }
