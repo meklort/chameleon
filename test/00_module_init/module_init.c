@@ -40,6 +40,7 @@ void module_init_start()
     init_serial();
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
     replace_function("_bios_putchar", (void*)&write_serial);
+
     printf("PASS\n");
     system_shutdown();
 }
