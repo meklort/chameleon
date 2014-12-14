@@ -101,7 +101,7 @@ $(OBJROOT)/%.x86.elf.o: %.S
 $(OBJROOT)/%.x86.mach.o: %.c
 	@echo "	[CC] $<"
 	@$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -MM -M -o $@.Makedep
-	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) $< -o ${abspath $@}
+	${PRINT}$(X86_MACH_CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -o ${abspath $@}
 
 $(OBJROOT)/%.x86.mach.o: %.m
 	@echo "	[M] $<"
