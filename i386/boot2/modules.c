@@ -31,6 +31,8 @@ void module_section_handler(char* section, char* segment, void* cmd, UInt64 offs
 // NOTE: Global so that modules can link with this
 static UInt64 textAddress = 0;
 static UInt64 textSection = 0;
+static UInt64 initAddress = 0;
+static UInt64 initFunctions = 0;
 
 /** Internal symbols, however there are accessor methods **/
 moduleHook_t* moduleCallbacks = NULL;
@@ -114,6 +116,18 @@ int init_module_system()
                         DBG("Loading multiboot module %s\n", name);
 
                         module_start = parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+			if(initAddress && initFunctions)
+			{
+				void (**ctor)() = (void*)(initAddress + module_data);
+				while(initFunctions--)
+				{
+					UInt32 data = (UInt32)(initAddress + module_data);
+					UInt32 value = *(UInt32*)(initAddress + module_data);
+					DBG("Init function at %x = %x\n", data, value);
+					ctor[0]();
+					ctor++;
+				}
+			}
 
                         if(module_start && module_start != (void*)0xFFFFFFFF)
                         {
@@ -222,6 +236,18 @@ int load_module(char* module)
 	{
 		// Module loaded into memory, parse it
 		module_start = parse_mach(module_base, &load_module, &add_symbol, &module_section_handler);
+		if(initAddress && initFunctions)
+		{
+			void (**ctor)() = (void*)(initAddress + module_data);
+			while(initFunctions--)
+			{
+				UInt32 data = (UInt32)(initAddress + module_data);
+				UInt32 value = *(UInt32*)(initAddress + module_data);
+				DBG("Init function at %x = %x\n", data, value);
+				ctor[0]();
+				ctor++;
+			}
+		}
 
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
@@ -261,6 +287,17 @@ void module_section_handler(char* section, char* segment, void* cmd, UInt64 offs
 		strcmp(segment, INIT_SEGMENT) == 0)
 	{
 		DBG("Module has initialization data.\n");
+
+		struct section *sect = cmd;
+		if(!cmd) return; // ERROR
+		UInt32 num_ctors = sect->size / sizeof(void*);
+		DBG("Found %d constructors\n", num_ctors);
+		DBG("Address: %x\n", address);
+		DBG("Offset: %x\n", offset);
+        	initAddress = address;
+	        initFunctions = num_ctors;
+
+		DBGPAUSE();
 	}
 }
 
@@ -422,6 +459,8 @@ void* parse_mach(void* binary,
 
 	textSection = 0;
 	textAddress = 0;	// reinitialize text location in case it doesn't exist;
+	initAddress = 0;
+	initFunctions = 0;
 
 	// Parse through the load commands
 	if(((struct mach_header*)binary)->magic == MH_MAGIC)
@@ -489,7 +528,7 @@ void* parse_mach(void* binary,
                     }
                 }
 				break;
-			case LC_SEGMENT_64:	// 64bit macho's
+                case LC_SEGMENT_64:	// 64bit macho's
                 {
                     segCommand64 = binary + binaryIndex;
                     UInt32 sectionIndex;
