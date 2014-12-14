@@ -11,7 +11,7 @@ GCOVR=/opt/xZenue/bin/gcovr
 
 COVERAGE_LOG=../sym/test.chamcov
 
-COV_OUTPUT=../sym/i386/coverage/
+COV_OUTPUT=../sym/coverage/
 
 CHAM2GCOV=../sym/i386/cham2gcov
 
