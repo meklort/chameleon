@@ -1,5 +1,5 @@
 #
-# Makeile for tests
+# Makefile for tests
 #
 
 OSNAME = ${shell uname -s}
