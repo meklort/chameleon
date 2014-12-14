@@ -95,6 +95,5 @@ all: $(SYMROOT) $(OBJROOT) objroot_dirs all-recursive
 .PHONY: objroot_dirs
 
 objroot_dirs:
-	@${MKDIRS} "$(SYMROOT)/modules/"
 
 clean-local:
