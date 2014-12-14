@@ -26,6 +26,8 @@
 static inline void		rebase_location(UInt32* location, char* base, int type);
 static inline void		bind_location(UInt32* location, char* value, UInt32 addend, int type);
 
+void module_section_handler(char* section, char* segment, void* cmd, UInt64 offset, UInt64 address);
+
 // NOTE: Global so that modules can link with this
 static UInt64 textAddress = 0;
 static UInt64 textSection = 0;
@@ -70,7 +72,7 @@ int init_module_system()
 	if(module_data)
 	{
 		// Module system  was compiled in (Symbols.dylib addr known)
-		module_start = parse_mach(module_data, &load_module, &add_symbol, NULL);
+		module_start = parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
 
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
@@ -111,7 +113,7 @@ int init_module_system()
                         name[strlen(last) - sizeof("dylib")] = 0;
                         DBG("Loading multiboot module %s\n", name);
 
-                        module_start = parse_mach(module_data, &load_module, &add_symbol, NULL);
+                        module_start = parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
 
                         if(module_start && module_start != (void*)0xFFFFFFFF)
                         {
@@ -219,7 +221,7 @@ int load_module(char* module)
 	if (moduleSize && read(fh, module_base, moduleSize) == moduleSize)
 	{
 		// Module loaded into memory, parse it
-		module_start = parse_mach(module_base, &load_module, &add_symbol, NULL);
+		module_start = parse_mach(module_base, &load_module, &add_symbol, &module_section_handler);
 
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
@@ -247,6 +249,21 @@ int load_module(char* module)
 	close(fh);
 	return retVal;
 }
+
+/* module_section_handler
+ * This function is used to detect when a module has initilization / construcitons
+ * that must run for the module to work properly.
+ *
+ */
+void module_section_handler(char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
+{
+	if(	strcmp(section, INIT_SECTION) == 0 &&
+		strcmp(segment, INIT_SEGMENT) == 0)
+	{
+		DBG("Module has initialization data.\n");
+	}
+}
+
 
 /*
  * add_symbol

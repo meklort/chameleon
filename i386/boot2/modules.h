@@ -23,6 +23,9 @@
 #define VOID_SYMBOL		"_dyld_void_start"
 
 
+#define INIT_SECTION		"__mod_init_func"
+#define INIT_SEGMENT		"__DATA"
+
 
 typedef struct symbolList_t
 {
