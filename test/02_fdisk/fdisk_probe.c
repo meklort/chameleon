@@ -44,6 +44,6 @@ void fdisk_probe_start()
 
     struct dirstuff* dir = opendir("/");
 
-    if(!bvChain && !dir) printf("PASS\n"); // NO file system sshould hav ebeen found, it has not been formatted yet.
+    if(!bvChain && !dir) printf("PASS\n"); // NO file system should have been found, it has not been formatted yet.
     system_shutdown();
 }
