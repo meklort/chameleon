@@ -109,7 +109,7 @@ int init_module_system()
 
                         char* name = strdup(last);
                         name[strlen(last) - sizeof("dylib")] = 0;
-                        DBG("Loading multiboot module %s", name);
+                        DBG("Loading multiboot module %s\n", name);
 
                         module_start = parse_mach(module_data, &load_module, &add_symbol, NULL);
 
