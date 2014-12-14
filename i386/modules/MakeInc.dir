@@ -27,6 +27,13 @@ CPPFLAGS := $(CPPFLAGS) -nostdinc -Werror \
 -march=pentium4 -msse2 -msoft-float \
 -include $(SRCROOT)/autoconf.h
 
+
+ifeq (${CONFIG_COVERAGE},y)
+CFLAGS += -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
+CPPFLAGS += -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
+endif
+
+
 UTILDIR = ${SRCROOT}/i386/util
 LIBSADIR = ${SRCROOT}/i386/libsa
 LIBSAIODIR = ${SRCROOT}/i386/libsaio
