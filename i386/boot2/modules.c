@@ -238,11 +238,11 @@ int load_module(char* module)
 		module_start = parse_mach(module_base, &load_module, &add_symbol, &module_section_handler);
 		if(initAddress && initFunctions)
 		{
-			void (**ctor)() = (void*)(initAddress + module_data);
+			void (**ctor)() = (void*)(initAddress + module_base);
 			while(initFunctions--)
 			{
-				UInt32 data = (UInt32)(initAddress + module_data);
-				UInt32 value = *(UInt32*)(initAddress + module_data);
+				UInt32 data = (UInt32)(initAddress + module_base);
+				UInt32 value = *(UInt32*)(initAddress + module_base);
 				DBG("Init function at %x = %x\n", data, value);
 				ctor[0]();
 				ctor++;
