@@ -1,3 +1,7 @@
+#
+# Makeile for tests
+#
+
 OSNAME = ${shell uname -s}
 
 SUBDIRS = ${wildcard *}
