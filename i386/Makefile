@@ -3,6 +3,7 @@
 #
 # these paths are only valid in subdirectories of this directory
 #
+
 PWD := ${dir $(abspath $(lastword $(MAKEFILE_LIST)))}
 SRCROOT = $(abspath $(PWD)/..)
 BINROOT = $(SRCROOT)/bin
