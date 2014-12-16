@@ -20,12 +20,12 @@ ${BOOT_ELF}:
 CFLAGS := $(CLFAGS) -nostdinc -Werror \
 -fno-builtin -fno-stack-protector \
 -march=pentium4 -msse2 -msoft-float \
--include $(SRCROOT)/autoconf.h
+-include $(SRCROOT)/autoconf.h -ggdb
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc -Werror \
 -fno-builtin -fno-stack-protector \
 -march=pentium4 -msse2 -msoft-float \
--include $(SRCROOT)/autoconf.h
+-include $(SRCROOT)/autoconf.h -ggdb
 
 
 ifeq (${CONFIG_COVERAGE},y)

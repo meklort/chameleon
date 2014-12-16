@@ -79,7 +79,7 @@ int init_module_system()
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
 			// Notify the system that it was laoded
-			module_loaded(SYMBOLS_MODULE, module_start, SYMBOLS_AUTHOR, SYMBOLS_DESCRIPTION, SYMBOLS_VERSION, SYMBOLS_COMPAT);
+			module_loaded(SYMBOLS_MODULE, module_data, module_start, SYMBOLS_AUTHOR, SYMBOLS_DESCRIPTION, SYMBOLS_VERSION, SYMBOLS_COMPAT);
 			(*module_start)();	// Start the module. This will point to load_all_modules due to the way the dylib was constructed.
 			DBG("Module %s Loaded.\n", SYMBOLS_MODULE);
 			retVal = 1;
@@ -132,7 +132,7 @@ int init_module_system()
                         if(module_start && module_start != (void*)0xFFFFFFFF)
                         {
                             // Notify the system that it was laoded
-                            module_loaded(name, module_start, NULL, NULL, 0, 0 /*moduleName, NULL, moduleVersion, moduleCompat*/);
+                            module_loaded(name, module_data, module_start, NULL, NULL, 0, 0 /*moduleName, NULL, moduleVersion, moduleCompat*/);
                             (*module_start)();	// Start the module
                             DBG("Module %s Loaded.\n", name); DBGPAUSE();
                         }
@@ -156,7 +156,7 @@ void start_built_in_module(const char* name,
 {
     start_function();
     // Notify the module system that this module really exists, specificaly, let other module link with it
-    module_loaded(name, start_function, author, description, version, compat);
+    module_loaded(name, (const void*)0, start_function, author, description, version, compat);
 }
 
 /*
@@ -252,7 +252,8 @@ int load_module(char* module)
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
 			// Notify the system that it was laoded
-			module_loaded(module, module_start, NULL, NULL, 0, 0 /*moduleName, NULL, moduleVersion, moduleCompat*/);
+			module_loaded(module, module_base, module_start, NULL, NULL, 0, 0 /*moduleName, NULL, moduleVersion, 
+moduleCompat*/);
 			(*module_start)();	// Start the module
 			DBG("Module %s Loaded.\n", module); DBGPAUSE();
 		}
@@ -336,7 +337,7 @@ long long add_symbol(char* symbol, long long addr, char is64)
 /*
  * print out the information about the loaded module
  */
-void module_loaded(const char* name, void* start, const char* author, const char* description, UInt32 version, UInt32 compat)
+void module_loaded(const char* name, const void* base, void* start, const char* author, const char* description, UInt32 version, UInt32 compat)
 {
 	moduleList_t* new_entry = malloc(sizeof(moduleList_t));
 	new_entry->next = loadedModules;
@@ -352,6 +353,7 @@ void module_loaded(const char* name, void* start, const char* author, const char
 	new_entry->description = description;
 	new_entry->version = version;
 	new_entry->compat = compat;
+	new_entry->base = base;
 
 	verbose("Module '%s' by '%s' Loaded.\n", name, author);
 	verbose("\tInitialization: 0x%X\n", start);

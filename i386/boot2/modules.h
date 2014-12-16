@@ -52,6 +52,7 @@ typedef struct modulesList_t
 	const char*				name;
 	const char*             author;
 	const char*             description;
+	const void*		base;
 	UInt32					version;
 	UInt32					compat;
 	struct modulesList_t* next;
@@ -71,7 +72,8 @@ void start_built_in_module(const char* name,
 
 int load_module(char* module);
 int is_module_loaded(const char* name);
-void module_loaded(const char* name, void* start, const char* author, const char* description, UInt32 version, UInt32 compat);
+void module_loaded(const char* name, const void* base, void* start, const char* author, const char* description, UInt32 
+version, UInt32 compat);
 
 
 
