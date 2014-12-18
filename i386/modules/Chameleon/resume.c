@@ -11,9 +11,9 @@
 #include "libsa.h"
 #include "IOHibernatePrivate.h"
 #include "memory.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "boot.h"
-#include "pci.h"
+#include <libsaio/pci.h>
 
 extern int previewTotalSectors;
 extern int previewLoadedSectors;

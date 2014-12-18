@@ -61,10 +61,10 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "disk.h"
 #include "ramdisk.h"
-#include "xml.h"
+#include <libsaio/xml.h>
 
 #include <libkern/crypto/md5.h>
 //#include <uuid/uuid.h>

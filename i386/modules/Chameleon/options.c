@@ -23,12 +23,12 @@
  */
 
 #include "boot.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "fdisk.h"
 #include "ramdisk.h"
 #include "term.h"
-#include "embedded.h"
-#include "pci.h"
+#include "../../../sym/i386/embedded.h"
+#include <libsaio/pci.h>
 #include "modules.h"
 
 bool showBootBanner = true; //Azi:showinfo

@@ -26,11 +26,16 @@
  * All rights reserved.
  */
 
+#if 0
 #include <vers.h>
 
 char bootBanner[] = "\nDarwin/x86 boot v" I386BOOT_VERSION " - Chameleon v" I386BOOT_CHAMELEONVERSION " r" I386BOOT_CHAMELEONREVISION "\n"
                     "Build date: " I386BOOT_BUILDDATE "\n"
                     "%dMB memory\n";
+#else
+char bootBanner[] = "\nDarwin/x86 boot\n"
+			 "%dMB memory\n";
+#endif
 
 char bootPrompt[] =
     "Press Enter to start up Darwin/x86 with no options, or you can:\n"

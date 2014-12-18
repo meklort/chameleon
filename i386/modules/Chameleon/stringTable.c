@@ -26,10 +26,10 @@
  * All rights reserved.
  */
 
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "libsaio.h"
 #include "boot.h"
-#include "xml.h"
+#include <libsaio/xml.h>
 
 extern char *Language;
 extern char *LoadableFamilies;
