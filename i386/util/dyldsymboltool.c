@@ -69,11 +69,11 @@ int main(int argc, char *argv[])
 	for(i = 1; i < argc-1; i++)
     {
         char line[256];
-        char* command = malloc(strlen(argv[1]) + sizeof("/opt/xZenue/bin/i386-linux-nm -g "));
+        char* command = malloc(strlen(argv[1]) + sizeof("/opt/xZenue/bin/nm -g "));
         FILE *fpipe;
 
         // Parse boot.sys (arg1) to get symtab
-        sprintf(command, "/opt/xZenue/bin/i386-linux-nm -g %s", argv[i]);	// TODO: read boot.sym directly, no need for nm
+        sprintf(command, "/opt/xZenue/bin/nm -g %s", argv[i]);	// TODO: read boot.sym directly, no need for nm
         
         if ( !(fpipe = (FILE*)popen(command,"r")) )
         {  // If fpipe is NULL
