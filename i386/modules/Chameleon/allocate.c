@@ -24,8 +24,8 @@
 
 #include "sl.h"
 #include "saio_internal.h"
-#include "bootstruct.h"
-#include "device_tree.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/device_tree.h>
 
 static long  gImageLastKernelAddr;
 

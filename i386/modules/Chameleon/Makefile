@@ -8,6 +8,7 @@ MODULE_DEPENDENCIES =
 
 DIR = ${MODULE_NAME}
 
-MODULE_OBJS = module.x86.mach.o boot.x86.mach.o
+MODULE_OBJS = module.x86.mach.o boot.x86.mach.o allocate.x86.mach.o bmdecompress.x86.mach.o console.x86.mach.o \
+		drivers.x86.mach.o
 
 include ../MakeInc.dir

@@ -335,9 +335,6 @@ void common_boot(int biosdev)
 	// the base code will result in a hang or kernel panic.
 	gUnloadPXEOnExit = true;
 
-	// Record the device that the booter was loaded from.
-	gBIOSDev = biosdev & kBIOSDevMask;
-
 	// Initialize boot info structure.
 	initKernBootStruct();
 
@@ -346,10 +343,6 @@ void common_boot(int biosdev)
 	// Scan and record the system's hardware information.
 	scan_platform();
 
-	// First get info for boot volume.
-	scanBootVolumes(gBIOSDev, 0);
-	bvChain = getBVChainForBIOSDev(gBIOSDev);
-	setBootGlobals(bvChain);
 
 	// Load boot.plist config file
 	status = loadChameleonConfig(&bootInfo->chameleonConfig);
@@ -362,55 +355,6 @@ void common_boot(int biosdev)
 	if (getBoolForKey(kInstantMenuKey, &instantMenu, &bootInfo->chameleonConfig) && instantMenu) {
 		firstRun = false;
 	}
-
-	// Loading preboot ramdisk if exists.
-	loadPrebootRAMDisk();
-
-	// Disable rescan option by default
-	gEnableCDROMRescan = false;
-
-	// Enable it with Rescan=y in system config
-	if (getBoolForKey(kRescanKey, &gEnableCDROMRescan, &bootInfo->chameleonConfig)
-		&& gEnableCDROMRescan) {
-		gEnableCDROMRescan = true;
-	}
-
-	// Ask the user for Rescan option by setting "Rescan Prompt"=y in system config.
-	rescanPrompt = false;
-	if (getBoolForKey(kRescanPromptKey, &rescanPrompt , &bootInfo->chameleonConfig)
-		&& rescanPrompt && biosDevIsCDROM(gBIOSDev))
-	{
-		gEnableCDROMRescan = promptForRescanOption();
-	}
-
-	// Enable touching a single BIOS device only if "Scan Single Drive"=y is set in system config.
-	if (getBoolForKey(kScanSingleDriveKey, &gScanSingleDrive, &bootInfo->chameleonConfig)
-		&& gScanSingleDrive) {
-		gScanSingleDrive = true;
-	}
-
-	// Create a list of partitions on device(s).
-	if (gScanSingleDrive) {
-		scanBootVolumes(gBIOSDev, &bvCount);
-	} else {
-		scanDisks(gBIOSDev, &bvCount);
-	}
-
-	// Create a separated bvr chain using the specified filters.
-	bvChain = newFilteredBVChain(0x80, 0xFF, allowBVFlags, denyBVFlags, &gDeviceCount);
-
-	gBootVolume = selectBootVolume(bvChain);
-
-
-#if DEBUG
-	printf(" Default: %d, ->biosdev: %d, ->part_no: %d ->flags: %d\n",
-			 gBootVolume, gBootVolume->biosdev, gBootVolume->part_no, gBootVolume->flags);
-	printf(" bt(0,0): %d, ->biosdev: %d, ->part_no: %d ->flags: %d\n",
-			 gBIOSBootVolume, gBIOSBootVolume->biosdev, gBIOSBootVolume->part_no, gBIOSBootVolume->flags);
-	getchar();
-#endif
-
-    execute_hook("InitDone", NULL, NULL, NULL, NULL);
 
 	setBootGlobals(bvChain);
 

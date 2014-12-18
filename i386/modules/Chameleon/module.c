@@ -9,7 +9,7 @@
 
 static void main_app(void* device, void* arg1, void* arg2, void* arg3);
 
-void Chameleon_init()
+void Chameleon_start()
 {
     register_hook_callback("Main", &main_app);
 }

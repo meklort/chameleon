@@ -45,8 +45,8 @@
  */
 
 #include "libsaio.h"
-#include "bootstruct.h"
-#include <vers.h>
+#include <libsaio/bootstruct.h>
+//#include <vers.h>
 
 bool gVerboseMode = false;
 bool gErrors = false;
@@ -89,7 +89,7 @@ void initBooterLog(void)
 	msgbuf = malloc(BOOTER_LOG_SIZE);
 	bzero(msgbuf, BOOTER_LOG_SIZE);
 	cursor = msgbuf;
-	msglog("%s\n", "Chameleon " I386BOOT_CHAMELEONVERSION " (svn-r" I386BOOT_CHAMELEONREVISION ")" " [" I386BOOT_BUILDDATE "]");
+	//msglog("%s\n", "Chameleon " I386BOOT_CHAMELEONVERSION " (svn-r" I386BOOT_CHAMELEONREVISION ")" " [" I386BOOT_BUILDDATE "]");
 }
 
 void msglog(const char * fmt, ...)

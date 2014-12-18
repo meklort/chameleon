@@ -35,8 +35,8 @@
 
 #include "sl.h"
 #include "boot.h"
-#include "bootstruct.h"
-#include "xml.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/xml.h>
 #include "ramdisk.h"
 #include "modules.h"
 
