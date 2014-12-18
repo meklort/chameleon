@@ -327,18 +327,6 @@ long LoadKernelCache(const char* cacheFile, void **binary)
 }
 
 //==========================================================================
-// This is the entrypoint from real-mode which functions exactly as it did
-// before. Multiboot does its own runtime initialization, does some of its
-// own things, and then calls common_boot.
-void boot(int biosdev)
-{
-	initialize_runtime();
-	// Enable A20 gate before accessing memory above 1Mb.
-	enableA20();
-	common_boot(biosdev);
-}
-
-//==========================================================================
 // The 'main' function for the booter. Called by boot0 when booting
 // from a block device, or by the network booter.
 //
