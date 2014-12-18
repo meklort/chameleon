@@ -102,7 +102,7 @@ ifeq (${CONFIG_MODULES}, y)
 
 endif
 	@echo "	[OBJCOPY] boot"
-	@/opt/xZenue/bin/objcopy i386 $@ -O binary ${SYMROOT}/boot
+	@/opt/xZenue/bin/objcopy $@ -O binary ${SYMROOT}/boot
 
 $(SYMROOT)/art.h:
 	@if [ "$(PNGCRUSH)" ]; then	\
