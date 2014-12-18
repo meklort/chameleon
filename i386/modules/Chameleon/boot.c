@@ -92,6 +92,7 @@ void showTextBuffer(char *buf, int size);
 //==========================================================================
 // Zero the BSS.
 
+#if 0
 static void zeroBSS(void)
 {
 	extern char*  __bss_stop;
@@ -99,24 +100,7 @@ static void zeroBSS(void)
 	bzero(&__bss_start, (&__bss_stop - &__bss_start));
 
 }
-
-//==========================================================================
-// Malloc error function
-
-static void malloc_error(char *addr, size_t size, const char *file, int line)
-{
-	stop("\nMemory allocation error! Addr: 0x%x, Size: 0x%x, File: %s, Line: %d\n",
-									 (unsigned)addr, (unsigned)size, file, line);
-}
-
-//==========================================================================
-//Initializes the runtime. Right now this means zeroing the BSS and initializing malloc.
-//
-void initialize_runtime(void)
-{
-	zeroBSS();
-	malloc_init(0, 0, 0, malloc_error);
-}
+#endif
 
 //==========================================================================
 // execKernel - Load the kernel image (mach-o) and jump to its entry point.
@@ -359,15 +343,6 @@ void common_boot(int biosdev)
 
 	initBooterLog();
 
-	// Setup VGA text mode.
-#if DEBUG
-	printf("before video_mode\n");
-#endif
-	video_mode( 2 );  // 80x25 mono text mode.
-#if DEBUG
-	printf("after video_mode\n");
-#endif
-
 	// Scan and record the system's hardware information.
 	scan_platform();
 
@@ -426,8 +401,6 @@ void common_boot(int biosdev)
 
 	gBootVolume = selectBootVolume(bvChain);
 
-	// Intialize module system 
-	init_module_system();
 
 #if DEBUG
 	printf(" Default: %d, ->biosdev: %d, ->part_no: %d ->flags: %d\n",
