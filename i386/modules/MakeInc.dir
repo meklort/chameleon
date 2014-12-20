@@ -59,7 +59,7 @@ MODULE_DEFINITION := $(CONFIG_$(shell echo $(MODULE_NAME) | tr '[:lower:]' '[:up
 ifneq  ($(MODULE_DEFINITION),n)
 
 # Make this as a *MODULE*
-all: $(CONFIG_HEADERS) $(HEADER_VERSION) dylib all-recursive
+all: ${DIRS_NEEDED} $(CONFIG_HEADERS) $(HEADER_VERSION) dylib all-recursive
 
 else
 # Module not selected to be compiled as a module
@@ -68,7 +68,7 @@ all: $(CONFIG_HEADERS) $(HEADER_VERSION) all-recursive
 endif
 
 
-dylib: ${SYMROOT} ${OBJROOT} $(SYMROOT)/$(MODULE_NAME).dylib
+dylib: ${DIRS_NEEDED} ${SYMROOT} ${OBJROOT} $(SYMROOT)/$(MODULE_NAME).dylib
 
 MODULE_OBJS := $(addprefix $(OBJROOT)/, ${MODULE_OBJS})
 
