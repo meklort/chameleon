@@ -6,10 +6,10 @@
  */
 
 #include "libsaio.h"
-#include "smbios.h"
+#include <libsaio/smbios.h>
 // Bungo:
 #include "boot.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 
 #ifndef DEBUG_SMBIOS
 #define DEBUG_SMBIOS 0

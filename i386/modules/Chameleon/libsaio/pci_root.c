@@ -4,7 +4,7 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 
 #ifndef DEBUG_PCIROOT
 #define DEBUG_PCIROOT 1

@@ -27,7 +27,7 @@
  */
 
 #include "libsaio.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 
 /*==========================================================================
  * Initialize the structure of parameters passed to

@@ -5,8 +5,8 @@
  *
  */
 
-#include "smbios_getters.h"
-#include "bootstruct.h"
+#include <libsaio/smbios_getters.h>
+#include <libsaio/bootstruct.h>
 
 #ifndef DEBUG_SMBIOS
 #define DEBUG_SMBIOS 0

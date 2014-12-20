@@ -5,17 +5,17 @@
 #include "saio_types.h"
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
+#include <libsaio/bootstruct.h>
 #include "efi.h"
-#include "acpi.h"
-#include "fake_efi.h"
+#include <libsaio/acpi.h>
+#include <libsaio/fake_efi.h>
 #include "efi_tables.h"
-#include "platform.h"
-#include "acpi_patcher.h"
-#include "smbios.h"
-#include "device_inject.h"
-#include "convert.h"
-#include "pci.h"
+#include <libsaio/platform.h>
+#include <libsaio/acpi_patcher.h>
+#include <libsaio/smbios.h>
+#include <libsaio/device_inject.h>
+#include <libsaio/convert.h>
+#include <libsaio/pci.h>
 #include "sl.h"
 
 extern void setup_pci_devs(pci_dt_t *pci_dt);

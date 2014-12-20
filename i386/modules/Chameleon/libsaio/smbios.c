@@ -7,10 +7,10 @@
 
 
 #include "boot.h"
-#include "bootstruct.h"
-#include "smbios_getters.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/smbios_getters.h>
 // Bungo
-#include "convert.h"
+#include <libsaio/convert.h>
 
 #ifndef DEBUG_SMBIOS
 #define DEBUG_SMBIOS 0

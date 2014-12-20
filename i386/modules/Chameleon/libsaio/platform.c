@@ -6,10 +6,10 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "platform.h"
-#include "cpu.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/platform.h>
+#include <libsaio/cpu.h>
 
 #ifndef DEBUG_PLATFORM
 #define DEBUG_PLATFORM 0

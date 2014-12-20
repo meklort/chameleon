@@ -5,14 +5,14 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
-#include "acpi.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/acpi.h>
 #include "efi_tables.h"
-#include "fake_efi.h"
-#include "acpi_patcher.h"
-#include "platform.h"
-#include "cpu.h"
-#include "aml_generator.h"
+#include <libsaio/fake_efi.h>
+#include <libsaio/acpi_patcher.h>
+#include <libsaio/platform.h>
+#include <libsaio/cpu.h>
+#include <libsaio/aml_generator.h>
 
 #ifndef DEBUG_ACPI
 #define DEBUG_ACPI 0

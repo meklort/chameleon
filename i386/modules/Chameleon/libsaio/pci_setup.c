@@ -1,8 +1,8 @@
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "hda.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/hda.h>
 #include "modules.h"
 
 

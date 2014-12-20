@@ -8,7 +8,7 @@
  * additions and corrections by Slice and pcj, 2012.
  */
 
-#include "aml_generator.h"
+#include <libsaio/aml_generator.h>
 
 bool aml_add_to_parent(AML_CHUNK* parent, AML_CHUNK* node)
 {

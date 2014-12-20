@@ -60,13 +60,13 @@
  ******************************************************************************/
 
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "pci_root.h"
-#include "platform.h"
-#include "device_inject.h"
-#include "hda.h"
-#include "aml_generator.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/pci_root.h>
+#include <libsaio/platform.h>
+#include <libsaio/device_inject.h>
+#include <libsaio/hda.h>
+#include <libsaio/aml_generator.h>
 
 #ifndef DEBUG_HDA
 #define DEBUG_HDA 0

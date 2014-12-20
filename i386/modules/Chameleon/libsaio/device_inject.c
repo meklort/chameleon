@@ -7,11 +7,11 @@
 
 #include "libsaio.h"
 #include "boot.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "pci_root.h"
-#include "device_inject.h"
-#include "convert.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/pci_root.h>
+#include <libsaio/device_inject.h>
+#include <libsaio/convert.h>
 
 #ifndef DEBUG_INJECT
 #define DEBUG_INJECT 0

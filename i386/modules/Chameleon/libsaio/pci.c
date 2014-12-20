@@ -5,9 +5,9 @@
  */
 
 #include "libsaio.h"
-#include "bootstruct.h"
-#include "pci.h"
-#include "pci_root.h"
+#include <libsaio/bootstruct.h>
+#include <libsaio/pci.h>
+#include <libsaio/pci_root.h>
 
 #ifndef DEBUG_PCI
 #define DEBUG_PCI 0

@@ -53,7 +53,7 @@ typedef char DTEntryNameBuf[32];
 #endif
 
 #include "libsaio.h"
-#include "device_tree.h"
+#include <libsaio/device_tree.h>
 
 #if DEBUG
 #define DPRINTF(args...) printf(args)

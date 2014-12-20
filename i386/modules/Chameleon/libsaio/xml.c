@@ -24,7 +24,7 @@
 
 #include "libsaio.h"
 #include "sl.h"
-#include "xml.h"
+#include <libsaio/xml.h>
 
 string_ref *ref_strings = NULL;
 
