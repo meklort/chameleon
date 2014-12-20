@@ -25,5 +25,5 @@ LIBSA_OBJS =
 DIRS_NEEDED = ${OBJROOT}/libsaio
 
 MODULE_OBJS = ${addprefix libsaio/,${LIBSAIO_OBJS}} ${addprefix libsa/,${LIBSA_OBJS}} ${MODULE_OBJS_INT}
-${warning ${MODULE_OBJS}}
+
 include ../MakeInc.dir
