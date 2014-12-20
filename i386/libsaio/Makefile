@@ -44,7 +44,7 @@ SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
 	ext2fs.x86.elf.o \
 	\
 	\
-	console.x86.elf.o exfat.x86.elf.o base64-decode.x86.elf.o
+	console.x86.elf.o exfat.x86.elf.o
 
 SAIO_OBJS := $(addprefix $(OBJROOT)/, $(SAIO_OBJS))
 

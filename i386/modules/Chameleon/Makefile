@@ -18,7 +18,7 @@ LIBSAIO_OBJS = platform.x86.mach.o acpi_patcher.x86.mach.o convert.x86.mach.o de
 		hda.x86.mach.o pci_setup.x86.mach.o smbios_decode.x86.mach.o aml_generator.x86.mach.o \
 		cpu.x86.mach.o disk.x86.mach.o pci.x86.mach.o smbios_getters.x86.mach.o bootstruct.x86.mach.o \
 		device_inject.x86.mach.o fake_efi.x86.mach.o pci_root.x86.mach.o smbios.x86.mach.o \
-		xml.x86.mach.o
+		xml.x86.mach.o base64-decode.x86.mach.o
 
 LIBSA_OBJS = 
 
