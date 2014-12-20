@@ -773,8 +773,6 @@ int getBootOptions(bool firstRun)
 			                showTextBuffer(msgbuf, strlen(msgbuf));
 				} else if (strcmp(booterCommand, "more") == 0) {
 					showTextFile(booterParam);
-				} else if (strcmp(booterCommand, "rd") == 0) {
-					processRAMDiskCommand(&argPtr, booterParam);
 				} else if (strcmp(booterCommand, "norescan") == 0) {
 					if (gEnableCDROMRescan) {
 						gEnableCDROMRescan = false;
