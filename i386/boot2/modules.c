@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Evan Lojewski. All rights reserved.
+ * Copyright 2010-2015 Evan Lojewski. All rights reserved.
  *
  */
 #include "boot.h"
@@ -11,7 +11,7 @@
 
 #ifdef CONFIG_MODULES
 #ifndef CONFIG_MODULE_DEBUG
-#define CONFIG_MODULE_DEBUG 0
+#define CONFIG_MODULE_DEBUG 1
 #endif
 
 
@@ -74,7 +74,8 @@ int init_module_system()
 	if(module_data)
 	{
 		// Module system  was compiled in (Symbols.dylib addr known)
-		module_start = parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+		parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+		module_start = (void*)remove_symbol(START_SYMBOL);
 
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
@@ -115,7 +116,9 @@ int init_module_system()
                         name[strlen(last) - sizeof("dylib")] = 0;
                         DBG("Loading multiboot module %s\n", name);
 
-                        module_start = parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+                        parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+	                module_start = (void*)remove_symbol(START_SYMBOL);
+
 			if(initAddress && initFunctions)
 			{
 				void (**ctor)() = (void*)(initAddress + module_data);
@@ -235,7 +238,9 @@ int load_module(char* module)
 	if (moduleSize && read(fh, module_base, moduleSize) == moduleSize)
 	{
 		// Module loaded into memory, parse it
-		module_start = parse_mach(module_base, &load_module, &add_symbol, &module_section_handler);
+		parse_mach(module_base, &load_module, &add_symbol, &module_section_handler);
+                module_start = (void*)remove_symbol(START_SYMBOL);
+
 		if(initAddress && initFunctions)
 		{
 			void (**ctor)() = (void*)(initAddress + module_base);
@@ -304,6 +309,44 @@ void module_section_handler(char* section, char* segment, void* cmd, UInt64 offs
 
 
 /*
+ * remove_symbol
+ * This function removes a symbol from  the list of known symbols
+ * and returns it's address, if found.
+ */
+long long remove_symbol(char* name)
+{
+	symbolList_t* prev = NULL;
+        symbolList_t* entry = moduleSymbols;
+        while(entry)
+        {
+                if(strcmp(entry->symbol, name) == 0)
+                {
+                        //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
+			if(prev)
+			{
+				prev->next = entry->next;
+			}
+			else
+			{
+				moduleSymbols = entry->next;;
+			}
+			long long addr = entry->addr;
+			free(entry);
+
+                        return entry->addr;
+                }
+                else
+                {
+			prev = entry;
+                        entry = entry->next;
+                }
+        }
+	// No symbol
+	return 0xFFFFFFFF;
+}
+
+
+/*
  * add_symbol
  * This function adds a symbol from a module to the list of known symbols
  * possibly change to a pointer and add this to the Symbol module so that it can
@@ -323,14 +366,7 @@ long long add_symbol(char* symbol, long long addr, char is64)
 	entry->addr = (UInt32)addr;
 	entry->symbol = symbol;
 
-	if(!is64 && strcmp(symbol, "start") == 0)
-	{
-		return addr;
-	}
-	else
-	{
-		return 0xFFFFFFFF; // fixme
-	}
+	return 0xFFFFFFFF; // fixme
 }
 
 

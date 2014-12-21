@@ -21,6 +21,7 @@
 #define SYMBOLS_COMPAT      0
 
 #define VOID_SYMBOL		"_dyld_void_start"
+#define START_SYMBOL		"start"
 
 
 #define INIT_SECTION		"__mod_init_func"
@@ -83,6 +84,8 @@ version, UInt32 compat);
 /********************************************************************************/
 long long		add_symbol(char* symbol, long long addr, char is64);
 unsigned int	lookup_all_symbols(const char* name);
+long long remove_symbol(char* name);
+
 
 
 
