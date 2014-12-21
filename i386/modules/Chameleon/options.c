@@ -1273,16 +1273,6 @@ int selectAlternateBootDevice(int bootdevice)
 	return bootdevice;
 }
 
-bool promptForRescanOption(void)
-{
-	printf("\nWould you like to enable media rescan option?\nPress ENTER to enable or any key to skip.\n");
-	if (getchar() == KEY_ENTER) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
 static int currentIndicator = 0;
 static char indicator[] = {'-', '\\', '|', '/', '-', '\\', '|', '/', '\0'};
 
