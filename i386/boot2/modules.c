@@ -80,7 +80,7 @@ int init_module_system()
 	// Intialize module system
 	if(module_data)
 	{
-		load_module_binary(module_data, SYMBOLS_MODULE);
+		retVal = (load_module_binary(module_data, SYMBOLS_MODULE) == 0);
 	}
 
     // Look for modules located in the multiboot header.
