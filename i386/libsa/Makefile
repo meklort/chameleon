@@ -11,7 +11,7 @@ CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 DIR = libsa
 include ${SRCROOT}/Make.rules
 
-LIBSAIODIR = ../libsaio
+LIBSAIODIR = ${abspath ../libsaio}
 
 CFLAGS	:= $(CFLAGS) $(RC_CFLAGS) $(MORECPP) \
 	      -fno-builtin -static $(OMIT_FRAME_POINTER_CFLAG) \
@@ -25,7 +25,7 @@ endif
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
-INC = -I. -I$(SYMROOT) -I$(LIBSAIODIR) -I${SRCROOT}/i386/include
+INC = -I${abspath .} -I$(SYMROOT) -I$(LIBSAIODIR) -I${SRCROOT}/i386/include
 
 OBJS = prf.x86.elf.o printf.x86.elf.o zalloc.x86.elf.o \
 	string.x86.elf.o strtol.x86.elf.o error.x86.elf.o \
