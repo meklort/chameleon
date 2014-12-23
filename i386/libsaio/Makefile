@@ -11,9 +11,9 @@ CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 DIR = libsaio
 include ${SRCROOT}/Make.rules
 
-UTILDIR  = ../util
-LIBSADIR = ../libsa
-BOOT2DIR = ../boot2
+UTILDIR  = ${abspath ../util}
+LIBSADIR = ${abspath ../libsa}
+BOOT2DIR = ${abspath ../boot2}
 
 DEFINES = -DNOTHING
 #DEFINES = -DDEBUG_CPU=1 -DDEBUG_MEM=1 -DDEBUG_SPD=1 -DDEBUG_PCI=1 -DDEBUG_SMBIOS=1
@@ -30,7 +30,7 @@ endif
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc++
 
-INC = -I. -I$(SRCROOT) -I$(SYMROOT) -I$(LIBSADIR) -I$(BOOT2DIR) -I${SRCROOT}/i386/include
+INC = -I${abspath .} -I$(SRCROOT) -I$(SYMROOT) -I$(LIBSADIR) -I$(BOOT2DIR) -I${SRCROOT}/i386/include
 
 
 SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
@@ -42,8 +42,6 @@ SAIO_OBJS = table.x86.elf.o asm.x86.elf.o bios.x86.elf.o biosfn.x86.elf.o \
 	sys.x86.elf.o \
 	shutdown.x86.elf.o \
 	ext2fs.x86.elf.o \
-	\
-	\
 	console.x86.elf.o exfat.x86.elf.o
 
 SAIO_OBJS := $(addprefix $(OBJROOT)/, $(SAIO_OBJS))
