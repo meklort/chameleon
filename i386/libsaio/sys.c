@@ -770,16 +770,6 @@ int readdir_ext(struct dirstuff * dirp, const char ** name, long * flags,
 
 //==========================================================================
 
-const char * systemConfigDir()
-{
-	if (gBootFileType == kNetworkDeviceType) {
-		return "";
-	}
-	return "/Library/Preferences/SystemConfiguration";
-}
-
-//==========================================================================
-
 int gBootFileType;
 
 void scanBootVolumes(int biosdev, int * count)
