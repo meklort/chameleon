@@ -25,8 +25,10 @@
 
 static inline void		rebase_location(UInt32* location, char* base, int type);
 static inline void		bind_location(UInt32* location, char* value, UInt32 addend, int type);
+UInt32 pre_parse_mach(void* binary);
 
-void module_section_handler(char* section, char* segment, void* cmd, UInt64 offset, UInt64 address);
+
+void module_section_handler(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address);
 
 // NOTE: Global so that modules can link with this
 static UInt64 textAddress = 0;
@@ -39,6 +41,9 @@ moduleHook_t* moduleCallbacks = NULL;
 moduleList_t* loadedModules = NULL;
 symbolList_t* moduleSymbols = NULL;
 unsigned int (*lookup_symbol)(const char*) = NULL;
+
+char* gAuthor = NULL;
+char* gDesc = NULL;
 
 char *strrchr(const char *s, int c)
 {
@@ -60,8 +65,8 @@ char *strrchr(const char *s, int c)
  */
 int init_module_system()
 {
-    // Start any modules that were compiled in first.
-    //start_built_in_modules();
+	// Start any modules that were compiled in first.
+	//start_built_in_modules();
 
 
 	int retVal = 0;
@@ -74,7 +79,7 @@ int init_module_system()
 	if(module_data)
 	{
 		// Module system  was compiled in (Symbols.dylib addr known)
-		parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+		parse_mach(module_data, 0, &load_module, &add_symbol, &module_section_handler);
 		module_start = (void*)remove_symbol(START_SYMBOL);
 
 		if(module_start && module_start != (void*)0xFFFFFFFF)
@@ -116,17 +121,20 @@ int init_module_system()
                         name[strlen(last) - sizeof("dylib")] = 0;
                         DBG("Loading multiboot module %s\n", name);
 
-                        parse_mach(module_data, &load_module, &add_symbol, &module_section_handler);
+			UInt32 base_size = pre_parse_mach((void*)mod->mm_mod_start);
+			char* base = base_size ? malloc(base_size) : 0;
+                        parse_mach(module_data, base, &load_module, &add_symbol, &module_section_handler);
+
 	                module_start = (void*)remove_symbol(START_SYMBOL);
 
 			if(initAddress && initFunctions)
 			{
-				void (**ctor)() = (void*)(initAddress + module_data);
+				void (**ctor)() = (void*)(initAddress + base);
 				while(initFunctions--)
 				{
-					UInt32 data = (UInt32)(initAddress + module_data);
-					UInt32 value = *(UInt32*)(initAddress + module_data);
-					DBG("Init function at %x = %x\n", data, value);
+					UInt32 data = (UInt32)(ctor);
+					UInt32 value = *(UInt32*)(ctor);
+					//DBG("Init function at %x = %x\n", data, value); DBGPAUSE();
 					ctor[0]();
 					ctor++;
 				}
@@ -135,7 +143,10 @@ int init_module_system()
                         if(module_start && module_start != (void*)0xFFFFFFFF)
                         {
                             // Notify the system that it was laoded
-                            module_loaded(name, module_data, module_start, NULL, NULL, 0, 0 /*moduleName, NULL, moduleVersion, moduleCompat*/);
+                            module_loaded(name, module_data, module_start, gAuthor, gDesc, 0, 0 /*moduleVersion, moduleCompat*/);
+			    if(gAuthor) { free(gAuthor); gAuthor = NULL; }
+			    if(gDesc) { free(gDesc); gDesc = NULL; }
+
                             (*module_start)();	// Start the module
                             DBG("Module %s Loaded.\n", name); DBGPAUSE();
                         }
@@ -238,17 +249,21 @@ int load_module(char* module)
 	if (moduleSize && read(fh, module_base, moduleSize) == moduleSize)
 	{
 		// Module loaded into memory, parse it
-		parse_mach(module_base, &load_module, &add_symbol, &module_section_handler);
+		UInt32 base_size = pre_parse_mach((void*)module_base);
+		char* base = base_size ? malloc(base_size) : 0;
+
+		parse_mach(module_base, base, &load_module, &add_symbol, &module_section_handler);
+
                 module_start = (void*)remove_symbol(START_SYMBOL);
 
 		if(initAddress && initFunctions)
 		{
-			void (**ctor)() = (void*)(initAddress + module_base);
+			void (**ctor)() = (void*)(initAddress + base);
 			while(initFunctions--)
 			{
-				UInt32 data = (UInt32)(initAddress + module_base);
-				UInt32 value = *(UInt32*)(initAddress + module_base);
-				DBG("Init function at %x = %x\n", data, value);
+				UInt32 data = (UInt32)(ctor);
+				UInt32 value = *(UInt32*)(ctor);
+				//DBG("Init function at %x = %x\n", data, value); DBGPAUSE();
 				ctor[0]();
 				ctor++;
 			}
@@ -257,8 +272,10 @@ int load_module(char* module)
 		if(module_start && module_start != (void*)0xFFFFFFFF)
 		{
 			// Notify the system that it was laoded
-			module_loaded(module, module_base, module_start, NULL, NULL, 0, 0 /*moduleName, NULL, moduleVersion, 
-moduleCompat*/);
+			module_loaded(module, module_base, module_start, gAuthor, gDesc, 0, 0 /* moduleVersion, moduleCompat*/);
+			if(gAuthor) { free(gAuthor); gAuthor = NULL; }
+			if(gDesc) { free(gDesc); gDesc = NULL; }
+
 			(*module_start)();	// Start the module
 			DBG("Module %s Loaded.\n", module); DBGPAUSE();
 		}
@@ -282,28 +299,64 @@ moduleCompat*/);
 	return retVal;
 }
 
+
 /* module_section_handler
  * This function is used to detect when a module has initilization / construcitons
  * that must run for the module to work properly.
  *
  */
-void module_section_handler(char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
+void module_section_handler(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
 {
+        struct section *sect = cmd;
+	if(!cmd) return; // ERROR
+
+	UInt8 flags = sect->flags & SECTION_TYPE;
+	if(flags == S_ZEROFILL)
+	{
+		uint32_t size = sect->size;
+		uint32_t addr = sect->addr;
+		DBG("Zeroing section %s,%s: ", section, segment);
+		DBG("%x bytes at %x\n", size, addr + new_base);
+		memset(addr + new_base, 0, size);
+	}
+	else if(sect->size && sect->offset)
+	{
+		uint32_t size = sect->size;
+		uint32_t addr = sect->addr;
+		uint32_t offset = sect->offset;
+		DBG("SeRelocaiton ction %s,%s: ", section, segment);
+		DBG("%x bytes from %x to %x\n", size, base + addr, new_base + addr);
+		memcpy(new_base + addr, base + addr, size);
+	}
+
 	if(	strcmp(section, INIT_SECTION) == 0 &&
 		strcmp(segment, INIT_SEGMENT) == 0)
 	{
+		// TODO: use rebased location
 		DBG("Module has initialization data.\n");
 
-		struct section *sect = cmd;
-		if(!cmd) return; // ERROR
 		UInt32 num_ctors = sect->size / sizeof(void*);
 		DBG("Found %d constructors\n", num_ctors);
-		DBG("Address: %x\n", address);
-		DBG("Offset: %x\n", offset);
         	initAddress = address;
 	        initFunctions = num_ctors;
 
 		DBGPAUSE();
+	}
+	else if(strcmp(segment, INFO_SEGMENT) == 0)
+	{
+                uint32_t size = sect->size;
+                uint32_t addr = sect->offset; // offset in file
+
+		char* string = malloc(size + 1);
+		memcpy(string, base + addr, size);
+		string[size] = 0;
+		
+		if(strcmp(section, AUTHOR_SECTION) == 0) gAuthor = string;
+		if(strcmp(section, DESC_SECTION) == 0) gDesc = string;
+
+		//free(string);
+		// TODO: look up author and description of module
+		
 	}
 }
 
@@ -357,7 +410,7 @@ long long add_symbol(char* symbol, long long addr, char is64)
 {
 	// This only can handle 32bit symbols
 	symbolList_t* entry;
-	//DBG("Adding symbol %s at 0x%X\n", symbol, addr);
+	DBG("Adding symbol %s at 0x%X\n", symbol, addr);
 
 	entry = malloc(sizeof(symbolList_t));
 	entry->next = moduleSymbols;
@@ -380,9 +433,9 @@ void module_loaded(const char* name, const void* base, void* start, const char* 
 
 	loadedModules = new_entry;
 
-    if(!name) name = "Unknown";
-    if(!author) author = "Unknown";
-    if(!description) description = "";
+	if(!name) name = "Unknown";
+	if(!author) author = "Unknown";
+	if(!description) description = "";
 
 	new_entry->name = name;
 	new_entry->author = author;
@@ -461,6 +514,66 @@ unsigned int lookup_all_symbols(const char* name)
 /********************************************************************************/
 
 /*
+ * Parse teh macho module and determine the total ammount of memory needed for it.
+ *
+ */
+UInt32 pre_parse_mach(void* binary)
+{
+	UInt32 size = 0;
+	UInt32 binaryIndex = 0;
+	UInt16 cmd = 0;
+	struct load_command *loadCommand = NULL;
+		struct segment_command *segCommand = NULL;
+
+	// Parse through the load commands
+	if(((struct mach_header*)binary)->magic != MH_MAGIC)
+	{
+		// Invalid
+		return 0;
+	}
+	
+	binaryIndex += sizeof(struct mach_header);
+	
+	while(cmd < ((struct mach_header*)binary)->ncmds)
+	{
+		cmd++;
+
+		loadCommand = binary + binaryIndex;
+		UInt32 cmdSize = loadCommand->cmdsize;
+
+
+		switch ((loadCommand->cmd & 0x7FFFFFFF))
+		{
+			case LC_SEGMENT: // 32bit macho
+                	{
+				segCommand = binary + binaryIndex;
+
+				UInt32 sectionIndex;
+				sectionIndex = sizeof(struct segment_command);
+				
+				struct section *sect;
+								
+				while(sectionIndex < segCommand->cmdsize)
+				{
+					sect = binary + binaryIndex + sectionIndex;
+					sectionIndex += sizeof(struct section);
+				}
+				if(strcmp(segCommand->segname, "__LINKEDIT") == 0) break;
+				if(strcmp(segCommand->segname, "__INFO") == 0) break;
+
+				size += segCommand->vmsize;
+
+
+	                }
+			break;
+		}
+		binaryIndex += cmdSize;
+
+	}
+	return size;
+}
+
+/*
  * Parse through a macho module. The module will be rebased and binded
  * as specified in the macho header. If the module is successfully loaded
  * the module iinit address will be returned.
@@ -468,10 +581,10 @@ unsigned int lookup_all_symbols(const char* name)
  * NOTE: If the module is unable to load ot completeion, the modules
  * symbols will still be available.
  */
-void* parse_mach(void* binary,
+void* parse_mach(void* binary, void* base,
                  int(*dylib_loader)(char*),
                  long long(*symbol_handler)(char*, long long, char),
-                 void (*section_handler)(char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
+                 void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
 )
 {
 	char is64 = false;
@@ -555,7 +668,7 @@ void* parse_mach(void* binary,
 
                         sectionIndex += sizeof(struct section);
 
-                        if(section_handler) section_handler(sect->sectname, segCommand->segname, (void*)sect, sect->offset, sect->addr);
+                        if(section_handler) section_handler(binary, base, sect->sectname, segCommand->segname, (void*)sect, sect->offset, sect->addr);
 
                         if((strcmp("__TEXT", segCommand->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
                         {
@@ -581,7 +694,7 @@ void* parse_mach(void* binary,
 
                         sectionIndex += sizeof(struct section_64);
 
-                        if(section_handler) section_handler(sect->sectname, segCommand64->segname, (void*)sect, sect->offset, sect->addr);
+                        if(section_handler) section_handler(binary, base, sect->sectname, segCommand64->segname, (void*)sect, sect->offset, sect->addr);
 
                         if((strcmp("__TEXT", segCommand64->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
                         {
@@ -656,16 +769,16 @@ void* parse_mach(void* binary,
 	}
 
 	// bind_macho uses the symbols, if the textAdd does not exist (Symbols.dylib, no code), addresses are static and not relative
-	module_start = (void*)handle_symtable((UInt32)binary, symtabCommand, symbol_handler, is64);
-
+	module_start = (void*)handle_symtable((UInt32)binary, (UInt32)base, symtabCommand, symbol_handler, is64);
+	
 	if(dyldInfoCommand)
 	{
 		// Rebase the module before binding it.
-		if(dyldInfoCommand->rebase_off)		rebase_macho(binary, (char*)dyldInfoCommand->rebase_off,	dyldInfoCommand->rebase_size);
+		if(dyldInfoCommand->rebase_off)		rebase_macho(binary, base, (char*)dyldInfoCommand->rebase_off,	dyldInfoCommand->rebase_size);
 		// Bind all symbols.
-		if(dyldInfoCommand->bind_off)		bind_macho(binary,   (UInt8*)dyldInfoCommand->bind_off,		dyldInfoCommand->bind_size);
-		if(dyldInfoCommand->weak_bind_off)	bind_macho(binary,   (UInt8*)dyldInfoCommand->weak_bind_off,	dyldInfoCommand->weak_bind_size);
-		if(dyldInfoCommand->lazy_bind_off)	bind_macho(binary,   (UInt8*)dyldInfoCommand->lazy_bind_off,	dyldInfoCommand->lazy_bind_size);
+		if(dyldInfoCommand->bind_off)		bind_macho(binary,   base, (UInt8*)dyldInfoCommand->bind_off,		dyldInfoCommand->bind_size);
+		if(dyldInfoCommand->weak_bind_off)	bind_macho(binary,   base, (UInt8*)dyldInfoCommand->weak_bind_off,	dyldInfoCommand->weak_bind_size);
+		if(dyldInfoCommand->lazy_bind_off)	bind_macho(binary,   base, (UInt8*)dyldInfoCommand->lazy_bind_off,	dyldInfoCommand->lazy_bind_size);
 	}
 
 	return module_start;
@@ -677,7 +790,7 @@ void* parse_mach(void* binary,
  * Lookup any undefined symbols
  */
 
-unsigned int handle_symtable(UInt32 base, struct symtab_command* symtabCommand, long long(*symbol_handler)(char*, long long, char), char is64)
+unsigned int handle_symtable(UInt32 base, UInt32 new_base, struct symtab_command* symtabCommand, long long(*symbol_handler)(char*, long long, char), char is64)
 {
 	unsigned int module_start	= 0xFFFFFFFF;
 	UInt32 symbolIndex			= 0;
@@ -690,11 +803,11 @@ unsigned int handle_symtable(UInt32 base, struct symtab_command* symtabCommand, 
 		{
 			// If the symbol is exported by this module
 			if(symbolEntry->n_value &&
-			   symbol_handler(symbolString + symbolEntry->n_un.n_strx, textAddress ? (long long)base + symbolEntry->n_value : symbolEntry->n_value, is64) != 0xFFFFFFFF)
+			   symbol_handler(symbolString + symbolEntry->n_un.n_strx, textAddress ? (long long)new_base + symbolEntry->n_value : symbolEntry->n_value, is64) != 0xFFFFFFFF)
 			{
 
 				// Module start located. Start is an alias so don't register it
-				module_start = textAddress ? base + symbolEntry->n_value : symbolEntry->n_value;
+				module_start = textAddress ? new_base + symbolEntry->n_value : symbolEntry->n_value;
 			}
 
 			symbolEntry++;
@@ -711,11 +824,11 @@ unsigned int handle_symtable(UInt32 base, struct symtab_command* symtabCommand, 
 
 			// If the symbol is exported by this module
 			if(symbolEntry->n_value &&
-			   symbol_handler(symbolString + symbolEntry->n_un.n_strx, textAddress ? (long long)base + symbolEntry->n_value : symbolEntry->n_value, is64) != 0xFFFFFFFF)
+			   symbol_handler(symbolString + symbolEntry->n_un.n_strx, textAddress ? (long long)new_base + symbolEntry->n_value : symbolEntry->n_value, is64) != 0xFFFFFFFF)
 			{
 
 				// Module start located. Start is an alias so don't register it
-				module_start = textAddress ? base + symbolEntry->n_value : symbolEntry->n_value;
+				module_start = textAddress ? new_base + symbolEntry->n_value : symbolEntry->n_value;
 			}
 
 			symbolEntry++;
@@ -726,7 +839,7 @@ unsigned int handle_symtable(UInt32 base, struct symtab_command* symtabCommand, 
 }
 
 // Based on code from dylibinfo.cpp and ImageLoaderMachOCompressed.cpp
-void rebase_macho(void* base, char* rebase_stream, UInt32 size)
+void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
 {
 	rebase_stream += (UInt32)base;
 
@@ -781,7 +894,6 @@ void rebase_macho(void* base, char* rebase_stream, UInt32 size)
 				} while(index <= immediate);
 
 				segmentAddress = segCommand->fileoff;
-
 				tmp = 0;
 				bits = 0;
 				do {
@@ -814,7 +926,7 @@ void rebase_macho(void* base, char* rebase_stream, UInt32 size)
 			case REBASE_OPCODE_DO_REBASE_IMM_TIMES:
 				index = 0;
 				for (index = 0; index < immediate; ++index) {
-					rebase_location(base + segmentAddress, (char*)base, type);
+					rebase_location(new_base + segmentAddress, (char*)new_base, type);
 					segmentAddress += sizeof(void*);
 				}
 				break;
@@ -830,7 +942,7 @@ void rebase_macho(void* base, char* rebase_stream, UInt32 size)
 				index = 0;
 				for (index = 0; index < tmp; ++index) {
 					//DBG("\tRebasing 0x%X\n", segmentAddress);
-					rebase_location(base + segmentAddress, (char*)base, type);
+					rebase_location(new_base + segmentAddress, (char*)new_base, type);
 					segmentAddress += sizeof(void*);
 				}
 				break;
@@ -843,7 +955,7 @@ void rebase_macho(void* base, char* rebase_stream, UInt32 size)
 					bits += 7;
 				} while(rebase_stream[i] & 0x80);
 
-				rebase_location(base + segmentAddress, (char*)base, type);
+				rebase_location(new_base + segmentAddress, (char*)new_base, type);
 
 				segmentAddress += tmp + sizeof(void*);
 				break;
@@ -867,7 +979,7 @@ void rebase_macho(void* base, char* rebase_stream, UInt32 size)
 				index = 0;
 				for (index = 0; index < tmp; ++index) {
 
-					rebase_location(base + segmentAddress, (char*)base, type);
+					rebase_location(new_base + segmentAddress, (char*)new_base, type);
 
 					segmentAddress += tmp2 + sizeof(void*);
 				}
@@ -901,7 +1013,7 @@ UInt32 read_uleb(UInt8* bind_stream, unsigned int* i)
 // NOTE: this uses 32bit values, and not 64bit values.
 // There is a possibility that this could cause issues,
 // however the modules are 32 bits, so it shouldn't matter too much
-void bind_macho(void* base, UInt8* bind_stream, UInt32 size)
+void bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size)
 {
 	bind_stream += (UInt32)base;
 
@@ -1002,7 +1114,7 @@ void bind_macho(void* base, UInt8* bind_stream, UInt32 size)
 			case BIND_OPCODE_DO_BIND:
 				if(symbolAddr != 0xFFFFFFFF)
 				{
-					address = segmentAddress + (UInt32)base;
+					address = segmentAddress + (UInt32)new_base;
 
 					bind_location((UInt32*)address, (char*)symbolAddr, addend, type);
 				}
@@ -1021,7 +1133,7 @@ void bind_macho(void* base, UInt8* bind_stream, UInt32 size)
 
 				if(symbolAddr != 0xFFFFFFFF)
 				{
-					address = segmentAddress + (UInt32)base;
+					address = segmentAddress + (UInt32)new_base;
 
 					bind_location((UInt32*)address, (char*)symbolAddr, addend, type);
 				}
@@ -1039,7 +1151,7 @@ void bind_macho(void* base, UInt8* bind_stream, UInt32 size)
 			case BIND_OPCODE_DO_BIND_ADD_ADDR_IMM_SCALED:
 				if(symbolAddr != 0xFFFFFFFF)
 				{
-					address = segmentAddress + (UInt32)base;
+					address = segmentAddress + (UInt32)new_base;
 
 					bind_location((UInt32*)address, (char*)symbolAddr, addend, type);
 				}
@@ -1063,7 +1175,7 @@ void bind_macho(void* base, UInt8* bind_stream, UInt32 size)
 					for(index = 0; index < tmp; index++)
 					{
 
-						address = segmentAddress + (UInt32)base;
+						address = segmentAddress + (UInt32)new_base;
 						bind_location((UInt32*)address, (char*)symbolAddr, addend, type);
 						segmentAddress += tmp2 + sizeof(void*);
 					}

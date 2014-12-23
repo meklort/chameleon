@@ -24,8 +24,15 @@
 #define START_SYMBOL		"start"
 
 
-#define INIT_SECTION		"__mod_init_func"
 #define INIT_SEGMENT		"__DATA"
+#define INIT_SECTION		"__mod_init_func"
+
+#define DATA_SEGMENT		"__DATA"
+#define BSS_SECTION		"__bss"
+
+#define INFO_SEGMENT		"__INFO"
+#define AUTHOR_SECTION		"__author"
+#define DESC_SECTION		"__description"
 
 
 typedef struct symbolList_t
@@ -92,18 +99,18 @@ long long remove_symbol(char* name);
 /********************************************************************************/
 /*	Macho Parser																*/
 /********************************************************************************/
-void*			parse_mach(void* binary, 
+void*			parse_mach(void* binary, void* base,
 							int(*dylib_loader)(char*),
 							long long(*symbol_handler)(char*, long long, char),
-                            void (*section_handler)(char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
+                            void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
                            );
-unsigned int	handle_symtable(UInt32 base,
+unsigned int	handle_symtable(UInt32 base, UInt32 new_base,
 							 struct symtab_command* symtabCommand,
 							 long long(*symbol_handler)(char*, long long, char),
 							 char is64);
-void			rebase_macho(void* base, char* rebase_stream, UInt32 size);
+void			rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size);
 
-void			bind_macho(void* base, UInt8* bind_stream, UInt32 size);
+void			bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size);
 
 
 /********************************************************************************/
