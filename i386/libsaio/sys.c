@@ -676,6 +676,22 @@ struct dirstuff * vol_opendir(BVRef bvr, const char * path)
 
 	dirp->dir_bvr = bvr;
 
+	// Check to verify that dir exists:
+	const char* name;
+	long flags;
+	long time;
+	if(readdir(dirp, &name, &flags, &time) < 0)
+	{
+		// Does not exist.
+		goto error;
+	}
+	else
+	{
+		// rewind index
+		dirp->dir_index = 0;
+	}
+
+
 	return dirp;
 
 error:
