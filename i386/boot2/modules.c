@@ -102,11 +102,9 @@ int init_module_system()
                         if(last) last++;
                         else last = mod->mm_string;
 
-                        char* name = strdup(last);
-                        name[strlen(last) - sizeof("dylib")] = 0;
-                        DBG("Loading multiboot module %s\n", name);
+                        DBG("Loading multiboot module %s\n", last);
 			
-			load_module_binary(module_data, name);
+			load_module_binary(module_data, last);
                     }
                 }
             }
