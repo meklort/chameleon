@@ -78,24 +78,7 @@ int init_module_system()
 	// Intialize module system
 	if(module_data)
 	{
-		// Module system  was compiled in (Symbols.dylib addr known)
-		parse_mach(module_data, 0, &load_module, &add_symbol, &module_section_handler);
-		module_start = (void*)remove_symbol(START_SYMBOL);
-
-		if(module_start && module_start != (void*)0xFFFFFFFF)
-		{
-			// Notify the system that it was laoded
-			module_loaded(SYMBOLS_MODULE, module_data, module_start, SYMBOLS_AUTHOR, SYMBOLS_DESCRIPTION, SYMBOLS_VERSION, SYMBOLS_COMPAT);
-			(*module_start)();	// Start the module. This will point to load_all_modules due to the way the dylib was constructed.
-			DBG("Module %s Loaded.\n", SYMBOLS_MODULE);
-			retVal = 1;
-
-		}
-		else
-		{
-			// The module does not have a valid start function
-			printf("Unable to start %s at 0x%x\n", SYMBOLS_MODULE, module_data); pause();
-		}
+		load_module_binary(module_data, SYMBOLS_MODULE);
 	}
 
     // Look for modules located in the multiboot header.
@@ -191,7 +174,7 @@ int load_module_binary(char* binary, char* module)
 
 	// Module loaded into memory, parse it
 	UInt32 base_size = pre_parse_mach((void*)binary);
-	char* base = base_size ? malloc(base_size) : 0;
+	char* base = base_size ? malloc(base_size) : binary;
 
 	parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
 
