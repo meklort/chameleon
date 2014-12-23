@@ -281,7 +281,7 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
 	{
 		uint32_t size = sect->size;
 		uint32_t addr = sect->addr;
-		DBG("Zeroing section %s,%s: ", section, segment);
+		DBG("Zeroing section    %s,%s: ", section, segment);
 		DBG("%x bytes at %x\n", size, addr + new_base);
 		memset(addr + new_base, 0, size);
 	}
@@ -290,7 +290,7 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
 		uint32_t size = sect->size;
 		uint32_t addr = sect->addr;
 		uint32_t offset = sect->offset;
-		DBG("SeRelocaiton ction %s,%s: ", section, segment);
+		DBG("Relocation section %s,%s: ", section, segment);
 		DBG("%x bytes from %x to %x\n", size, base + addr, new_base + addr);
 		memcpy(new_base + addr, base + addr, size);
 	}
