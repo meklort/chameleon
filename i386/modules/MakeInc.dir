@@ -44,7 +44,8 @@ BOOT2DIR = ${SRCROOT}/i386/boot2
 MODULE_INCLUDES :=  $(foreach x,$(MODULE_DEPENDENCIES),-I$(SRCROOT)/i386/modules/$(x)/include/)
 
 
-INC = -I$(SRCROOT)/i386/modules/include/ -Iinclude/ -I$(SRCROOT)/i386/libsaio/ -I$(SRCROOT)/i386/libsa/ -I$(SRCROOT)/i386/include/ -I$(SRCROOT)/i386/boot2/ $(MODULE_INCLUDES)
+INC = -I$(SRCROOT)/i386/modules/include/ -I${abspath include/} -I$(SRCROOT)/i386/libsaio/ -I$(SRCROOT)/i386/libsa/ \
+	-I$(SRCROOT)/i386/include/ -I$(SRCROOT)/i386/boot2/ $(MODULE_INCLUDES)
 DEFINES := -D__KLIBC__ $(DEFINES)
 
 MODULE_DEPS = ${wildcard $(foreach x,$(MODULE_DEPENDENCIES),$(SYMROOT)/$(x).dylib)}
