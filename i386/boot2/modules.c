@@ -198,7 +198,7 @@ int load_module_binary(char* binary, char* module)
 	if(module_start && module_start != (void*)0xFFFFFFFF)
 	{
 		// Notify the system that it was laoded
-		module_loaded(module, binary, module_start, gAuthor, gDesc, gVersion, gCompat);
+		module_loaded(module, ((UInt32)textAddress) + base, module_start, gAuthor, gDesc, gVersion, gCompat);
 		if(gAuthor) { free(gAuthor); gAuthor = NULL; }
 		if(gDesc) { free(gDesc); gDesc = NULL; }
 		gVersion = 0;
