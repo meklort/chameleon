@@ -120,36 +120,8 @@ int init_module_system()
                         char* name = strdup(last);
                         name[strlen(last) - sizeof("dylib")] = 0;
                         DBG("Loading multiboot module %s\n", name);
-
-			UInt32 base_size = pre_parse_mach((void*)mod->mm_mod_start);
-			char* base = base_size ? malloc(base_size) : 0;
-                        parse_mach(module_data, base, &load_module, &add_symbol, &module_section_handler);
-
-	                module_start = (void*)remove_symbol(START_SYMBOL);
-
-			if(initAddress && initFunctions)
-			{
-				void (**ctor)() = (void*)(initAddress + base);
-				while(initFunctions--)
-				{
-					UInt32 data = (UInt32)(ctor);
-					UInt32 value = *(UInt32*)(ctor);
-					//DBG("Init function at %x = %x\n", data, value); DBGPAUSE();
-					ctor[0]();
-					ctor++;
-				}
-			}
-
-                        if(module_start && module_start != (void*)0xFFFFFFFF)
-                        {
-                            // Notify the system that it was laoded
-                            module_loaded(name, module_data, module_start, gAuthor, gDesc, 0, 0 /*moduleVersion, moduleCompat*/);
-			    if(gAuthor) { free(gAuthor); gAuthor = NULL; }
-			    if(gDesc) { free(gDesc); gDesc = NULL; }
-
-                            (*module_start)();	// Start the module
-                            DBG("Module %s Loaded.\n", name); DBGPAUSE();
-                        }
+			
+			load_module_binary(module_data, name);
                     }
                 }
             }
@@ -213,6 +185,57 @@ void load_all_modules()
 	closedir(moduleDir);
 }
 
+int load_module_binary(char* binary, char* module)
+{
+	void (*module_start)(void) = NULL;
+
+	// Module loaded into memory, parse it
+	UInt32 base_size = pre_parse_mach((void*)binary);
+	char* base = base_size ? malloc(base_size) : 0;
+
+	parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
+
+	module_start = (void*)remove_symbol(START_SYMBOL);
+
+	if(initAddress && initFunctions)
+	{
+		void (**ctor)() = (void*)(initAddress + base);
+		while(initFunctions--)
+		{
+			UInt32 data = (UInt32)(ctor);
+			UInt32 value = *(UInt32*)(ctor);
+			//DBG("Init function at %x = %x\n", data, value); DBGPAUSE();
+			ctor[0]();
+			ctor++;
+		}
+	}
+
+	if(module_start && module_start != (void*)0xFFFFFFFF)
+	{
+		// Notify the system that it was laoded
+		module_loaded(module, binary, module_start, gAuthor, gDesc, 0, 0 /* moduleVersion, moduleCompat*/);
+		if(gAuthor) { free(gAuthor); gAuthor = NULL; }
+		if(gDesc) { free(gDesc); gDesc = NULL; }
+
+		(*module_start)();	// Start the module
+		DBG("Module %s Loaded.\n", module); DBGPAUSE();
+	}
+#if CONFIG_MODULE_DEBUG
+	else // The module does not have a valid start function. This may be a library.
+	{
+		printf("WARNING: Unable to start %s\n", module);
+		getchar();
+		return -1;
+	}
+#else
+	else 
+	{
+		verbose("WARNING: Unable to start %s\n", module);
+		return -1;
+	}
+#endif
+	return 0;
+}
 
 /*
  * Load a module file in /Extra/modules/
@@ -220,7 +243,6 @@ void load_all_modules()
 int load_module(char* module)
 {
 	int retVal = 1;
-	void (*module_start)(void) = NULL;
 	char modString[128];
 	int fh = -1;
 
@@ -248,46 +270,7 @@ int load_module(char* module)
 	char* module_base = (char*) malloc(moduleSize);
 	if (moduleSize && read(fh, module_base, moduleSize) == moduleSize)
 	{
-		// Module loaded into memory, parse it
-		UInt32 base_size = pre_parse_mach((void*)module_base);
-		char* base = base_size ? malloc(base_size) : 0;
-
-		parse_mach(module_base, base, &load_module, &add_symbol, &module_section_handler);
-
-                module_start = (void*)remove_symbol(START_SYMBOL);
-
-		if(initAddress && initFunctions)
-		{
-			void (**ctor)() = (void*)(initAddress + base);
-			while(initFunctions--)
-			{
-				UInt32 data = (UInt32)(ctor);
-				UInt32 value = *(UInt32*)(ctor);
-				//DBG("Init function at %x = %x\n", data, value); DBGPAUSE();
-				ctor[0]();
-				ctor++;
-			}
-		}
-
-		if(module_start && module_start != (void*)0xFFFFFFFF)
-		{
-			// Notify the system that it was laoded
-			module_loaded(module, module_base, module_start, gAuthor, gDesc, 0, 0 /* moduleVersion, moduleCompat*/);
-			if(gAuthor) { free(gAuthor); gAuthor = NULL; }
-			if(gDesc) { free(gDesc); gDesc = NULL; }
-
-			(*module_start)();	// Start the module
-			DBG("Module %s Loaded.\n", module); DBGPAUSE();
-		}
-#if CONFIG_MODULE_DEBUG
-		else // The module does not have a valid start function. This may be a library.
-		{
-			printf("WARNING: Unable to start %s\n", module);
-			getchar();
-		}
-#else
-		else verbose("WARNING: Unable to start %s\n", module);
-#endif
+		load_module_binary(module_base, module);
 	}
 	else
 	{
