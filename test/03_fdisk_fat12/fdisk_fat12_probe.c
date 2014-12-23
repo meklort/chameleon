@@ -48,6 +48,6 @@ void fdisk_fat12_probe_start()
     printf("extra is %x\n", extra);
     printf("bvChain is %x\n", bvChain);
 
-    if(bvChain !&& dir && !extra) printf("PASS\n"); // We should have found a file system.. but not a native / file sys."
+    if(bvChain && !dir && !extra) printf("PASS\n"); // We should have found a file system.. but not a native / file sys."
     system_shutdown();
 }
