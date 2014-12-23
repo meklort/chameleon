@@ -294,7 +294,7 @@ int load_module(char* module)
 		DBG("Unable to read in module %s\n.", module); DBGPAUSE();
 		retVal = 0;
 	}
-
+	if(module_base) free(module_base); // Moduel was copied to new location
 	close(fh);
 	return retVal;
 }
