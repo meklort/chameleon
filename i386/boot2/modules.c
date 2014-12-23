@@ -44,6 +44,8 @@ unsigned int (*lookup_symbol)(const char*) = NULL;
 
 char* gAuthor = NULL;
 char* gDesc = NULL;
+UInt32 gVersion = 0;
+UInt32 gCompat = 0;
 
 char *strrchr(const char *s, int c)
 {
@@ -153,7 +155,7 @@ void load_all_modules()
 			char* tmp = malloc(strlen(name) + 1);
 			strcpy(tmp, name);
 
-			if(!load_module(tmp)) {
+			if(!load_module(tmp, 0)) {
 				// failed to load
 				// free(tmp);
 			}
@@ -196,9 +198,11 @@ int load_module_binary(char* binary, char* module)
 	if(module_start && module_start != (void*)0xFFFFFFFF)
 	{
 		// Notify the system that it was laoded
-		module_loaded(module, binary, module_start, gAuthor, gDesc, 0, 0 /* moduleVersion, moduleCompat*/);
+		module_loaded(module, binary, module_start, gAuthor, gDesc, gVersion, gCompat);
 		if(gAuthor) { free(gAuthor); gAuthor = NULL; }
 		if(gDesc) { free(gDesc); gDesc = NULL; }
+		gVersion = 0;
+		gCompat = 0;
 
 		(*module_start)();	// Start the module
 		DBG("Module %s Loaded.\n", module); DBGPAUSE();
@@ -223,17 +227,19 @@ int load_module_binary(char* binary, char* module)
 /*
  * Load a module file in /Extra/modules/
  */
-int load_module(char* module)
+int load_module(char* module, UInt32 compat)
 {
 	int retVal = 1;
 	char modString[128];
 	int fh = -1;
 
 	// Check to see if the module has already been loaded
-	if(is_module_loaded(module))
+	int loaded = is_module_loaded(module, compat);
+	if(loaded == MODULE_FOUND)
 	{
 		return 1;
 	}
+	if(loaded == MODULE_INVALID_VERSION) return 0;
 
 	snprintf(modString, sizeof(modString), MODULE_PATH "%s", module);
 	fh = open(modString, 0);
@@ -410,14 +416,14 @@ void module_loaded(const char* name, const void* base, void* start, const char* 
 	new_entry->compat = compat;
 	new_entry->base = base;
 
-	verbose("Module '%s' by '%s' Loaded.\n", name, author);
-	verbose("\tInitialization: 0x%X\n", start);
-	verbose("\tDescription: %s\n", description);
-	verbose("\tVersion: %d\n", version); // todo: sperate to major.minor.bugfix
-	verbose("\tCompat:  %d\n", compat);  // todo: ^^^ major.minor.bugfix
+	DBG("Module '%s' by '%s' Loaded.\n", name, author);
+	DBG("\tInitialization: 0x%X\n", start);
+	DBG("\tDescription: %s\n", description);
+	DBG("\tVersion: %d.%d.%d\n", version >> 16, version >> 8 & 0xFF, version & 0xFF); // todo: sperate to major.minor.bugfix
+	DBG("\tCompat:  %d.%d.%d\n", compat >> 16, compat >> 8 & 0xFF, compat & 0xFF);  // todo: ^^^ major.minor.bugfix
 }
 
-int is_module_loaded(const char* name)
+int is_module_loaded(const char* name, UInt32 compat)
 {
 	// todo sorted search
 	moduleList_t* entry = loadedModules;
@@ -425,8 +431,36 @@ int is_module_loaded(const char* name)
 	{
 		if(strcmp(entry->name, name) == 0)
 		{
+			if(!compat) return 1; // Ignore compat version
+			UInt8 minor = compat >> 8 & 0xFF;
+			UInt16 major = compat >> 16;
+			UInt8 act_minor = entry->compat >> 8 & 0xFF;
+			UInt16 act_major = entry->compat >> 16;
+
 			DBG("Located module %s\n", name); DBGPAUSE();
-			return 1;
+			if(act_major == major)
+			{
+				// Found major version compat, check minor version
+				if(minor <= act_minor)
+				{
+					// Loaded module has a larger minor version, is compat
+					return MODULE_FOUND;
+				}
+				else
+				{
+					// Loaded minor is older tahn teh expected minor revision. ERROR.
+				}
+			}
+			// Major versions do not match.
+			printf("Expected module %s minor version is too old.\n"
+				"Wanted: %d.%d.%d\n"
+				"Found: %d.%d.%d\n", 
+				name, 
+				major, minor, compat & 0xFF,
+				act_major, act_minor, entry->compat & 0xFF);
+			getchar();
+
+			return MODULE_INVALID_VERSION;
 		}
 		else
 		{
@@ -548,7 +582,7 @@ UInt32 pre_parse_mach(void* binary)
  * symbols will still be available.
  */
 void* parse_mach(void* binary, void* base,
-                 int(*dylib_loader)(char*),
+                 int(*dylib_loader)(char*, UInt32 compat),
                  long long(*symbol_handler)(char*, long long, char),
                  void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
 )
@@ -679,14 +713,14 @@ void* parse_mach(void* binary, void* base,
 				dylibCommand  = binary + binaryIndex;
 				char* module  = binary + binaryIndex + ((UInt32)*((UInt32*)&dylibCommand->dylib.name));
 				// Possible enhancments: verify version
-				// =	dylibCommand->dylib.current_version;
+				UInt32 compat = dylibCommand->dylib.current_version;
 				// =	dylibCommand->dylib.compatibility_version;
 				if(dylib_loader)
 				{
 					char* name = malloc(strlen(module) + strlen(".dylib") + 1);
 					sprintf(name, "%s.dylib", module);
 
-					if (!dylib_loader(name))
+					if (!dylib_loader(name, compat))
 					{
 						// NOTE: any symbols exported by dep will be replace with the void function
 						free(name);
@@ -696,11 +730,11 @@ void* parse_mach(void* binary, void* base,
 				break;
 
 			case LC_ID_DYLIB:
-				//dylibCommand = binary + binaryIndex;
-				/*moduleName =	binary + binaryIndex + ((UInt32)*((UInt32*)&dylibCommand->dylib.name));
-				 moduleVersion =	dylibCommand->dylib.current_version;
-				 moduleCompat =	dylibCommand->dylib.compatibility_version;
-				 */
+				dylibCommand = binary + binaryIndex;
+				//moduleName =	binary + binaryIndex + ((UInt32)*((UInt32*)&dylibCommand->dylib.name));
+				gVersion =	dylibCommand->dylib.current_version;
+				gCompat =	dylibCommand->dylib.compatibility_version;
+				 
 				break;
 
 			case LC_DYLD_INFO:

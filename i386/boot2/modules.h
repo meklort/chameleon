@@ -78,10 +78,13 @@ void start_built_in_module(const char* name,
                            UInt32 compat,
                            void(*start_function)(void));
 
-int load_module(char* module);
+int load_module(char* module, UInt32 compat);
 int load_module_binary(char* binary, char* module);
 
-int is_module_loaded(const char* name);
+
+#define MODULE_FOUND		1
+#define MODULE_INVALID_VERSION	2
+int is_module_loaded(const char* name, UInt32 compat);
 void module_loaded(const char* name, const void* base, void* start, const char* author, const char* description, UInt32 
 version, UInt32 compat);
 
@@ -102,7 +105,7 @@ long long remove_symbol(char* name);
 /*	Macho Parser																*/
 /********************************************************************************/
 void*			parse_mach(void* binary, void* base,
-							int(*dylib_loader)(char*),
+							int(*dylib_loader)(char*, UInt32 compat),
 							long long(*symbol_handler)(char*, long long, char),
                             void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
                            );
