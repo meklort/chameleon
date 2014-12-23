@@ -42,12 +42,15 @@ void fdisk_fat12_probe_start()
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
     replace_function("_bios_putchar", (void*)&write_serial);
 
+
+
     struct dirstuff* dir = opendir("/");
+    struct dirstuff* boot = opendir("bt(0,0)/");
     struct dirstuff* extra = opendir("/Extra/");
     printf("dir si %x\n", dir);
     printf("extra is %x\n", extra);
     printf("bvChain is %x\n", bvChain);
 
-    if(bvChain && !dir && !extra) printf("PASS\n"); // We should have found a file system.. but not a native / file sys."
+    if(bvChain && !boot && !dir && !extra) printf("PASS\n"); // We should have found a file system.. but not a native / file sys."
     system_shutdown();
 }
