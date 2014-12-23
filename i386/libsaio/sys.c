@@ -1060,6 +1060,11 @@ static BVRef newBootVolumeRef( int biosdev, int partno )
 
 	bvr = bvr1 = NULL;
 
+	if (biosdev == kPseudoBIOSDevBooter)
+	{
+		return gBIOSBootVolume;
+	}
+
     // Fetch the volume list from the device.
     
     scanBootVolumes( biosdev, NULL );
