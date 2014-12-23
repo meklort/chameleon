@@ -20,17 +20,19 @@ ${BOOT_ELF}:
 CFLAGS := $(CLFAGS) -nostdinc -Werror \
 -fno-builtin -fno-stack-protector \
 -march=pentium4 -msse2 -msoft-float \
--include $(SRCROOT)/autoconf.h -ggdb
+-include $(SRCROOT)/autoconf.h
 
 CPPFLAGS := $(CPPFLAGS) -nostdinc -Werror \
 -fno-builtin -fno-stack-protector \
 -march=pentium4 -msse2 -msoft-float \
--include $(SRCROOT)/autoconf.h -ggdb
+-include $(SRCROOT)/autoconf.h
 
 
 ifeq (${CONFIG_COVERAGE},y)
-CFLAGS += -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
-CPPFLAGS += -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
+CFLAGS += -g -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
+CPPFLAGS += -g -fprofile-arcs -ftest-coverage -Xclang -coverage-cfg-checksum -Xclang -coverage-no-function-names-in-data -Xclang -coverage-version='407*'
+else
+DEBUG_DISABLE = -S 
 endif
 
 
@@ -79,7 +81,7 @@ $(SYMROOT)/$(MODULE_NAME).dylib: $(MODULE_OBJS) $(MODULE_DEPS) $(OBJROOT)/$(MODU
 		${MODULE_DEPENDENCIES_CMD} \
 		-dylib -read_only_relocs suppress \
 		-alias _$(MODULE_START) start \
-		-S -Z -dead_strip_dylibs \
+		${DEBUG_DISABLE} -Z -dead_strip_dylibs \
 		-no_uuid \
 		-current_version $(MODULE_VERSION) -compatibility_version $(MODULE_COMPAT_VERSION) \
 		-final_output $(MODULE_NAME) \
