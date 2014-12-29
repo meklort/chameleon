@@ -77,9 +77,9 @@ BVRef		bvr, menuBVR, bvChain;
 
 static void zeroBSS(void)
 {
-	extern char*  __bss_stop;
+	extern char*  __bss_end;
 	extern char*  __bss_start;
-	bzero(&__bss_start, (&__bss_stop - &__bss_start));
+	bzero(&__bss_start, (&__bss_end - &__bss_start));
 }
 
 typedef void (*linker_function_t)();
