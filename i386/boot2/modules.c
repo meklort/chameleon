@@ -74,8 +74,8 @@ int init_module_system()
 	int retVal = 0;
 	void (*module_start)(void) = NULL;
 
-	extern char  __data_start;
-	char* module_data = &__data_start;
+	extern char*  __data_start;
+	char* module_data = (char*)&__data_start;
 
 	// Intialize module system
 	if(module_data)
@@ -84,36 +84,35 @@ int init_module_system()
 	}
 
     // Look for modules located in the multiboot header.
-    if(gMI->mi_flags & MULTIBOOT_INFO_HAS_MODS)
+    if(gMI && (gMI->mi_flags & MULTIBOOT_INFO_HAS_MODS) && gMI->mi_mods_count)
     {
-        if(gMI->mi_mods_count)
+        struct multiboot_module* mod = (struct multiboot_module*)gMI->mi_mods_addr;
+        UInt32 count = gMI->mi_mods_count;
+        while(count--)
         {
-            struct multiboot_module* mod = (struct multiboot_module*)gMI->mi_mods_addr;
-            while(gMI->mi_mods_count--)
+            if(mod->mm_string)
             {
-                if(mod->mm_string)
+                // Convert string to module name, check for dylib.
+                if(strcmp(&mod->mm_string[strlen(mod->mm_string) - sizeof("dylib")], ".dylib") == 0)
                 {
-                    // Convert string to module name, check for dylib.
-                    if(strcmp(&mod->mm_string[strlen(mod->mm_string) - sizeof("dylib")], ".dylib") == 0)
-                    {
-                        module_data = (char*)mod->mm_mod_start;
+                    module_data = (char*)mod->mm_mod_start;
 
-                        char* last = strrchr(mod->mm_string, '/');
-                        if(last) last++;
-                        else last = mod->mm_string;
+                    char* last = strrchr(mod->mm_string, '/');
+                    if(last) last++;
+                    else last = mod->mm_string;
 
-                        DBG("Loading multiboot module %s\n", last);
-			
-			load_module_binary(module_data, last);
-                    }
+                    DBG("Loading multiboot module %s\n", last);
+
+                    load_module_binary(module_data, last);
                 }
             }
+            mod++;
         }
     }
 
     if(retVal) execute_hook("ModulesLoaded", NULL, NULL, NULL, NULL);
 
-	return retVal;
+    return retVal;
 }
 
 void start_built_in_module(const char* name,
