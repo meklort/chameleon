@@ -109,7 +109,7 @@ static size_t strlen(const char *s)
  * profiling enabled will emit to a different file. Only one file may be
  * started at a time.
  */
-void llvm_gcda_start_file(const char *orig_filename) {
+void llvm_gcda_start_file(const char *orig_filename, const char version[4], uint32_t checksum) {
     serial_command_t command;
     command.command = COMMAND_OPEN_FILE;
     command.length = strlen(orig_filename);
@@ -139,7 +139,11 @@ void llvm_gcda_increment_indirect_counter(uint32_t *predecessor,
     ++*counter;
 }
 
-void llvm_gcda_emit_function(uint32_t ident, const char *function_name) {
+void llvm_gcda_emit_function(uint32_t ident,
+                             const char *function_name,
+                             uint32_t func_checksum,
+                             uint8_t use_extra_checksum,
+                             uint32_t cfg_checksum) {
     serial_command_t command;
     command.command = COMMAND_EMIT_FUNCS;
     command.length = sizeof(ident) + strlen(function_name);
