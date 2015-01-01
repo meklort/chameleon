@@ -50,23 +50,33 @@ void exec_hook2(void* arg1, void* arg2, void* arg3, void* arg4)
 
 void hooks_test_start()
 {
+    int exec = 0;
+    int replace = 0;
     gHook1 = 0;
     gHook2 = 0;
     
     init_serial();
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
-    replace_function("_bios_putchar", (void*)&write_serial);
+    replace += replace_function("_bios_putchar", (void*)&write_serial);
+    replace += replace_function("NON_EXISTANT_FNC", (void*)&write_serial);
 
     register_hook_callback("Hook1", exec_hook1);
     register_hook_callback("Hook2", exec_hook2);
     register_hook_callback("Hook1", exec_hook1);
     
-    execute_hook("Hook1", NULL, NULL, NULL, NULL);
-    execute_hook("Hook2", NULL, NULL, NULL, NULL);
+    exec += execute_hook("Hook1", NULL, NULL, NULL, NULL);
+    exec += execute_hook("Hook2", NULL, NULL, NULL, NULL);
+    
+    exec += execute_hook("Hook_NO_EXIST", NULL, NULL, NULL, NULL);
     printf("gHook1 is %d\n", gHook1);
     printf("gHook2 is %d\n", gHook2);
+    printf("exec is %d\n", exec);
+    printf("replace is %d\n", replace);
 
-    if((gHook1 == 2) && (gHook2 == 1)) printf("PASS\n");
+    if((gHook1 == 2) && 
+       (gHook2 == 1) && 
+       (exec == 2) && 
+       (replace == 1)) printf("PASS\n");
     else printf("FAIL\n");
     system_shutdown();
 }
