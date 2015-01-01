@@ -276,7 +276,7 @@ int load_module(char* module, UInt32 compat)
  */
 void module_section_handler(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
 {
-        struct section *sect = cmd;
+    struct section *sect = cmd;
     if(!cmd) return; // ERROR
 
     UInt8 flags = sect->flags & SECTION_TYPE;
@@ -306,15 +306,15 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
 
         UInt32 num_ctors = sect->size / sizeof(void*);
         DBG("Found %d constructors\n", num_ctors);
-            initAddress = address;
-            initFunctions = num_ctors;
+        initAddress = address;
+        initFunctions = num_ctors;
 
         DBGPAUSE();
     }
     else if(strcmp(segment, INFO_SEGMENT) == 0)
     {
-                uint32_t size = sect->size;
-                uint32_t addr = sect->offset; // offset in file
+        uint32_t size = sect->size;
+        uint32_t addr = sect->offset; // offset in file
 
         char* string = malloc(size + 1);
         memcpy(string, base + addr, size);
@@ -338,12 +338,12 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
 long long remove_symbol(char* name)
 {
     symbolList_t* prev = NULL;
-        symbolList_t* entry = moduleSymbols;
-        while(entry)
+    symbolList_t* entry = moduleSymbols;
+    while(entry)
+    {
+        if(strcmp(entry->symbol, name) == 0)
         {
-                if(strcmp(entry->symbol, name) == 0)
-                {
-                        //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
+            //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
             if(prev)
             {
                 prev->next = entry->next;
@@ -355,14 +355,14 @@ long long remove_symbol(char* name)
             long long addr = entry->addr;
             free(entry);
 
-                        return entry->addr;
-                }
-                else
-                {
-            prev = entry;
-                        entry = entry->next;
-                }
+            return entry->addr;
         }
+        else
+        {
+            prev = entry;
+            entry = entry->next;
+        }
+    }
     // No symbol
     return 0xFFFFFFFF;
 }
@@ -542,7 +542,7 @@ UInt32 pre_parse_mach(void* binary)
         switch ((loadCommand->cmd & 0x7FFFFFFF))
         {
             case LC_SEGMENT: // 32bit macho
-                    {
+            {
                 segCommand = binary + binaryIndex;
 
                 UInt32 sectionIndex;
@@ -561,7 +561,7 @@ UInt32 pre_parse_mach(void* binary)
                 size += segCommand->vmsize;
 
 
-                    }
+            }
             break;
         }
         binaryIndex += cmdSize;
@@ -650,58 +650,59 @@ void* parse_mach(void* binary, void* base,
                 break;
 
             case LC_SEGMENT: // 32bit macho
+            {
+                segCommand = binary + binaryIndex;
+
+                UInt32 sectionIndex;
+
+                sectionIndex = sizeof(struct segment_command);
+
+                struct section *sect;
+
+                while(sectionIndex < segCommand->cmdsize)
                 {
-                    segCommand = binary + binaryIndex;
+                    sect = binary + binaryIndex + sectionIndex;
 
-                    UInt32 sectionIndex;
+                    sectionIndex += sizeof(struct section);
 
-                    sectionIndex = sizeof(struct segment_command);
+                    if(section_handler) section_handler(binary, base, sect->sectname, segCommand->segname, (void*)sect, sect->offset, sect->addr);
 
-                    struct section *sect;
-
-                    while(sectionIndex < segCommand->cmdsize)
+                    if((strcmp("__TEXT", segCommand->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
                     {
-                        sect = binary + binaryIndex + sectionIndex;
-
-                        sectionIndex += sizeof(struct section);
-
-                        if(section_handler) section_handler(binary, base, sect->sectname, segCommand->segname, (void*)sect, sect->offset, sect->addr);
-
-                        if((strcmp("__TEXT", segCommand->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
-                        {
-                            // __TEXT,__text found, save the offset and address for when looking for the calls.
-                            textSection = sect->offset;
-                            textAddress = sect->addr;
-                        }
+                        // __TEXT,__text found, save the offset and address for when looking for the calls.
+                        textSection = sect->offset;
+                        textAddress = sect->addr;
                     }
                 }
-                break;
-                case LC_SEGMENT_64:    // 64bit macho's
+            }
+            break;
+        
+            case LC_SEGMENT_64:    // 64bit macho's
+            {
+                segCommand64 = binary + binaryIndex;
+                UInt32 sectionIndex;
+
+                sectionIndex = sizeof(struct segment_command_64);
+
+                struct section_64 *sect;
+
+                while(sectionIndex < segCommand64->cmdsize)
                 {
-                    segCommand64 = binary + binaryIndex;
-                    UInt32 sectionIndex;
+                    sect = binary + binaryIndex + sectionIndex;
 
-                    sectionIndex = sizeof(struct segment_command_64);
+                    sectionIndex += sizeof(struct section_64);
 
-                    struct section_64 *sect;
+                    if(section_handler) section_handler(binary, base, sect->sectname, segCommand64->segname, (void*)sect, sect->offset, sect->addr);
 
-                    while(sectionIndex < segCommand64->cmdsize)
+                    if((strcmp("__TEXT", segCommand64->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
                     {
-                        sect = binary + binaryIndex + sectionIndex;
-
-                        sectionIndex += sizeof(struct section_64);
-
-                        if(section_handler) section_handler(binary, base, sect->sectname, segCommand64->segname, (void*)sect, sect->offset, sect->addr);
-
-                        if((strcmp("__TEXT", segCommand64->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
-                        {
-                            // __TEXT,__text found, save the offset and address for when looking for the calls.
-                            textSection = sect->offset;
-                            textAddress = sect->addr;
-                        }
+                        // __TEXT,__text found, save the offset and address for when looking for the calls.
+                        textSection = sect->offset;
+                        textAddress = sect->addr;
                     }
                 }
-                break;
+            }
+            break;
 
 
             case LC_LOAD_DYLIB:
@@ -787,7 +788,9 @@ void* parse_mach(void* binary, void* base,
  * Lookup any undefined symbols
  */
 
-unsigned int handle_symtable(UInt32 base, UInt32 new_base, struct symtab_command* symtabCommand, long long(*symbol_handler)(char*, long long, char), char is64)
+unsigned int handle_symtable(UInt32 base, UInt32 new_base, 
+                             struct symtab_command* symtabCommand, 
+                             long long(*symbol_handler)(char*, long long, char), char is64)
 {
     unsigned int module_start    = 0xFFFFFFFF;
     UInt32 symbolIndex            = 0;
@@ -981,6 +984,7 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
                     segmentAddress += tmp2 + sizeof(void*);
                 }
                 break;
+
             default:
                 break;
         }
