@@ -1,4 +1,4 @@
-/*	$NetBSD: multiboot.h,v 1.4 2006/10/25 13:56:16 jmmv Exp $	*/
+/*    $NetBSD: multiboot.h,v 1.4 2006/10/25 13:56:16 jmmv Exp $    */
 
 /*-
  * Copyright (c) 2005, 2006 The NetBSD Foundation, Inc.
@@ -17,8 +17,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the NetBSD
- *	Foundation, Inc. and its contributors.
+ *    This product includes software developed by the NetBSD
+ *    Foundation, Inc. and its contributors.
  * 4. Neither the name of The NetBSD Foundation nor the names of its
  *    contributors may be used to endorse or promote products derived
  *    from this software without specific prior written permission.
@@ -48,30 +48,30 @@
 /*
  * Multiboot header structure.
  */
-#define MULTIBOOT_HEADER_MAGIC		0x1BADB002
-#define MULTIBOOT_HEADER_MODS_ALIGNED	0x00000001
-#define MULTIBOOT_HEADER_WANT_MEMORY	0x00000002
-#define MULTIBOOT_HEADER_HAS_VBE	0x00000004
-#define MULTIBOOT_HEADER_HAS_ADDR	0x00010000
+#define MULTIBOOT_HEADER_MAGIC        0x1BADB002
+#define MULTIBOOT_HEADER_MODS_ALIGNED    0x00000001
+#define MULTIBOOT_HEADER_WANT_MEMORY    0x00000002
+#define MULTIBOOT_HEADER_HAS_VBE    0x00000004
+#define MULTIBOOT_HEADER_HAS_ADDR    0x00010000
 
 #if !defined(__ASSEMBLER__)
 struct multiboot_header {
-	uint32_t	mh_magic;
-	uint32_t	mh_flags;
-	uint32_t	mh_checksum;
+    uint32_t    mh_magic;
+    uint32_t    mh_flags;
+    uint32_t    mh_checksum;
 
-	/* Valid if mh_flags sets MULTIBOOT_HEADER_HAS_ADDR. */
-	uint32_t	mh_header_addr; /* paddr_t */
-	uint32_t	mh_load_addr; /* paddr_t */
-	uint32_t	mh_load_end_addr; /* paddr_t */
-	uint32_t	mh_bss_end_addr; /* paddr_t */
-	uint32_t	mh_entry_addr; /* paddr_t */
+    /* Valid if mh_flags sets MULTIBOOT_HEADER_HAS_ADDR. */
+    uint32_t    mh_header_addr; /* paddr_t */
+    uint32_t    mh_load_addr; /* paddr_t */
+    uint32_t    mh_load_end_addr; /* paddr_t */
+    uint32_t    mh_bss_end_addr; /* paddr_t */
+    uint32_t    mh_entry_addr; /* paddr_t */
 
-	/* Valid if mh_flags sets MULTIBOOT_HEADER_HAS_VBE. */
-	uint32_t	mh_mode_type;
-	uint32_t	mh_width;
-	uint32_t	mh_height;
-	uint32_t	mh_depth;
+    /* Valid if mh_flags sets MULTIBOOT_HEADER_HAS_VBE. */
+    uint32_t    mh_mode_type;
+    uint32_t    mh_width;
+    uint32_t    mh_height;
+    uint32_t    mh_depth;
 };
 #endif /* !defined(__ASSEMBLER__) */
 
@@ -87,80 +87,80 @@ extern struct multiboot_header *Multiboot_Header;
 /*
  * Multiboot information structure.
  */
-#define MULTIBOOT_INFO_MAGIC		0x2BADB002
-#define MULTIBOOT_INFO_HAS_MEMORY	0x00000001
-#define MULTIBOOT_INFO_HAS_BOOT_DEVICE	0x00000002
-#define MULTIBOOT_INFO_HAS_CMDLINE	0x00000004
-#define MULTIBOOT_INFO_HAS_MODS		0x00000008
-#define MULTIBOOT_INFO_HAS_AOUT_SYMS	0x00000010
-#define MULTIBOOT_INFO_HAS_ELF_SYMS	0x00000020
-#define MULTIBOOT_INFO_HAS_MMAP		0x00000040
-#define MULTIBOOT_INFO_HAS_DRIVES	0x00000080
-#define MULTIBOOT_INFO_HAS_CONFIG_TABLE	0x00000100
-#define MULTIBOOT_INFO_HAS_LOADER_NAME	0x00000200
-#define MULTIBOOT_INFO_HAS_APM_TABLE	0x00000400
-#define MULTIBOOT_INFO_HAS_VBE		0x00000800
+#define MULTIBOOT_INFO_MAGIC        0x2BADB002
+#define MULTIBOOT_INFO_HAS_MEMORY    0x00000001
+#define MULTIBOOT_INFO_HAS_BOOT_DEVICE    0x00000002
+#define MULTIBOOT_INFO_HAS_CMDLINE    0x00000004
+#define MULTIBOOT_INFO_HAS_MODS        0x00000008
+#define MULTIBOOT_INFO_HAS_AOUT_SYMS    0x00000010
+#define MULTIBOOT_INFO_HAS_ELF_SYMS    0x00000020
+#define MULTIBOOT_INFO_HAS_MMAP        0x00000040
+#define MULTIBOOT_INFO_HAS_DRIVES    0x00000080
+#define MULTIBOOT_INFO_HAS_CONFIG_TABLE    0x00000100
+#define MULTIBOOT_INFO_HAS_LOADER_NAME    0x00000200
+#define MULTIBOOT_INFO_HAS_APM_TABLE    0x00000400
+#define MULTIBOOT_INFO_HAS_VBE        0x00000800
 
 #if !defined(__ASSEMBLER__)
 struct multiboot_info {
-	uint32_t	mi_flags;
+    uint32_t    mi_flags;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_MEMORY. */
-	uint32_t	mi_mem_lower;
-	uint32_t	mi_mem_upper;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_MEMORY. */
+    uint32_t    mi_mem_lower;
+    uint32_t    mi_mem_upper;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_BOOT_DEVICE. */
-	uint8_t		mi_boot_device_part3;
-	uint8_t		mi_boot_device_part2;
-	uint8_t		mi_boot_device_part1;
-	uint8_t		mi_boot_device_drive;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_BOOT_DEVICE. */
+    uint8_t        mi_boot_device_part3;
+    uint8_t        mi_boot_device_part2;
+    uint8_t        mi_boot_device_part1;
+    uint8_t        mi_boot_device_drive;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_CMDLINE. */
-	char *		mi_cmdline;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_CMDLINE. */
+    char *        mi_cmdline;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_MODS. */
-	uint32_t	mi_mods_count;
-	uint32_t	mi_mods_addr; /* vaddr_t */
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_MODS. */
+    uint32_t    mi_mods_count;
+    uint32_t    mi_mods_addr; /* vaddr_t */
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_{AOUT,ELF}_SYMS. */
-	uint32_t	mi_elfshdr_num;
-	uint32_t	mi_elfshdr_size;
-	uint32_t	mi_elfshdr_addr; /* vaddr_t */
-	uint32_t	mi_elfshdr_shndx;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_{AOUT,ELF}_SYMS. */
+    uint32_t    mi_elfshdr_num;
+    uint32_t    mi_elfshdr_size;
+    uint32_t    mi_elfshdr_addr; /* vaddr_t */
+    uint32_t    mi_elfshdr_shndx;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_MMAP. */
-	uint32_t	mi_mmap_length;
-	uint32_t	mi_mmap_addr; /* vaddr_t */
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_MMAP. */
+    uint32_t    mi_mmap_length;
+    uint32_t    mi_mmap_addr; /* vaddr_t */
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_DRIVES. */
-	uint32_t	mi_drives_length;
-	uint32_t	mi_drives_addr; /* vaddr_t */
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_DRIVES. */
+    uint32_t    mi_drives_length;
+    uint32_t    mi_drives_addr; /* vaddr_t */
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_CONFIG_TABLE. */
-	void *		unused_mi_config_table;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_CONFIG_TABLE. */
+    void *        unused_mi_config_table;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_LOADER_NAME. */
-	char *		mi_loader_name;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_LOADER_NAME. */
+    char *        mi_loader_name;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_APM. */
-	void *		unused_mi_apm_table;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_APM. */
+    void *        unused_mi_apm_table;
 
-	/* Valid if mi_flags sets MULTIBOOT_INFO_HAS_VBE. */
-	void *		unused_mi_vbe_control_info;
-	void *		unused_mi_vbe_mode_info;
-	uint32_t	unused_mi_vbe_interface_seg; /* paddr_t */
-	uint32_t	unused_mi_vbe_interface_off; /* paddr_t */
-	uint32_t	unused_mi_vbe_interface_len;
+    /* Valid if mi_flags sets MULTIBOOT_INFO_HAS_VBE. */
+    void *        unused_mi_vbe_control_info;
+    void *        unused_mi_vbe_mode_info;
+    uint32_t    unused_mi_vbe_interface_seg; /* paddr_t */
+    uint32_t    unused_mi_vbe_interface_off; /* paddr_t */
+    uint32_t    unused_mi_vbe_interface_len;
 };
 typedef struct multiboot_info multiboot_info;
 
 /* --------------------------------------------------------------------- */
 
 struct multiboot_module {
-	uint32_t	mm_mod_start;
-	uint32_t	mm_mod_end;
-	char *		mm_string;
-	uint32_t	mm_reserved;
+    uint32_t    mm_mod_start;
+    uint32_t    mm_mod_end;
+    char *        mm_string;
+    uint32_t    mm_reserved;
 };
 typedef struct multiboot_module multiboot_module;
 
@@ -169,15 +169,15 @@ typedef struct multiboot_module multiboot_module;
  * pointed to by mi_drives_addr.
  */
 struct multiboot_drive {
-	uint32_t	md_length;
-	uint8_t		md_number;
-	uint8_t		md_mode;
-	uint16_t	md_cylinders;
-	uint8_t		md_heads;
-	uint8_t		md_sectors;
+    uint32_t    md_length;
+    uint8_t        md_number;
+    uint8_t        md_mode;
+    uint16_t    md_cylinders;
+    uint8_t        md_heads;
+    uint8_t        md_sectors;
 
-	/* The variable-sized 'ports' field comes here, so this structure
-	 * can be longer. */
+    /* The variable-sized 'ports' field comes here, so this structure
+     * can be longer. */
 };
 
 /* --------------------------------------------------------------------- */
@@ -191,10 +191,10 @@ struct multiboot_drive {
  * have to count mm_size + 4 bytes.
  */
 struct multiboot_mmap {
-	uint32_t	mm_size;
-	uint64_t	mm_base_addr;
-	uint64_t	mm_length;
-	uint32_t	mm_type;
+    uint32_t    mm_size;
+    uint64_t    mm_base_addr;
+    uint64_t    mm_length;
+    uint32_t    mm_type;
 };
 
 #endif /* !defined(__ASSEMBLER__) */

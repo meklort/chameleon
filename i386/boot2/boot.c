@@ -6,7 +6,7 @@
  * Portions Copyright (c) 1999-2003 Apple Computer, Inc.  All Rights
  * Reserved.  This file contains Original Code and/or Modifications of
  * Original Code as defined in and that are subject to the Apple Public
- * Source License Version 2.0 (the "License").	You may not use this file
+ * Source License Version 2.0 (the "License").    You may not use this file
  * except in compliance with the License.  Please obtain a copy of the
  * License at http://www.apple.com/publicsource and read it before using
  * this file.
@@ -26,18 +26,18 @@
  * Mach Operating System
  * Copyright (c) 1990 Carnegie-Mellon University
  * Copyright (c) 1989 Carnegie-Mellon University
- * All rights reserved.	 The CMU software License Agreement specifies
+ * All rights reserved.     The CMU software License Agreement specifies
  * the terms and conditions for use and redistribution.
  */
 
 /*
- *			INTEL CORPORATION PROPRIETARY INFORMATION
+ *            INTEL CORPORATION PROPRIETARY INFORMATION
  *
- *	This software is supplied under the terms of a license	agreement or 
- *	nondisclosure agreement with Intel Corporation and may not be copied 
- *	nor disclosed except in accordance with the terms of that agreement.
+ *    This software is supplied under the terms of a license    agreement or 
+ *    nondisclosure agreement with Intel Corporation and may not be copied 
+ *    nor disclosed except in accordance with the terms of that agreement.
  *
- *	Copyright 1988, 1989 by Intel Corporation
+ *    Copyright 1988, 1989 by Intel Corporation
  */
 
 /*
@@ -61,15 +61,15 @@
  */
 #define kBootErrorTimeout 5
 
-bool		gOverrideKernel, gEnableCDROMRescan, gScanSingleDrive;
+bool        gOverrideKernel, gEnableCDROMRescan, gScanSingleDrive;
 
-char		gRootDevice[ROOT_DEVICE_SIZE];
-char		gMKextName[512];
-char		gMacOSVersion[8];
-int		bvCount = 0, gDeviceCount = 0;
-//int		menucount = 0;
-long		gBootMode; /* defaults to 0 == kBootModeNormal */
-BVRef		bvr, menuBVR, bvChain;
+char        gRootDevice[ROOT_DEVICE_SIZE];
+char        gMKextName[512];
+char        gMacOSVersion[8];
+int        bvCount = 0, gDeviceCount = 0;
+//int        menucount = 0;
+long        gBootMode; /* defaults to 0 == kBootModeNormal */
+BVRef        bvr, menuBVR, bvChain;
 
 
 //==========================================================================
@@ -77,9 +77,9 @@ BVRef		bvr, menuBVR, bvChain;
 
 static void zeroBSS(void)
 {
-	extern char*  __bss_end;
-	extern char*  __bss_start;
-	bzero(&__bss_start, (&__bss_end - &__bss_start));
+    extern char*  __bss_end;
+    extern char*  __bss_start;
+    bzero(&__bss_start, (&__bss_end - &__bss_start));
 }
 
 typedef void (*linker_function_t)();
@@ -104,8 +104,8 @@ static void callInit(void)
 
 static void malloc_error(char *addr, size_t size, const char *file, int line)
 {
-	stop("\nMemory allocation error! Addr: 0x%x, Size: 0x%x, File: %s, Line: %d\n",
-									 (unsigned)addr, (unsigned)size, file, line);
+    stop("\nMemory allocation error! Addr: 0x%x, Size: 0x%x, File: %s, Line: %d\n",
+                                     (unsigned)addr, (unsigned)size, file, line);
 }
 
 //==========================================================================
@@ -113,7 +113,7 @@ static void malloc_error(char *addr, size_t size, const char *file, int line)
 //
 void initialize_runtime(void)
 {
-	zeroBSS();
+    zeroBSS();
     malloc_init(0, 0, 0, malloc_error);
     // init needs malloc
     callInit();
@@ -124,10 +124,10 @@ void initialize_runtime(void)
 // own things, and then calls common_boot.
 void boot(int biosdev)
 {
-	initialize_runtime();
-	// Enable A20 gate before accessing memory above 1Mb.
-	enableA20();
-	common_boot(biosdev);
+    initialize_runtime();
+    // Enable A20 gate before accessing memory above 1Mb.
+    enableA20();
+    common_boot(biosdev);
 }
 
 //==========================================================================
@@ -135,51 +135,51 @@ void boot(int biosdev)
 // from a block device, or by the network booter.
 //
 // arguments:
-//	 biosdev - Value passed from boot1/NBP to specify the device
-//			   that the booter was loaded from.
+//     biosdev - Value passed from boot1/NBP to specify the device
+//               that the booter was loaded from.
 //
 // If biosdev is kBIOSDevNetwork, then this function will return if
 // booting was unsuccessful. This allows the PXE firmware to try the
 // next boot device on its list.
 void common_boot(int biosdev)
 {
-	bool	 		quiet;
-	bool	 		firstRun = true;
-	bool	 		instantMenu;
-	bool	 		rescanPrompt;
-	int				status;
-	unsigned int	allowBVFlags = kBVFlagSystemVolume | kBVFlagForeignBoot;
-	unsigned int	denyBVFlags = kBVFlagEFISystem;
+    bool             quiet;
+    bool             firstRun = true;
+    bool             instantMenu;
+    bool             rescanPrompt;
+    int                status;
+    unsigned int    allowBVFlags = kBVFlagSystemVolume | kBVFlagForeignBoot;
+    unsigned int    denyBVFlags = kBVFlagEFISystem;
 
-	// Record the device that the booter was loaded from.
-	gBIOSDev = biosdev & kBIOSDevMask;
+    // Record the device that the booter was loaded from.
+    gBIOSDev = biosdev & kBIOSDevMask;
 
-	// Setup VGA text mode.
+    // Setup VGA text mode.
 #if DEBUG
-	printf("before video_mode\n");
+    printf("before video_mode\n");
 #endif
-	video_mode( 2 );  // 80x25 mono text mode.
+    video_mode( 2 );  // 80x25 mono text mode.
 #if DEBUG
-	printf("after video_mode\n");
+    printf("after video_mode\n");
 #endif
 
-	// First get info for boot volume.
-	scanBootVolumes(gBIOSDev, 0);
-	bvChain = getBVChainForBIOSDev(gBIOSDev);
-	setBootGlobals(bvChain);
+    // First get info for boot volume.
+    scanBootVolumes(gBIOSDev, 0);
+    bvChain = getBVChainForBIOSDev(gBIOSDev);
+    setBootGlobals(bvChain);
 
     // Scan boot partition only
     scanBootVolumes(gBIOSDev, &bvCount);
     // Scan all found disks
     //scanDisks(gBIOSDev, &bvCount);
-	
-	// Create a separated bvr chain using the specified filters.
-	bvChain = newFilteredBVChain(0x80, 0xFF, allowBVFlags, denyBVFlags, &gDeviceCount);
+    
+    // Create a separated bvr chain using the specified filters.
+    bvChain = newFilteredBVChain(0x80, 0xFF, allowBVFlags, denyBVFlags, &gDeviceCount);
 
-	gBootVolume = selectBootVolume(bvChain);
+    gBootVolume = selectBootVolume(bvChain);
 
-	// Intialize module system 
-	init_module_system();
+    // Intialize module system 
+    init_module_system();
 
     execute_hook("InitDone", NULL, NULL, NULL, NULL);
     printf("Chameleon %s build %s\n", I386BOOT_CHAMELEONVERSION, I386BOOT_CHAMELEONREVISION);

@@ -36,62 +36,62 @@
 
 int selectAlternateBootDevice(int bootdevice)
 {
-	int key;
-	int newbootdevice;
-	int digitsI = 0;
-	char *end;
-	char digits[3] = {0,0,0};
+    int key;
+    int newbootdevice;
+    int digitsI = 0;
+    char *end;
+    char digits[3] = {0,0,0};
 
-	// We've already printed the current boot device so user knows what it is
-	printf("Typical boot devices are 80 (First HD), 81 (Second HD)\n");
-	printf("Enter two-digit hexadecimal boot device [%02x]: ", bootdevice);
-	do {
-		key = getchar();
-		switch (ASCII_KEY(key)) {
-		case KEY_BKSP:
-			if (digitsI > 0) {
-				int x, y, t;
-				getCursorPositionAndType(&x, &y, &t);
-				// Assume x is not 0;
-				x--;
-				setCursorPosition(x,y,0); // back up one char
-				// Overwrite with space without moving cursor position
-				putca(' ', 0x07, 1);
-				digitsI--;
-			} else {
-				// TODO: Beep or something
-			}
-			break;
+    // We've already printed the current boot device so user knows what it is
+    printf("Typical boot devices are 80 (First HD), 81 (Second HD)\n");
+    printf("Enter two-digit hexadecimal boot device [%02x]: ", bootdevice);
+    do {
+        key = getchar();
+        switch (ASCII_KEY(key)) {
+        case KEY_BKSP:
+            if (digitsI > 0) {
+                int x, y, t;
+                getCursorPositionAndType(&x, &y, &t);
+                // Assume x is not 0;
+                x--;
+                setCursorPosition(x,y,0); // back up one char
+                // Overwrite with space without moving cursor position
+                putca(' ', 0x07, 1);
+                digitsI--;
+            } else {
+                // TODO: Beep or something
+            }
+            break;
 
-		case KEY_ENTER:
-			digits[digitsI] = '\0';
-			newbootdevice = strtol(digits, &end, 16);
-			if (end == digits && *end == '\0') {
-				// User entered empty string
-				printf("\nUsing default boot device %x\n", bootdevice);
-				key = 0;
-			} else if(end != digits && *end == '\0') {
-				bootdevice = newbootdevice;
-				printf("\n");
-				key = 0; // We gots da boot device
-			} else {
-				printf("\nCouldn't parse. try again: ");
-				digitsI = 0;
-			}
-			break;
+        case KEY_ENTER:
+            digits[digitsI] = '\0';
+            newbootdevice = strtol(digits, &end, 16);
+            if (end == digits && *end == '\0') {
+                // User entered empty string
+                printf("\nUsing default boot device %x\n", bootdevice);
+                key = 0;
+            } else if(end != digits && *end == '\0') {
+                bootdevice = newbootdevice;
+                printf("\n");
+                key = 0; // We gots da boot device
+            } else {
+                printf("\nCouldn't parse. try again: ");
+                digitsI = 0;
+            }
+            break;
 
-		default:
-			if (isxdigit(ASCII_KEY(key)) && digitsI < 2) {
-				putchar(ASCII_KEY(key));
-				digits[digitsI++] = ASCII_KEY(key);
-			} else {
-				// TODO: Beep or something
-			}
-			break;
-		};
-	} while (key != 0);
+        default:
+            if (isxdigit(ASCII_KEY(key)) && digitsI < 2) {
+                putchar(ASCII_KEY(key));
+                digits[digitsI++] = ASCII_KEY(key);
+            } else {
+                // TODO: Beep or something
+            }
+            break;
+        };
+    } while (key != 0);
 
-	return bootdevice;
+    return bootdevice;
 }
 
 static int currentIndicator = 0;
