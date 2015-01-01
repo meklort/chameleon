@@ -69,7 +69,6 @@
 #include "memory.h"
 #include "fdisk.h"
 #include "hfs.h"
-#include "ntfs.h"
 #include "msdos.h"
 #include "disk.h"
 // For EFI_GUID
@@ -877,18 +876,6 @@ static BVRef diskScanFDiskBootVolumes( int biosdev, int * countPtr )
                             kBIOSDevTypeHardDrive, 0);
                     break;
 
-                    case FDISK_NTFS:
-                      bvr = newFDiskBVRef(
-                                    biosdev, partno,
-                                    part->relsect,
-                                    part,
-                                    0, 0, 0, 0, 0,
-                                    NTFSGetUUID,
-                                    NTFSGetDescription,
-                                    (BVFree)free,
-                                    0, kBIOSDevTypeHardDrive, 0);
-                    break;
-
                     default:
                         bvr = newFDiskBVRef(
                                       biosdev, partno,
@@ -1116,11 +1103,6 @@ static int probeFileSystem(int biosdev, unsigned int blkoff)
 		result = FDISK_HFS;
 	}
 
-	else if (NTFSProbe(probeBuffer))
-	{
-		result = FDISK_NTFS;
-	}
-
 	else if ( (fatbits = MSDOSProbe(probeBuffer)) )
 	{
 		switch (fatbits)
@@ -1342,12 +1324,6 @@ static BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 			(efi_guid_compare(&GPT_BASICDATA2_GUID, (EFI_GUID const*)gptMap->ent_type) == 0) ) {
 				switch (fsType)
 				{
-					case FDISK_NTFS:
-						bvr = newGPTBVRef(biosdev, gptID, gptMap->ent_lba_start, gptMap,
-						0, 0, 0, 0, 0, 0, NTFSGetDescription,
-						(BVFree)free, 0, kBIOSDevTypeHardDrive, 0);
-						break;
-
 					default:
 						bvr = newGPTBVRef(biosdev, gptID, gptMap->ent_lba_start, gptMap,
 						0, 0, 0, 0, 0, 0, 0,
@@ -1716,20 +1692,15 @@ int freeFilteredBVChain(const BVRef chain)
 
 static const struct NamedValue fdiskTypes[] =
 {
-	{ FDISK_NTFS,		"Windows NTFS"   },
 	{ FDISK_DOS12,		"Windows FAT12"  },
 	{ FDISK_DOS16B,		"Windows FAT16"  },
 	{ FDISK_DOS16S,		"Windows FAT16"  },
 	{ FDISK_DOS16SLBA,	"Windows FAT16"  },
 	{ FDISK_SMALLFAT32,	"Windows FAT32"  },
 	{ FDISK_FAT32,		"Windows FAT32"  },
-	{ FDISK_FREEBSD,	"FreeBSD"        },
-	{ FDISK_OPENBSD,	"OpenBSD"        },
-	{ FDISK_LINUX,		"Linux"          },
 	{ FDISK_UFS,		"Apple UFS"      },
 	{ FDISK_HFS,		"Apple HFS"      },
 	{ FDISK_BOOTER,		"Apple Boot/UFS" },
-	{ FDISK_BEFS,		"Haiku"          },
 	{ 0xCD,			"CD-ROM"         },
 	{ 0x00,			0                }  /* must be last */
 };
