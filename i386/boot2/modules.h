@@ -7,7 +7,7 @@
 #include <saio_types.h>
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
-
+#include "hooks.h"
 
 #ifndef __BOOT_MODULES_H
 #define __BOOT_MODULES_H
@@ -41,19 +41,6 @@ typedef struct symbolList_t
     UInt64 addr;
     struct symbolList_t* next;
 } symbolList_t;
-
-typedef struct callbackList_t
-{
-    void(*callback)(void*, void*, void*, void*);
-    struct callbackList_t* next;
-} callbackList_t;
-
-typedef struct moduleHook_t
-{
-    const char* name;
-    callbackList_t* callbacks;
-    struct moduleHook_t* next;
-} moduleHook_t;
 
 typedef struct modulesList_t
 {
@@ -117,18 +104,6 @@ void            rebase_macho(void* base, void* new_base, char* rebase_stream, UI
 
 void            bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size);
 
-
-/********************************************************************************/
-/*    Module Interface                                                        */
-/********************************************************************************/
-int                replace_function(const char* symbol, void* newAddress);
-int                execute_hook(const char* name, void*, void*, void*, void*);
-void            register_hook_callback(const char* name, void(*callback)(void*, void*, void*, void*));
-moduleHook_t*    hook_exists(const char* name);
-
-#if DEBUG_MODULES
-void            print_hook_list();
-#endif
 
 /********************************************************************************/
 /*    dyld Interface                                                                */
