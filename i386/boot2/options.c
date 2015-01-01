@@ -95,7 +95,7 @@ int selectAlternateBootDevice(int bootdevice)
 }
 
 static int currentIndicator = 0;
-static char indicator[] = {'-', '\\', '|', '/', '-', '\\', '|', '/', '\0'};
+static char indicator[] = {'-', '\\', '|', '/', '\0'};
 
 
 void
