@@ -81,6 +81,26 @@ typedef struct __attribute__((packed)) serial_command {
     uint32_t length;
 } serial_command_t;
 
+typedef struct __attribute__((packed)) open_command {
+    serial_command_t header;
+    const char version[4];
+    uint32_t checksum;
+    // const char[lenght] filename
+} open_command_t;
+
+typedef struct __attribute__((packed)) emit_function_command {
+    serial_command_t header;
+    uint32_t ident;
+    uint32_t func_checksum;
+    uint32_t cfg_checksum;
+    uint8_t use_extra_checksum;
+    // const char[lenght] function_name
+} emit_function_command_t;
+
+
+typedef struct __attribute__((packed)) emit_arcs_command {
+    serial_command_t header;
+} emit_arcs_command_t;
 
 /*** Local versions of std lib functions to ensure we don't prifile recursivly... ***/
 #define UCHAR_MAX 255
@@ -110,14 +130,16 @@ static size_t strlen(const char *s)
  * started at a time.
  */
 void llvm_gcda_start_file(const char *orig_filename, const char version[4], uint32_t checksum) {
-    serial_command_t command;
-    command.command = COMMAND_OPEN_FILE;
-    command.length = strlen(orig_filename);
+    open_command_t command;
+    command.header.command = COMMAND_OPEN_FILE;
+    command.header.length = strlen(orig_filename);
+    *(uint32_t*)&command.version[0] = *(uint32_t*)version;
+    command.checksum = checksum;
 
     // write command.
     write_bytes((void*)&command, sizeof(command));
     // write orig_filename
-    write_bytes(orig_filename, command.length);
+    write_bytes(orig_filename, command.header.length);
 }
 
 /* Given an array of pointers to counters (counters), increment the n-th one,
@@ -144,25 +166,28 @@ void llvm_gcda_emit_function(uint32_t ident,
                              uint32_t func_checksum,
                              uint8_t use_extra_checksum,
                              uint32_t cfg_checksum) {
-    serial_command_t command;
-    command.command = COMMAND_EMIT_FUNCS;
-    command.length = sizeof(ident) + strlen(function_name);
-
+    emit_function_command_t command;
+    command.header.command = COMMAND_EMIT_FUNCS;
+    command.header.length = function_name ? strlen(function_name) : 0;
+    command.ident = ident;
+    command.func_checksum = func_checksum;
+    command.use_extra_checksum = use_extra_checksum;
+    command.cfg_checksum = cfg_checksum;
+    
     // write command.
     write_bytes((void*)&command, sizeof(command));
-    write_bytes((void*)&ident, sizeof(ident));
-    write_bytes((void*)function_name, strlen(function_name));
+    if(function_name) write_bytes((void*)function_name, command.header.length);
 }
 
 void llvm_gcda_emit_arcs(uint32_t num_counters, uint64_t *counters) {
-    serial_command_t command;
-    command.command = COMMAND_EMIT_ARCS;
-    command.length = num_counters * sizeof(uint64_t);
+    emit_arcs_command_t command;
+    command.header.command = COMMAND_EMIT_ARCS;
+    command.header.length = num_counters * sizeof(uint64_t);
 
     // write command.
     write_bytes((void*)&command, sizeof(command));
     // write counters
-    write_bytes((void*)counters, command.length);
+    write_bytes((void*)counters, command.header.length);
 }
 
 void llvm_gcda_end_file() {
@@ -173,6 +198,11 @@ void llvm_gcda_end_file() {
     // write command.
     write_bytes((void*)&command, sizeof(command));
 }
+
+
+
+
+
 
 /***** Serial Port Routines *****/
 #define PORT 0x3f8   /* COM1 */

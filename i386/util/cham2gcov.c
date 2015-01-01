@@ -34,16 +34,65 @@ static uint64_t write_from_buffer(uint64_t *buffer, size_t size);
 static uint32_t length_of_string(const char *s);
 static void write_string(const char *s);
 
-void llvm_gcda_start_file(const char *orig_filename, const char version[4]);
+void llvm_gcda_start_file(const char *orig_filename, const char version[4], uint32_t checksum);
 void llvm_gcda_end_file();
 void llvm_gcda_emit_arcs(uint32_t num_counters, uint64_t *counters);
-void llvm_gcda_emit_function(uint32_t ident, const char *function_name,
-                             uint8_t use_extra_checksum);
+void llvm_gcda_emit_function(uint32_t ident,
+                             const char *function_name,
+                             uint32_t func_checksum,
+                             uint8_t use_extra_checksum,
+                             uint32_t cfg_checksum);
 
-typedef struct __attribute__((packed)) cov_command {
+typedef struct __attribute__((packed)) serial_command {
     uint8_t command;
     uint32_t length;
-} cov_command_t;
+} serial_command_t;
+
+typedef struct __attribute__((packed)) open_command {
+    serial_command_t header;
+    const char version[4];
+    uint32_t checksum;
+    // const char[lenght] filename
+} open_command_t;
+
+typedef struct __attribute__((packed)) emit_function_command {
+    serial_command_t header;
+    uint32_t ident;
+    uint32_t func_checksum;
+    uint32_t cfg_checksum;
+    uint8_t use_extra_checksum;
+    // const char[lenght] function_name
+} emit_function_command_t;
+
+
+typedef struct __attribute__((packed)) emit_arcs_command {
+    serial_command_t header;
+} emit_arcs_command_t;
+
+
+static int command_to_length(serial_command_t* cmd)
+{
+    switch(cmd->command)
+    {
+        case COMMAND_OPEN_FILE:
+            return sizeof(open_command_t) + cmd->length;
+	    
+        case COMMAND_CLOSE_FILE:
+            return sizeof(serial_command_t);
+	    
+        case COMMAND_EMIT_FUNCS:
+            return sizeof(emit_function_command_t) + cmd->length;
+	    
+        case COMMAND_EMIT_ARCS:
+            return sizeof(emit_arcs_command_t) + cmd->length;
+
+        default:
+            printf("Unknown header cmd '%c'\n", cmd->command);
+            exit(-2);
+    }
+    return sizeof(serial_command_t);
+}
+
 
 /*
  * The current file we're outputting.
@@ -56,13 +105,13 @@ void handle_command(uint8_t command, void* data, uint32_t len);
 
 int main(int argc, const char* argv[])
 {
-    cov_command_t command;
-	FILE* chamcov;
+    serial_command_t command;
+    FILE* chamcov;
 
-	if(argc < 2)
-	{
-		exit(help(argc, argv));
-	}
+    if(argc < 2)
+    {
+        exit(help(argc, argv));
+    }
 
     chamcov = fopen(argv[1], "r");
     if(!chamcov)
@@ -73,24 +122,26 @@ int main(int argc, const char* argv[])
 
     while(fread(&command, sizeof(command), 1, chamcov))
     {
-        void* data = command.length ? malloc(command.length + 1) : NULL;
+    	int length = command_to_length(&command);
+        void* data = malloc(length +1);
+	memcpy(data, &command, sizeof(command));
 
-        if(command.length && !fread(data, command.length, 1, chamcov))
+        if((length - sizeof(command)) && !fread(data + sizeof(command), length - sizeof(command), 1, chamcov))
         {
-            printf("Unable read in command data.\n");
+            printf("Unable to read in command data (%lu bytes for cmd %c).\n", length - sizeof(command), command.command);
         }
-        else if(command.length)
+        else
         {
             // Add null terminator in case of string.
-            ((char*)data)[command.length] = 0;
+            ((char*)data)[length] = 0;
         }
 
         handle_command(command.command, data, command.length);
 
-        free(data);
+        if(data) free(data);
     }
 
-	return 0;
+    return 0;
 }
 
 void handle_command(uint8_t command, void* data, uint32_t len)
@@ -99,9 +150,10 @@ void handle_command(uint8_t command, void* data, uint32_t len)
     {
         case COMMAND_OPEN_FILE:
         {
-            char* filename = data;
+            open_command_t* cmd = data;
+            char* filename = data + sizeof(open_command_t);
             printf("Start file %s\n", filename);
-            llvm_gcda_start_file(filename, "*704");
+            llvm_gcda_start_file(filename, cmd->version, cmd->checksum);
             break;
         }
         case COMMAND_CLOSE_FILE:
@@ -113,20 +165,34 @@ void handle_command(uint8_t command, void* data, uint32_t len)
         }
         case COMMAND_EMIT_ARCS:
         {
-            printf("Emit Arcs\n");
-            uint32_t num_counters = len / sizeof(uint64_t);
-            uint64_t *counters = data;
+            emit_arcs_command_t* cmd = data;
+	    uint32_t num_counters = cmd->header.length / sizeof(uint64_t);
+            uint64_t *counters = data + sizeof(emit_arcs_command_t);
+
+            //printf("Emit Arcs\n");
+	    printf("%c: (%d)\n", cmd->header.command, cmd->header.length);
+	    printf("  counters = %x\n", num_counters);
+
             llvm_gcda_emit_arcs(num_counters, counters);
             break;
         }
         case COMMAND_EMIT_FUNCS:
         {
-            uint32_t ident = ((uint32_t*)data)[0];
-            char* function_name = (data + sizeof(ident));
-            printf("Emit function %s\n", function_name);
+            emit_function_command_t* cmd = data;
+            char* function_name = (data + sizeof(emit_function_command_t));
+	    printf("%c: (%d)\n", cmd->header.command, cmd->header.length);
+	    printf("  func_checksum = %x\n", cmd->func_checksum);
+	    printf("  cfg_checksum = %x\n", cmd->cfg_checksum);
+	    printf("  use_extra_checksum = %d\n", cmd->use_extra_checksum);
+	    printf("  ident = %x\n", cmd->ident);
+            printf("  function %s\n", strlen(function_name) ? function_name  : "(NULL)");
 
             //llvm_gcda_emit_function(ident, function_name, 0);
-            llvm_gcda_emit_function(ident, NULL, 1); // gcov compat
+            llvm_gcda_emit_function(cmd->ident,
+	    				strlen(function_name) ? function_name : NULL,
+					cmd->func_checksum, 
+					cmd->use_extra_checksum,
+					cmd->cfg_checksum);
             break;
         }
     }
@@ -163,9 +229,10 @@ int help(int argc, const char* argv[])
 |*
 \*===----------------------------------------------------------------------===*/
 
-void llvm_gcda_start_file(const char *orig_filename, const char version[4]) {
+void llvm_gcda_start_file(const char *orig_filename, const char version[4],
+                          uint32_t checksum) {
   char *filename = mangle_filename(orig_filename);
-
+  printf("Opening output file %s\n", filename);
   /* Try just opening the file. */
   output_file = fopen(filename, "r+b");
 
@@ -179,7 +246,7 @@ void llvm_gcda_start_file(const char *orig_filename, const char version[4]) {
       if (!output_file) {
         /* Bah! It's hopeless. */
         fprintf(stderr, "profiling:%s: cannot open\n", filename);
-        free(filename);
+
         return;
       }
     }
@@ -188,8 +255,7 @@ void llvm_gcda_start_file(const char *orig_filename, const char version[4]) {
   /* gcda file, version, stamp LLVM. */
   fwrite("adcg", 4, 1, output_file);
   fwrite(version, 4, 1, output_file);
-  fwrite("MVLL", 4, 1, output_file);
-  free(filename);
+  fwrite(&checksum, 4, 1, output_file);
 
 #ifdef DEBUG_GCDAPROFILING
   fprintf(stderr, "llvmgcda: [%s]\n", orig_filename);
@@ -265,7 +331,8 @@ void llvm_gcda_emit_arcs(uint32_t num_counters, uint64_t *counters) {
 }
 
 void llvm_gcda_emit_function(uint32_t ident, const char *function_name,
-                             uint8_t use_extra_checksum) {
+                             uint32_t func_checksum, uint8_t use_extra_checksum,
+                             uint32_t cfg_checksum) {
   uint32_t len = 2;
   if (use_extra_checksum)
     len++;
@@ -277,13 +344,13 @@ void llvm_gcda_emit_function(uint32_t ident, const char *function_name,
 
   /* function tag */
   fwrite("\0\0\0\1", 4, 1, output_file);
-  if (function_name)
+  if (function_name && strlen(function_name))
     len += 1 + length_of_string(function_name);
   write_int32(len);
   write_int32(ident);
-  write_int32(0);
+  write_int32(func_checksum);
   if (use_extra_checksum)
-    write_int32(0);
+    write_int32(cfg_checksum);
   if (function_name)
     write_string(function_name);
 }
@@ -307,42 +374,49 @@ static void recursive_mkdir(char *filename) {
 
 
 static char *mangle_filename(const char *orig_filename) {
-  char *filename = 0;
-  int prefix_len = 0;
-  int prefix_strip = 0;
+  char *new_filename;
+  size_t filename_len, prefix_len;
+  int prefix_strip;
   int level = 0;
-  const char *fname = orig_filename, *ptr = NULL;
+  const char *fname, *ptr;
   const char *prefix = getenv("GCOV_PREFIX");
-  const char *tmp = getenv("GCOV_PREFIX_STRIP");
+  const char *prefix_strip_str = getenv("GCOV_PREFIX_STRIP");
 
-  if (!prefix)
+  if (prefix == NULL || prefix[0] == '\0')
     return strdup(orig_filename);
 
-  if (tmp) {
-    prefix_strip = atoi(tmp);
+  if (prefix_strip_str) {
+    prefix_strip = atoi(prefix_strip_str);
 
     /* Negative GCOV_PREFIX_STRIP values are ignored */
     if (prefix_strip < 0)
       prefix_strip = 0;
+  } else {
+    prefix_strip = 0;
   }
 
-  prefix_len = strlen(prefix);
-  filename = malloc(prefix_len + 1 + strlen(orig_filename) + 1);
-  strcpy(filename, prefix);
-
-  if (prefix[prefix_len - 1] != '/')
-    strcat(filename, "/");
-
-  for (ptr = fname + 1; *ptr != '\0' && level < prefix_strip; ++ptr) {
-    if (*ptr != '/') continue;
+  fname = orig_filename;
+  for (level = 0, ptr = fname + 1; level < prefix_strip; ++ptr) {
+    if (*ptr == '\0')
+      break;
+    if (*ptr != '/')
+      continue;
     fname = ptr;
     ++level;
   }
 
-  strcat(filename, fname);
+  filename_len = strlen(fname);
+  prefix_len = strlen(prefix);
+  new_filename = malloc(prefix_len + 1 + filename_len + 1);
+  memcpy(new_filename, prefix, prefix_len);
 
-  return filename;
+  if (prefix[prefix_len - 1] != '/')
+    new_filename[prefix_len++] = '/';
+  memcpy(new_filename + prefix_len, fname, filename_len + 1);
+
+  return new_filename;
 }
+
 
 static uint32_t read_int32() {
   uint32_t tmp;
