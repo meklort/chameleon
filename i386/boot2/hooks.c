@@ -32,7 +32,7 @@ int replace_function(const char* symbol, void* newAddress)
 {
 #if defined(__i386__)
     UInt32 addr = lookup_all_symbols(symbol);
-    if(addr != 0xFFFFFFFF)
+    if(addr && addr != 0xFFFFFFFF && addr != lookup_all_symbols(VOID_SYMBOL))
     {
         //DBG("Replacing %s to point to 0x%x\n", symbol, newAddress);
         UInt32* jumpPointer = malloc(sizeof(UInt32*));
