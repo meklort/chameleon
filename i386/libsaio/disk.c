@@ -71,10 +71,6 @@
 #include "hfs.h"
 #include "ntfs.h"
 #include "msdos.h"
-#include "ext2fs.h"
-#include "befs.h"
-#include "freebsd.h"
-#include "openbsd.h"
 #include "disk.h"
 // For EFI_GUID
 #include "efi.h"
@@ -893,51 +889,6 @@ static BVRef diskScanFDiskBootVolumes( int biosdev, int * countPtr )
                                     0, kBIOSDevTypeHardDrive, 0);
                     break;
 
-                    case FDISK_LINUX:
-                      bvr = newFDiskBVRef(
-                      biosdev, partno,
-                      part->relsect,
-                      part,
-                      0, 0, 0, 0, 0,
-                      EX2GetUUID,
-                      EX2GetDescription,
-                      (BVFree)free,
-                      0, kBIOSDevTypeHardDrive, 0);
-                    break;
-
-                    case FDISK_BEFS:
-                      bvr = newFDiskBVRef(
-                      biosdev, partno,
-                      part->relsect,
-                      part,
-                      0, 0, 0, 0, 0, 0,
-                      BeFSGetDescription,
-                      (BVFree)free,
-                      0, kBIOSDevTypeHardDrive, 0);
-                    break;
-
-                    case FDISK_FREEBSD:
-                      bvr = newFDiskBVRef(
-                      biosdev, partno,
-                      part->relsect,
-                      part,
-                      0, 0, 0, 0, 0, 0,
-                      FreeBSDGetDescription,
-                      (BVFree)free,
-                      0, kBIOSDevTypeHardDrive, 0);
-                    break;
-
-                    case FDISK_OPENBSD:
-                      bvr = newFDiskBVRef(
-                      biosdev, partno,
-                      part->relsect,
-                      part,
-                      0, 0, 0, 0, 0, 0,
-                      OpenBSDGetDescription,
-                      (BVFree)free,
-                      0, kBIOSDevTypeHardDrive, 0);
-                    break;
-
                     default:
                         bvr = newFDiskBVRef(
                                       biosdev, partno,
@@ -1163,24 +1114,6 @@ static int probeFileSystem(int biosdev, unsigned int blkoff)
 	if (HFSProbe(probeBuffer))
 	{
 		result = FDISK_HFS;
-	}
-	else if (EX2Probe(probeBuffer))
-	{
-		result = FDISK_LINUX;
-	}
-	else if (FreeBSDProbe(probeBuffer))
-	{
-		result = FDISK_FREEBSD;
-	}
-
-	else if (OpenBSDProbe(probeBuffer))
-	{
-		result = FDISK_OPENBSD;
-	}
-
-	else if (BeFSProbe(probeBuffer))
-	{
-		result = FDISK_BEFS;
 	}
 
 	else if (NTFSProbe(probeBuffer))
@@ -1412,12 +1345,6 @@ static BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 					case FDISK_NTFS:
 						bvr = newGPTBVRef(biosdev, gptID, gptMap->ent_lba_start, gptMap,
 						0, 0, 0, 0, 0, 0, NTFSGetDescription,
-						(BVFree)free, 0, kBIOSDevTypeHardDrive, 0);
-						break;
-
-					case FDISK_LINUX:
-						bvr = newGPTBVRef(biosdev, gptID, gptMap->ent_lba_start, gptMap,
-						0, 0, 0, 0, 0, 0, EX2GetDescription,
 						(BVFree)free, 0, kBIOSDevTypeHardDrive, 0);
 						break;
 
