@@ -1,6 +1,13 @@
+config MODULES
+	bool "Module System"
+	default y
+	---help---
+	  Say Y here if you want to enable the use of modules.
+
 config MODULE_DEBUG
 	bool "debug support"
 	default n
+	depends on MODULES
 	---help---
 	  Say Y here if you want to enable debug mode for the
 	  module system.

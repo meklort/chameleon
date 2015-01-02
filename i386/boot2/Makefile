@@ -55,7 +55,6 @@ OTHER_FILES =
 OBJS = boot2.x86.elf.o boot.x86.elf.o \
 	options.x86.elf.o mboot.x86.elf.o \
 	hooks.x86.elf.o \
-	macho.x86.elf.o \
 	modules.x86.elf.o \
 	modules_support.x86.elf.o 
 
@@ -90,6 +89,7 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@#$(X86_ELF_CC) $(LDFLAGS) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
 	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 
+ifeq (${CONFIG_MODULES}, y)
 	@# Generate the Symbols.dylib file
 	@echo "	[dyldsymboltool] Symbols.dylib"
 	@$(SYMROOT)/dyldsymboltool $@ $(SYMROOT)/${SYMBOLS_MODULE}
@@ -100,6 +100,7 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 	@rm $(SYMROOT)/${SYMBOLS_MODULE}.ld
 
+endif
 	@echo "	[OBJCOPY] boot"
 	@/opt/xZenue/bin/objcopy $@ -O binary ${SYMROOT}/boot
 
