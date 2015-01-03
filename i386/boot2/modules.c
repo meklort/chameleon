@@ -392,9 +392,8 @@ long long remove_symbol(char* name)
  * This function adds a symbol from a module to the list of known symbols
  * possibly change to a pointer and add this to the Symbol module so that it can
  * adjust it's internal symbol list (sort) to optimize locating new symbols
- * NOTE: returns the address if the symbol is "start", else returns 0xFFFFFFFF
  */
-long long add_symbol(char* symbol, long long addr, char is64)
+void add_symbol(char* symbol, long long addr, char is64)
 {
     // This only can handle 32bit symbols
     symbolList_t* entry;
@@ -406,8 +405,6 @@ long long add_symbol(char* symbol, long long addr, char is64)
 
     entry->addr = (UInt32)addr;
     entry->symbol = symbol;
-
-    return 0xFFFFFFFF; // fixme
 }
 
 
@@ -593,7 +590,7 @@ UInt32 pre_parse_mach(void* binary)
  */
 bool parse_mach(void* binary, void* base,
                  int(*dylib_loader)(char*, UInt32 compat),
-                 long long(*symbol_handler)(char*, long long, char),
+                 void (*symbol_handler)(char*, long long, char),
                  void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
 )
 {
@@ -783,7 +780,7 @@ bool parse_mach(void* binary, void* base,
 
 bool handle_symtable(UInt32 base, UInt32 new_base, 
                              struct symtab_command* symtabCommand, 
-                             long long(*symbol_handler)(char*, long long, char), char is64)
+                             void (*symbol_handler)(char*, long long, char), char is64)
 {
     UInt32 symbolIndex            = 0;
     char* symbolString            = base + (char*)symtabCommand->stroff;
