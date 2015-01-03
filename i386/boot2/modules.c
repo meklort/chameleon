@@ -34,8 +34,8 @@ static UInt64 initAddress = 0;
 static UInt64 initFunctions = 0;
 
 /** Internal symbols, however there are accessor methods **/
-moduleList_t* loadedModules = NULL;
-symbolList_t* moduleSymbols = NULL;
+moduleList_t* gLoadedModules = NULL;
+symbolList_t* gModuleSymbols = NULL;
 unsigned int (*lookup_symbol)(const char*) = NULL;
 
 char* gAuthor = NULL;
@@ -353,9 +353,9 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
 void module_loaded(const char* name, const void* base, void* start, const char* author, const char* description, UInt32 version, UInt32 compat)
 {
     moduleList_t* new_entry = malloc(sizeof(moduleList_t));
-    new_entry->next = loadedModules;
+    new_entry->next = gLoadedModules;
 
-    loadedModules = new_entry;
+    gLoadedModules = new_entry;
 
     if(!name) name = "Unknown";
     if(!author) author = "Unknown";
@@ -379,7 +379,7 @@ void module_loaded(const char* name, const void* base, void* start, const char* 
 int is_module_loaded(const char* name, UInt32 compat)
 {
     // todo sorted search
-    moduleList_t* entry = loadedModules;
+    moduleList_t* entry = gLoadedModules;
     while(entry)
     {
         if(strcmp(entry->name, name) == 0)
@@ -433,7 +433,7 @@ int is_module_loaded(const char* name, UInt32 compat)
  */
 symbolList_t* get_symbol_entry(const char* name)
 {
-    symbolList_t* entry = moduleSymbols;
+    symbolList_t* entry = gModuleSymbols;
     while(entry)
     {
         if(strcmp(entry->symbol, name) == 0)
@@ -468,8 +468,8 @@ long long remove_symbol(char* name)
         }
         else
         {
-            moduleSymbols = entry->next;
-            moduleSymbols->prev = NULL;
+            gModuleSymbols = entry->next;
+            gModuleSymbols->prev = NULL;
         }
         long long addr = entry->addr;
         free(entry);
@@ -495,10 +495,10 @@ void add_symbol(char* symbol, long long addr, char is64)
     DBG("Adding symbol %s at 0x%X\n", symbol, addr);
 
     entry = malloc(sizeof(symbolList_t));
-    moduleSymbols->prev = entry;
-    entry->next = moduleSymbols;
+    if(gModuleSymbols) gModuleSymbols->prev = entry;
+    entry->next = gModuleSymbols;
     entry->prev = NULL;
-    moduleSymbols = entry;
+    gModuleSymbols = entry;
 
     entry->addr = (UInt32)addr;
     entry->symbol = symbol;
