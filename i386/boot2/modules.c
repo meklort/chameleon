@@ -177,16 +177,17 @@ int load_module_binary(char* binary, char* module)
     initAddress = 0;
     initFunctions = 0;
 
-    if(base_size)
+    if(!base_size)
     {
-        // Standard module - symbols are based off of *base*
-        parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
+        // Code-less module - symbols only. Use Aboslute address of symbols (base = 0).
+        base = (void*)0;
     }
     else
     {
-        // Code-less module - symbols only. Use Aboslute address of symbols (base = 0).
-        parse_mach(binary, (void*)0, &load_module, &add_symbol, &module_section_handler);
+        // Standard module - symbols are based off of *base*
     }
+
+    parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
 
     module_start = (void*)remove_symbol(START_SYMBOL);
 
