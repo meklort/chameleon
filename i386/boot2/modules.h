@@ -91,12 +91,12 @@ long long remove_symbol(char* name);
 /********************************************************************************/
 /*    Macho Parser                                                                */
 /********************************************************************************/
-void*            parse_mach(void* binary, void* base,
+bool            parse_mach(void* binary, void* base,
                             int(*dylib_loader)(char*, UInt32 compat),
                             long long(*symbol_handler)(char*, long long, char),
                             void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
                            );
-unsigned int    handle_symtable(UInt32 base, UInt32 new_base,
+bool            handle_symtable(UInt32 base, UInt32 new_base,
                              struct symtab_command* symtabCommand,
                              long long(*symbol_handler)(char*, long long, char),
                              char is64);

@@ -70,7 +70,6 @@ int init_module_system()
 
 
     int retVal = 0;
-    void (*module_start)(void) = NULL;
 
     extern char*  __data_start;
     char* module_data = (char*)&__data_start;
@@ -591,20 +590,18 @@ UInt32 pre_parse_mach(void* binary)
 
 /*
  * Parse through a macho module. The module will be rebased and binded
- * as specified in the macho header. If the module is successfully loaded
- * the module iinit address will be returned.
+ * as specified in the macho header.
  * NOTE; all dependecies will be loaded before this module is started
  * NOTE: If the module is unable to load ot completeion, the modules
  * symbols will still be available.
  */
-void* parse_mach(void* binary, void* base,
+bool parse_mach(void* binary, void* base,
                  int(*dylib_loader)(char*, UInt32 compat),
                  long long(*symbol_handler)(char*, long long, char),
                  void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
 )
 {
     char is64 = false;
-    void (*module_start)(void) = NULL;
 
     // Module info
     /*char* moduleName = NULL;
@@ -767,7 +764,7 @@ void* parse_mach(void* binary, void* base,
     }
 
     // bind_macho uses the symbols, if the textAdd does not exist (Symbols.dylib, no code), addresses are static and not relative
-    module_start = (void*)handle_symtable((UInt32)binary, (UInt32)base, symtabCommand, symbol_handler, is64);
+    handle_symtable((UInt32)binary, (UInt32)base, symtabCommand, symbol_handler, is64);
     
     if(dyldInfoCommand)
     {
@@ -779,7 +776,7 @@ void* parse_mach(void* binary, void* base,
         if(dyldInfoCommand->lazy_bind_off)    bind_macho(binary,   base, (UInt8*)dyldInfoCommand->lazy_bind_off,    dyldInfoCommand->lazy_bind_size);
     }
 
-    return module_start;
+    return true;
 
 }
 
@@ -788,11 +785,10 @@ void* parse_mach(void* binary, void* base,
  * Lookup any undefined symbols
  */
 
-unsigned int handle_symtable(UInt32 base, UInt32 new_base, 
+bool handle_symtable(UInt32 base, UInt32 new_base, 
                              struct symtab_command* symtabCommand, 
                              long long(*symbol_handler)(char*, long long, char), char is64)
 {
-    unsigned int module_start    = 0xFFFFFFFF;
     UInt32 symbolIndex            = 0;
     char* symbolString            = base + (char*)symtabCommand->stroff;
 
@@ -802,12 +798,9 @@ unsigned int handle_symtable(UInt32 base, UInt32 new_base,
         while(symbolIndex < symtabCommand->nsyms)
         {
             // If the symbol is exported by this module
-            if(symbolEntry->n_value &&
-               symbol_handler(symbolString + symbolEntry->n_un.n_strx, (long long)new_base + symbolEntry->n_value, is64) != 0xFFFFFFFF)
+            if(symbolEntry->n_value)
             {
-
-                // Module start located. Start is an alias so don't register it
-                module_start = new_base + symbolEntry->n_value;
+               symbol_handler(symbolString + symbolEntry->n_un.n_strx, (long long)new_base + symbolEntry->n_value, is64);
             }
 
             symbolEntry++;
@@ -820,22 +813,17 @@ unsigned int handle_symtable(UInt32 base, UInt32 new_base,
         // NOTE First entry is *not* correct, but we can ignore it (i'm getting radar:// right now, verify later)
         while(symbolIndex < symtabCommand->nsyms)
         {
-
-
             // If the symbol is exported by this module
-            if(symbolEntry->n_value &&
-               symbol_handler(symbolString + symbolEntry->n_un.n_strx, (long long)new_base + symbolEntry->n_value, is64) != 0xFFFFFFFF)
+            if(symbolEntry->n_value)
             {
-
-                // Module start located. Start is an alias so don't register it
-                module_start = new_base + symbolEntry->n_value;
+               symbol_handler(symbolString + symbolEntry->n_un.n_strx, (long long)new_base + symbolEntry->n_value, is64);
             }
 
             symbolEntry++;
             symbolIndex++;    // TODO remove
         }
     }
-    return module_start;
+    return true;
 }
 
 // Based on code from dylibinfo.cpp and ImageLoaderMachOCompressed.cpp
