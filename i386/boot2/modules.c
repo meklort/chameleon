@@ -275,7 +275,7 @@ int load_module(char* module, UInt32 compat)
         DBG("Unable to read in module %s\n.", module); DBGPAUSE();
         retVal = 0;
     }
-    if(module_base) free(module_base); // Moduel was copied to new location
+    if(module_base) free(module_base); // Module was copied to new location
     close(fh);
     return retVal;
 }
@@ -435,8 +435,8 @@ void module_loaded(const char* name, const void* base, void* start, const char* 
     DBG("Module '%s' by '%s' Loaded.\n", name, author);
     DBG("\tInitialization: 0x%X\n", start);
     DBG("\tDescription: %s\n", description);
-    DBG("\tVersion: %d.%d.%d\n", version >> 16, version >> 8 & 0xFF, version & 0xFF); // todo: sperate to major.minor.bugfix
-    DBG("\tCompat:  %d.%d.%d\n", compat >> 16, compat >> 8 & 0xFF, compat & 0xFF);  // todo: ^^^ major.minor.bugfix
+    DBG("\tVersion: %d.%d.%d\n", version >> 16, version >> 8 & 0xFF, version & 0xFF);
+    DBG("\tCompat:  %d.%d.%d\n", compat >> 16, compat >> 8 & 0xFF, compat & 0xFF);
 }
 
 int is_module_loaded(const char* name, UInt32 compat)
@@ -499,11 +499,6 @@ unsigned int lookup_all_symbols(const char* name)
     while(entry)
     {
         if(strcmp(entry->symbol, name) == 0)
-        {
-            //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
-            return entry->addr;
-        }
-        else if(strcmp(entry->symbol, name + 1) == 0 && *name == '_') // Allow _strstr to bing to strstr, etc
         {
             //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
             return entry->addr;
