@@ -89,7 +89,6 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@#$(X86_ELF_CC) $(LDFLAGS) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
 	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 
-ifeq (${CONFIG_MODULES}, y)
 	@# Generate the Symbols.dylib file
 	@echo "	[dyldsymboltool] Symbols.dylib"
 	@$(SYMROOT)/dyldsymboltool $@ $(SYMROOT)/${SYMBOLS_MODULE}
@@ -100,7 +99,6 @@ ifeq (${CONFIG_MODULES}, y)
 	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 	@rm $(SYMROOT)/${SYMBOLS_MODULE}.ld
 
-endif
 	@echo "	[OBJCOPY] boot"
 	@/opt/xZenue/bin/objcopy $@ -O binary ${SYMROOT}/boot
 
