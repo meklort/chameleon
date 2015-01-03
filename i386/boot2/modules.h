@@ -1,13 +1,12 @@
 /*
  * Module Loading functionality
- * Copyright 2009 Evan Lojewski. All rights reserved.
+ * Copyright 2009-2015 Evan Lojewski. All rights reserved.
  *
  */
 
 #include <saio_types.h>
-#include <mach-o/loader.h>
-#include <mach-o/nlist.h>
 #include "hooks.h"
+#include "macho.h"
 
 #ifndef __BOOT_MODULES_H
 #define __BOOT_MODULES_H
@@ -84,25 +83,6 @@ version, UInt32 compat);
 void            add_symbol(char* symbol, long long addr, char is64);
 unsigned int    lookup_all_symbols(const char* name);
 long long       remove_symbol(char* name);
-
-
-
-
-/********************************************************************************/
-/*    Macho Parser                                                                */
-/********************************************************************************/
-bool            parse_mach(void* binary, void* base,
-                            int(*dylib_loader)(char*, UInt32 compat),
-                            void (*symbol_handler)(char*, long long, char),
-                            void (*section_handler)(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address)
-                           );
-bool            handle_symtable(UInt32 base, UInt32 new_base,
-                             struct symtab_command* symtabCommand,
-                             void (*symbol_handler)(char*, long long, char),
-                             char is64);
-void            rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size);
-
-void            bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size);
 
 
 /********************************************************************************/
