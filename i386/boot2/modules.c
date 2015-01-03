@@ -178,7 +178,16 @@ int load_module_binary(char* binary, char* module)
     initAddress = 0;
     initFunctions = 0;
 
-    parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
+    if(base_size)
+    {
+        // Standard module - symbols are based off of *base*
+        parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
+    }
+    else
+    {
+        // Code-less module - symbols only. Use Aboslute address of symbols (base = 0).
+        parse_mach(binary, (void*)0, &load_module, &add_symbol, &module_section_handler);
+    }
 
     module_start = (void*)remove_symbol(START_SYMBOL);
 
@@ -794,11 +803,11 @@ unsigned int handle_symtable(UInt32 base, UInt32 new_base,
         {
             // If the symbol is exported by this module
             if(symbolEntry->n_value &&
-               symbol_handler(symbolString + symbolEntry->n_un.n_strx, textAddress ? (long long)new_base + symbolEntry->n_value : symbolEntry->n_value, is64) != 0xFFFFFFFF)
+               symbol_handler(symbolString + symbolEntry->n_un.n_strx, (long long)new_base + symbolEntry->n_value, is64) != 0xFFFFFFFF)
             {
 
                 // Module start located. Start is an alias so don't register it
-                module_start = textAddress ? new_base + symbolEntry->n_value : symbolEntry->n_value;
+                module_start = new_base + symbolEntry->n_value;
             }
 
             symbolEntry++;
@@ -815,11 +824,11 @@ unsigned int handle_symtable(UInt32 base, UInt32 new_base,
 
             // If the symbol is exported by this module
             if(symbolEntry->n_value &&
-               symbol_handler(symbolString + symbolEntry->n_un.n_strx, textAddress ? (long long)new_base + symbolEntry->n_value : symbolEntry->n_value, is64) != 0xFFFFFFFF)
+               symbol_handler(symbolString + symbolEntry->n_un.n_strx, (long long)new_base + symbolEntry->n_value, is64) != 0xFFFFFFFF)
             {
 
                 // Module start located. Start is an alias so don't register it
-                module_start = textAddress ? new_base + symbolEntry->n_value : symbolEntry->n_value;
+                module_start = new_base + symbolEntry->n_value;
             }
 
             symbolEntry++;
