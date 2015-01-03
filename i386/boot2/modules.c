@@ -173,6 +173,11 @@ int load_module_binary(char* binary, char* module)
     UInt32 base_size = pre_parse_mach((void*)binary);
     char* base = base_size ? malloc(base_size) : binary;
 
+    textSection = 0;
+    textAddress = 0;    // reinitialize text location in case it doesn't exist;
+    initAddress = 0;
+    initFunctions = 0;
+
     parse_mach(binary, base, &load_module, &add_symbol, &module_section_handler);
 
     module_start = (void*)remove_symbol(START_SYMBOL);
@@ -296,8 +301,15 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
         memcpy(new_base + addr, base + addr, size);
     }
 
-    if(    strcmp(section, INIT_SECTION) == 0 &&
-        strcmp(segment, INIT_SEGMENT) == 0)
+    if((strcmp("__TEXT", segment) == 0) && 
+       (strcmp("__text", section) == 0))
+    {
+        // __TEXT,__text found, save the offset and address for when looking for the calls.
+        textSection = sect->offset;
+        textAddress = sect->addr;
+    }
+    else if(    strcmp(section, INIT_SECTION) == 0 &&
+                strcmp(segment, INIT_SEGMENT) == 0)
     {
         // TODO: use rebased location
         DBG("Module has initialization data.\n");
@@ -603,11 +615,6 @@ void* parse_mach(void* binary, void* base,
     UInt32 binaryIndex = 0;
     UInt16 cmd = 0;
 
-    textSection = 0;
-    textAddress = 0;    // reinitialize text location in case it doesn't exist;
-    initAddress = 0;
-    initFunctions = 0;
-
     // Parse through the load commands
     if(((struct mach_header*)binary)->magic == MH_MAGIC)
     {
@@ -664,13 +671,6 @@ void* parse_mach(void* binary, void* base,
                     sectionIndex += sizeof(struct section);
 
                     if(section_handler) section_handler(binary, base, sect->sectname, segCommand->segname, (void*)sect, sect->offset, sect->addr);
-
-                    if((strcmp("__TEXT", segCommand->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
-                    {
-                        // __TEXT,__text found, save the offset and address for when looking for the calls.
-                        textSection = sect->offset;
-                        textAddress = sect->addr;
-                    }
                 }
             }
             break;
@@ -691,13 +691,6 @@ void* parse_mach(void* binary, void* base,
                     sectionIndex += sizeof(struct section_64);
 
                     if(section_handler) section_handler(binary, base, sect->sectname, segCommand64->segname, (void*)sect, sect->offset, sect->addr);
-
-                    if((strcmp("__TEXT", segCommand64->segname) == 0) && (strcmp("__text", sect->sectname) == 0))
-                    {
-                        // __TEXT,__text found, save the offset and address for when looking for the calls.
-                        textSection = sect->offset;
-                        textAddress = sect->addr;
-                    }
                 }
             }
             break;
