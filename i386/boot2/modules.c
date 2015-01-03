@@ -22,6 +22,9 @@
 #define DBGPAUSE()
 #endif
 
+symbolList_t* get_symbol_entry(const char* name);
+
+
 void module_section_handler(char* base, char* new_base, char* section, char* segment, void* cmd, UInt64 offset, UInt64 address);
 
 // NOTE: Global so that modules can link with this
@@ -345,65 +348,6 @@ void module_section_handler(char* base, char* new_base, char* section, char* seg
 
 
 /*
- * remove_symbol
- * This function removes a symbol from  the list of known symbols
- * and returns it's address, if found.
- */
-long long remove_symbol(char* name)
-{
-    symbolList_t* prev = NULL;
-    symbolList_t* entry = moduleSymbols;
-    while(entry)
-    {
-        if(strcmp(entry->symbol, name) == 0)
-        {
-            //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
-            if(prev)
-            {
-                prev->next = entry->next;
-            }
-            else
-            {
-                moduleSymbols = entry->next;;
-            }
-            long long addr = entry->addr;
-            free(entry);
-
-            return entry->addr;
-        }
-        else
-        {
-            prev = entry;
-            entry = entry->next;
-        }
-    }
-    // No symbol
-    return 0xFFFFFFFF;
-}
-
-
-/*
- * add_symbol
- * This function adds a symbol from a module to the list of known symbols
- * possibly change to a pointer and add this to the Symbol module so that it can
- * adjust it's internal symbol list (sort) to optimize locating new symbols
- */
-void add_symbol(char* symbol, long long addr, char is64)
-{
-    // This only can handle 32bit symbols
-    symbolList_t* entry;
-    DBG("Adding symbol %s at 0x%X\n", symbol, addr);
-
-    entry = malloc(sizeof(symbolList_t));
-    entry->next = moduleSymbols;
-    moduleSymbols = entry;
-
-    entry->addr = (UInt32)addr;
-    entry->symbol = symbol;
-}
-
-
-/*
  * print out the information about the loaded module
  */
 void module_loaded(const char* name, const void* base, void* start, const char* author, const char* description, UInt32 version, UInt32 compat)
@@ -430,6 +374,7 @@ void module_loaded(const char* name, const void* base, void* start, const char* 
     DBG("\tVersion: %d.%d.%d\n", version >> 16, version >> 8 & 0xFF, version & 0xFF);
     DBG("\tCompat:  %d.%d.%d\n", compat >> 16, compat >> 8 & 0xFF, compat & 0xFF);
 }
+
 
 int is_module_loaded(const char* name, UInt32 compat)
 {
@@ -481,24 +426,95 @@ int is_module_loaded(const char* name, UInt32 compat)
     return 0;
 }
 
+
 /*
- *    lookup symbols in all loaded modules. Thins inludes boot syms due to Symbols.dylib construction
+ *    lookup symbols in all loaded modules. Returns the symbol entry, or NULL if not found
  *
  */
-unsigned int lookup_all_symbols(const char* name)
+symbolList_t* get_symbol_entry(const char* name)
 {
     symbolList_t* entry = moduleSymbols;
     while(entry)
     {
         if(strcmp(entry->symbol, name) == 0)
         {
-            //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
-            return entry->addr;
+            return entry;
         }
         else
         {
             entry = entry->next;
         }
+    }
+    return NULL;
+}
+
+
+/*
+ * remove_symbol
+ * This function removes a symbol from  the list of known symbols
+ * and returns it's address, if found.
+ */
+long long remove_symbol(char* name)
+{
+    symbolList_t* prev = NULL;
+    symbolList_t* entry = get_symbol_entry(name);
+    if(entry)
+    {
+        //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
+        if(entry->prev)
+        {
+            entry->prev->next = entry->next;
+            entry->next->prev = entry->prev;
+        }
+        else
+        {
+            moduleSymbols = entry->next;
+            moduleSymbols->prev = NULL;
+        }
+        long long addr = entry->addr;
+        free(entry);
+
+        return entry->addr;
+    }
+
+    // No symbol
+    return 0xFFFFFFFF;
+}
+
+
+/*
+ * add_symbol
+ * This function adds a symbol from a module to the list of known symbols
+ * possibly change to a pointer and add this to the Symbol module so that it can
+ * adjust it's internal symbol list (sort) to optimize locating new symbols
+ */
+void add_symbol(char* symbol, long long addr, char is64)
+{
+    // This only can handle 32bit symbols
+    symbolList_t* entry;
+    DBG("Adding symbol %s at 0x%X\n", symbol, addr);
+
+    entry = malloc(sizeof(symbolList_t));
+    moduleSymbols->prev = entry;
+    entry->next = moduleSymbols;
+    entry->prev = NULL;
+    moduleSymbols = entry;
+
+    entry->addr = (UInt32)addr;
+    entry->symbol = symbol;
+}
+
+/*
+ *    lookup symbols in all loaded modules. Thins inludes boot syms due to Symbols.dylib construction
+ *
+ */
+unsigned int lookup_all_symbols(const char* name)
+{
+    symbolList_t* entry = get_symbol_entry(name);
+    if(entry)
+    {
+        //DBG("External symbol %s located at 0x%X\n", name, entry->addr);
+        return entry->addr;
     }
 
 #if CONFIG_MODULE_DEBUG

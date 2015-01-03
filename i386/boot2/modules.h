@@ -39,6 +39,7 @@ typedef struct symbolList_t
     char* symbol;
     UInt64 addr;
     struct symbolList_t* next;
+    struct symbolList_t* prev;
 } symbolList_t;
 
 typedef struct modulesList_t
