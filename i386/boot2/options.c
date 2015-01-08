@@ -94,13 +94,12 @@ int selectAlternateBootDevice(int bootdevice)
     return bootdevice;
 }
 
-static int currentIndicator = 0;
-static char indicator[] = {'-', '\\', '|', '/', '\0'};
-
-
 void
 spinActivityIndicator(int sectors)
 {
+    static int currentIndicator = 0;
+    char indicator[] = {'-', '\\', '|', '/', '\0'};
+
     if (currentIndicator >= sizeof(indicator))
     {
         currentIndicator = 0;
