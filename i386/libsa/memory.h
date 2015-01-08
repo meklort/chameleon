@@ -72,9 +72,6 @@
 
 #define MEMBASE           0x0
 
-#define BOOTSTRUCT_ADDR   0x00011000    // it's slightly smaller
-#define BOOTSTRUCT_LEN    0x0000F000
-
 #define BASE_ADDR         ADDR32(BASE_SEG, 0)
 #define BOOT1U_ADDR       ADDR32(BOOT1U_SEG, BOOT1U_OFS)
 #define BOOT2_ADDR        ADDR32(BOOT2_SEG, BOOT2_OFS)
