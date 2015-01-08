@@ -99,13 +99,6 @@ static char indicator[] = {'-', '\\', '|', '/', '\0'};
 
 
 void
-clearActivityIndicator( void )
-{
-    putchar(' ');
-    putchar('\b');
-}
-
-void
 spinActivityIndicator(int sectors)
 {
     if (currentIndicator >= sizeof(indicator))
