@@ -1,0 +1,3 @@
+REVIEWBOARD_URL = 'https://public.xzenue.com/review/'
+REPOSITORY = 'chameleon'
+
