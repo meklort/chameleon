@@ -40,7 +40,7 @@
 #include "ramdisk.h"
 #include "modules.h"
 
-//extern char gMacOSVersion[8];
+size_t lzvn_decode(void * decompressedData, size_t decompressedSize, void * compressedData, size_t compressedSize);
 
 struct Module {  
 	struct Module *nextModule;
@@ -851,7 +851,10 @@ DecodeKernel(void *binary, entry_t *rentry, char **raddr, int *rsize)
 
 	if (kernel_header->signature == OSSwapBigToHostConstInt32('comp'))
 	{
-		if (kernel_header->compress_type != OSSwapBigToHostConstInt32('lzss'))
+		if (
+			(kernel_header->compress_type != OSSwapBigToHostConstInt32('lzss')) &&
+			(kernel_header->compress_type != OSSwapBigToHostConstInt32('lzvn'))
+		   )
 		{
 			error("kernel compression is bad\n");
 			return -1;
@@ -870,8 +873,17 @@ DecodeKernel(void *binary, entry_t *rentry, char **raddr, int *rsize)
 		uncompressed_size = OSSwapBigToHostInt32(kernel_header->uncompressed_size);
 		binary = buffer = malloc(uncompressed_size);
 		
-		size = decompress_lzss((u_int8_t *) binary, &kernel_header->data[0],
-							   OSSwapBigToHostInt32(kernel_header->compressed_size));
+		if(kernel_header->compress_type == OSSwapBigToHostConstInt32('lzss'))
+		{
+			size = decompress_lzss((u_int8_t *) binary, &kernel_header->data[0],
+							OSSwapBigToHostInt32(kernel_header->compressed_size));
+		}
+		if(kernel_header->compress_type == OSSwapBigToHostConstInt32('lzvn'))
+		{
+			size = lzvn_decode(binary, uncompressed_size, &kernel_header->data[0],
+							OSSwapBigToHostInt32(kernel_header->compressed_size));
+		}
+		
 		if (uncompressed_size != size) {
 			error("size mismatch from lzss: %x\n", size);
 			return -1;
