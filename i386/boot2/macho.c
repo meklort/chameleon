@@ -275,11 +275,11 @@ bool parse_mach(void* binary, void* base,
     if(dyldInfoCommand)
     {
         // Rebase the module before binding it.
-        if(dyldInfoCommand->rebase_off)     rebase_macho(binary, base, (UInt8*)dyldInfoCommand->rebase_off,         dyldInfoCommand->rebase_size);
+        if(dyldInfoCommand->rebase_off)       rebase_macho(binary, base, (UInt8*)dyldInfoCommand->rebase_off,       dyldInfoCommand->rebase_size);
         // Bind all symbols.
-        if(dyldInfoCommand->bind_off)         bind_macho(binary,   base, (UInt8*)dyldInfoCommand->bind_off,         dyldInfoCommand->bind_size);
-        if(dyldInfoCommand->weak_bind_off)    bind_macho(binary,   base, (UInt8*)dyldInfoCommand->weak_bind_off,    dyldInfoCommand->weak_bind_size);
-        if(dyldInfoCommand->lazy_bind_off)    bind_macho(binary,   base, (UInt8*)dyldInfoCommand->lazy_bind_off,    dyldInfoCommand->lazy_bind_size);
+        if(dyldInfoCommand->bind_off)         bind_macho(  binary, base, (UInt8*)dyldInfoCommand->bind_off,         dyldInfoCommand->bind_size);
+        if(dyldInfoCommand->weak_bind_off)    bind_macho(  binary, base, (UInt8*)dyldInfoCommand->weak_bind_off,    dyldInfoCommand->weak_bind_size);
+        if(dyldInfoCommand->lazy_bind_off)    bind_macho(  binary, base, (UInt8*)dyldInfoCommand->lazy_bind_off,    dyldInfoCommand->lazy_bind_size);
     }
 
     return true;
