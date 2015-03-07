@@ -22,7 +22,7 @@ bool            handle_symtable(UInt32 base, UInt32 new_base,
                              struct symtab_command* symtabCommand,
                              void (*symbol_handler)(char*, long long, char),
                              char is64);
-void            rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size);
+void            rebase_macho(void* base, void* new_base, UInt8* rebase_stream, UInt32 size);
 
 void            bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size);
 
