@@ -46,9 +46,9 @@ ifdef CONFIG_ACPICODEC_MODULE
 SUBDIRS += AcpiCodec
 endif
 
-#ifdef CONFIG_KERNELPATCHER_MODULE
-#SUBDIRS += KernelPatcher
-#endif
+ifdef CONFIG_KERNELPATCHER_MODULE
+SUBDIRS += KernelPatcher
+endif
 
 #ifdef CONFIG_KEXTPATCHER_MODULE
 #SUBDIRS += KextPatcher
