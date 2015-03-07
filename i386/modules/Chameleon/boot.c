@@ -315,8 +315,8 @@ void common_boot(int biosdev)
 	bool	 		instantMenu;
 	bool	 		rescanPrompt;
 	int				status;
-	unsigned int	allowBVFlags = -1;
-	unsigned int	denyBVFlags = 0;;
+	unsigned int	allowBVFlags = kBVFlagSystemVolume | kBVFlagForeignBoot;
+	unsigned int	denyBVFlags = kBVFlagEFISystem;
 
 	// Set reminder to unload the PXE base code. Neglect to unload
 	// the base code will result in a hang or kernel panic.
