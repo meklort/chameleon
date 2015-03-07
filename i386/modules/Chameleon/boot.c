@@ -107,7 +107,11 @@ static int ExecKernel(void *binary)
 					   (int *)&bootArgs->ksize );
 
 	if ( ret != 0 )
+	{
+		printf("Decoding kernel failed.\n");
+		pause();
 		return ret;
+	}
 
 	// Reserve space for boot args
 	reserveKernBootStruct();
@@ -123,7 +127,7 @@ static int ExecKernel(void *binary)
 
 	execute_hook("DriversLoaded", (void*)binary, NULL, NULL, NULL);
 
-    clearActivityIndicator();
+	clearActivityIndicator();
     
 	if (gErrors) {
 		printf("Errors encountered while starting up the computer.\n");
@@ -558,7 +562,7 @@ void common_boot(int biosdev)
 			}
 		} while (0);
 
-        clearActivityIndicator();
+		clearActivityIndicator();
         
 #if DEBUG
 		printf("Pausing...");
