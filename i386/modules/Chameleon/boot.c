@@ -59,6 +59,7 @@
 #include <libsaio/platform.h>
 #include "modules.h"
 
+#include <stdio.h>
 /*
  * How long to wait (in seconds) to load the
  * kernel after displaying the "boot:" prompt.
@@ -79,7 +80,7 @@ int		bvCount = 0, gDeviceCount = 0;
 long		gBootMode; /* defaults to 0 == kBootModeNormal */
 BVRef		bvr, menuBVR, bvChain;
 
-static bool				checkOSVersion(const char * version);
+static bool				checkOSVersion(int major, int minor);
 static void				getOSVersion();
 static unsigned long	Adler32(unsigned char *buffer, long length);
 //static void			selectBiosDevice(void);
@@ -154,7 +155,7 @@ static int ExecKernel(void *binary)
 	finalizeBootStruct();
 
 	// Jump to kernel's entry point. There's no going back now.
-	if ((checkOSVersion("10.7")) || (checkOSVersion("10.8")) || (checkOSVersion("10.9")))
+	if ((checkOSVersion(10, 7)) || (checkOSVersion(10, 8)) || (checkOSVersion(10, 9)) || (checkOSVersion(10, 10)))
 	{
 
 		// Notify modules that the kernel is about to be started
@@ -200,12 +201,12 @@ long LoadKernelCache(const char* cacheFile, void **binary)
 	else
 	{
 		// Lion, Mountain Lion and Mavericks prelink kernel cache file
-		if ((checkOSVersion("10.7")) || (checkOSVersion("10.8")) || (checkOSVersion("10.9")))
+		if ((checkOSVersion(10, 7)) || (checkOSVersion(10, 8)) || (checkOSVersion(10, 9)) || (checkOSVersion(10, 10)))
 		{
 			snprintf(kernelCacheFile, sizeof(kernelCacheFile), "%skernelcache", kDefaultCachePathSnow);
 		}
 		// Snow Leopard prelink kernel cache file
-		else if (checkOSVersion("10.6")) {
+		else if (checkOSVersion(10, 6)) {
 			snprintf(kernelCacheFile, sizeof(kernelCacheFile), "kernelcache_%s",
 				(archCpuType == CPU_TYPE_I386) ? "i386" : "x86_64");
 			int lnam = strlen(kernelCacheFile) + 9; //with adler32
@@ -607,10 +608,17 @@ static void selectBiosDevice(void)
 }
 */
 
-bool checkOSVersion(const char * version) 
+bool checkOSVersion(int major, int minor) 
 {
-	return ((gMacOSVersion[0] == version[0]) && (gMacOSVersion[1] == version[1])
-			&& (gMacOSVersion[2] == version[2]) && (gMacOSVersion[3] == version[3]));
+	int fdmajor = 0, fdminor = 0;
+	if(sscanf(gMacOSVersion, "%d.%d", &fdmajor, &fdminor) != 2)
+	{
+		return false;
+	}
+	else
+	{
+		return (major == fdmajor) && (minor == fdminor);
+	}
 }
 
 static void getOSVersion()
