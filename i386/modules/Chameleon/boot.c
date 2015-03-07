@@ -90,19 +90,6 @@ void showTextBuffer(char *buf, int size);
 
 
 //==========================================================================
-// Zero the BSS.
-
-#if 0
-static void zeroBSS(void)
-{
-	extern char*  __bss_stop;
-	extern char*  __bss_start;
-	bzero(&__bss_start, (&__bss_stop - &__bss_start));
-
-}
-#endif
-
-//==========================================================================
 // execKernel - Load the kernel image (mach-o) and jump to its entry point.
 
 static int ExecKernel(void *binary)
@@ -328,12 +315,13 @@ void common_boot(int biosdev)
 	bool	 		instantMenu;
 	bool	 		rescanPrompt;
 	int				status;
-	unsigned int	allowBVFlags = kBVFlagSystemVolume | kBVFlagForeignBoot;
-	unsigned int	denyBVFlags = kBVFlagEFISystem;
+	unsigned int	allowBVFlags = -1;
+	unsigned int	denyBVFlags = 0;;
 
 	// Set reminder to unload the PXE base code. Neglect to unload
 	// the base code will result in a hang or kernel panic.
 	gUnloadPXEOnExit = true;
+        gBIOSDev = biosdev & kBIOSDevMask;
 
 	// Initialize boot info structure.
 	initKernBootStruct();
@@ -356,7 +344,16 @@ void common_boot(int biosdev)
 		firstRun = false;
 	}
 
+	scanBootVolumes(gBIOSDev, 0);
+	bvChain = getBVChainForBIOSDev(gBIOSDev);
+
 	setBootGlobals(bvChain);
+	
+	// Create a separated bvr chain using the specified filters.
+	bvChain = newFilteredBVChain(0x80, 0xFF, allowBVFlags, denyBVFlags, &gDeviceCount);
+	
+	gBootVolume = selectBootVolume(bvChain);
+
 
 	// Parse args, load and start kernel.
 	while (1)
