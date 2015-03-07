@@ -275,9 +275,9 @@ bool parse_mach(void* binary, void* base,
     if(dyldInfoCommand)
     {
         // Rebase the module before binding it.
-        if(dyldInfoCommand->rebase_off)        rebase_macho(binary, base, (char*)dyldInfoCommand->rebase_off,    dyldInfoCommand->rebase_size);
+        if(dyldInfoCommand->rebase_off)     rebase_macho(binary, base, (UInt8*)dyldInfoCommand->rebase_off,         dyldInfoCommand->rebase_size);
         // Bind all symbols.
-        if(dyldInfoCommand->bind_off)        bind_macho(binary,   base, (UInt8*)dyldInfoCommand->bind_off,        dyldInfoCommand->bind_size);
+        if(dyldInfoCommand->bind_off)         bind_macho(binary,   base, (UInt8*)dyldInfoCommand->bind_off,         dyldInfoCommand->bind_size);
         if(dyldInfoCommand->weak_bind_off)    bind_macho(binary,   base, (UInt8*)dyldInfoCommand->weak_bind_off,    dyldInfoCommand->weak_bind_size);
         if(dyldInfoCommand->lazy_bind_off)    bind_macho(binary,   base, (UInt8*)dyldInfoCommand->lazy_bind_off,    dyldInfoCommand->lazy_bind_size);
     }
@@ -332,8 +332,22 @@ bool handle_symtable(UInt32 base, UInt32 new_base,
     return true;
 }
 
+UInt64 read_uleb(UInt8* bind_stream, unsigned int* i)
+{
+    UInt64 tmp;
+    UInt32 bits;
+    tmp = 0;
+    bits = 0;
+    do {
+        tmp += ((UInt64)(bind_stream[++(*i)] & 0x7f)) << bits;
+        bits += 7;
+    } while(bind_stream[(*i)] & 0x80);
+    return tmp;
+}
+
+
 // Based on code from dylibinfo.cpp and ImageLoaderMachOCompressed.cpp
-void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
+void rebase_macho(void* base, void* new_base, UInt8* rebase_stream, UInt32 size)
 {
     rebase_stream += (UInt32)base;
 
@@ -344,8 +358,8 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
     UInt32 segmentAddress = 0;
 
 
-    UInt32 tmp  = 0;
-    UInt32 tmp2  = 0;
+    UInt64 tmp  = 0;
+    UInt64 tmp2  = 0;
     UInt8 bits = 0;
     int index = 0;
     unsigned int i = 0;
@@ -359,6 +373,7 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
         switch(opcode)
         {
             case REBASE_OPCODE_DONE:
+                DBG("REBASE_OPCODE_DONE()\n");
                 // Rebase complete, reset vars
                 immediate = 0;
                 opcode = 0;
@@ -368,6 +383,7 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
 
 
             case REBASE_OPCODE_SET_TYPE_IMM:
+		DBG("REBASE_OPCODE_SET_TYPE_IMM(%d)\n", immediate);
                 type = immediate;
                 break;
 
@@ -388,37 +404,29 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
                 } while(index <= immediate);
 
                 segmentAddress = segCommand->fileoff;
-                tmp = 0;
-                bits = 0;
-                do {
-                    tmp |= (rebase_stream[++i] & 0x7f) << bits;
-                    bits += 7;
-                }
-                while(rebase_stream[i] & 0x80);
+                tmp = read_uleb(rebase_stream, &i);
 
                 segmentAddress += tmp;
+		DBG("REBASE_OPCODE_SET_SEGMENT_AND_OFFSET_ULEB(%d,0x%X)\n", immediate, tmp);
                 break;
 
             case REBASE_OPCODE_ADD_ADDR_ULEB:
                 // Add value to rebase address
-                tmp = 0;
-                bits = 0;
-                do {
-                    tmp <<= bits;
-                    tmp |= rebase_stream[++i] & 0x7f;
-                    bits += 7;
-                } while(rebase_stream[i] & 0x80);
+                tmp = read_uleb(rebase_stream, &i);
 
                 segmentAddress +=    tmp;
+		DBG("REBASE_OPCODE_ADD_ADDR_ULEB(0x%X)\n", tmp);
                 break;
 
             case REBASE_OPCODE_ADD_ADDR_IMM_SCALED:
                 segmentAddress += immediate * sizeof(void*);
+		DBG("REBASE_OPCODE_ADD_ADDR_IMM_SCALED(0x%X)\n", immediate * sizeof(void*));
                 break;
 
 
             case REBASE_OPCODE_DO_REBASE_IMM_TIMES:
                 index = 0;
+		DBG("REBASE_OPCODE_DO_REBASE_IMM_TIMES(%d)\n", immediate);
                 for (index = 0; index < immediate; ++index) {
                     rebase_location(new_base + segmentAddress, (char*)new_base, type);
                     segmentAddress += sizeof(void*);
@@ -426,13 +434,9 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
                 break;
 
             case REBASE_OPCODE_DO_REBASE_ULEB_TIMES:
-                tmp = 0;
-                bits = 0;
-                do {
-                    tmp |= (rebase_stream[++i] & 0x7f) << bits;
-                    bits += 7;
-                } while(rebase_stream[i] & 0x80);
+                tmp = read_uleb(rebase_stream, &i);
 
+		DBG("REBASE_OPCODE_DO_REBASE_ULEB_TIMES(%d)\n", tmp);
                 index = 0;
                 for (index = 0; index < tmp; ++index) {
                     //DBG("\tRebasing 0x%X\n", segmentAddress);
@@ -442,12 +446,8 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
                 break;
 
             case REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB:
-                tmp = 0;
-                bits = 0;
-                do {
-                    tmp |= (rebase_stream[++i] & 0x7f) << bits;
-                    bits += 7;
-                } while(rebase_stream[i] & 0x80);
+                tmp = read_uleb(rebase_stream, &i);
+		DBG("REBASE_OPCODE_DO_REBASE_ADD_ADDR_ULEB(%d)\n", tmp + sizeof(void*));
 
                 rebase_location(new_base + segmentAddress, (char*)new_base, type);
 
@@ -455,20 +455,10 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
                 break;
 
             case REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB:
-                tmp = 0;
-                bits = 0;
-                do {
-                    tmp |= (rebase_stream[++i] & 0x7f) << bits;
-                    bits += 7;
-                } while(rebase_stream[i] & 0x80);
-
-
-                tmp2 =  0;
-                bits = 0;
-                do {
-                    tmp2 |= (rebase_stream[++i] & 0x7f) << bits;
-                    bits += 7;
-                } while(rebase_stream[i] & 0x80);
+                tmp = read_uleb(rebase_stream, &i);
+                tmp2 = read_uleb(rebase_stream, &i);
+		UInt32 a = tmp;
+		DBG("REBASE_OPCODE_DO_REBASE_ULEB_TIMES_SKIPPING_ULEB(%d, %d)\n", a, tmp2);
 
                 index = 0;
                 for (index = 0; index < tmp; ++index) {
@@ -483,24 +473,8 @@ void rebase_macho(void* base, void* new_base, char* rebase_stream, UInt32 size)
                 break;
         }
         i++;
+	DBGPAUSE();
     }
-}
-
-
-UInt32 read_uleb(UInt8* bind_stream, unsigned int* i)
-{
-    // Read in offset
-    UInt32 tmp  = 0;
-    UInt8 bits = 0;
-    do {
-        if(bits < sizeof(UInt32)*8) {  // hack
-            tmp |= (bind_stream[++(*i)] & 0x7f) << bits;
-            bits += 7;
-        } else {
-        ++(*i);
-        }
-    } while(bind_stream[*i] & 0x80);
-    return tmp;
 }
 
 
@@ -691,6 +665,8 @@ void bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size)
 
 static inline void rebase_location(UInt32* location, char* base, int type)
 {
+    DBG("Rebasing locaiton 0x%X with base 0x%X, type = %d\n", (UInt32)location - (UInt32)base, base, type);
+    //DBGPAUSE();
     switch(type)
     {
         case REBASE_TYPE_POINTER:
