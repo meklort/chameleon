@@ -264,6 +264,10 @@ long HFSInitPartition(CICell ih)
 
 	// grab the 64 bit volume ID
 	bcopy(&gHFSPlus->finderInfo[24], &gVolID, 8);
+	
+	// Boot folder is located at finderInfo[0];
+	//UInt32 bootID = ((UInt32*)gHFSPlus->finderInfo[0]);
+	//printf("Boot Folder is %d\n", bootID);
 
 	// Get the Catalog BTree node size.
 	extent     = &gHFSPlus->catalogFile.extents;

@@ -75,7 +75,7 @@ BVRef        bvr, menuBVR, bvChain;
 //==========================================================================
 // Zero the BSS.
 
-static void zeroBSS(void)
+static void __attribute__((no_instrument_function)) zeroBSS(void)
 {
     extern char*  __bss_end;
     extern char*  __bss_start;
@@ -111,7 +111,7 @@ static void malloc_error(char *addr, size_t size, const char *file, int line)
 //==========================================================================
 //Initializes the runtime. Right now this means zeroing the BSS and initializing malloc.
 //
-void initialize_runtime(void)
+void __attribute__((no_instrument_function)) initialize_runtime(void)
 {
     zeroBSS();
     malloc_init(0, 0, 0, malloc_error);
@@ -122,7 +122,7 @@ void initialize_runtime(void)
 // This is the entrypoint from real-mode which functions exactly as it did
 // before. Multiboot does its own runtime initialization, does some of its
 // own things, and then calls common_boot.
-void boot(int biosdev)
+void __attribute__((no_instrument_function)) boot(int biosdev)
 {
     initialize_runtime();
     // Enable A20 gate before accessing memory above 1Mb.
@@ -173,22 +173,14 @@ void common_boot(int biosdev)
     // Scan all found disks
     //scanDisks(gBIOSDev, &bvCount);
     
-    // Create a separated bvr chain using the specified filters.
-    bvChain = newFilteredBVChain(0x80, 0xFF, allowBVFlags, denyBVFlags, &gDeviceCount);
-
-    gBootVolume = selectBootVolume(bvChain);
-
     // Intialize module system 
     init_module_system();
-
+  
     execute_hook("InitDone", NULL, NULL, NULL, NULL);
     printf("Chameleon %s build %s\n", I386BOOT_CHAMELEONVERSION, I386BOOT_CHAMELEONREVISION);
     
-
     execute_hook("Main", (void*) biosdev, NULL, NULL, NULL);
 
-    printf("Main code exited.\n");
-    pause();
     printf("It is now safe to shut down your computer.\n");
     system_shutdown ();
 }
