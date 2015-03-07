@@ -28,6 +28,7 @@
 
 #include "libsaio.h"
 #include <libsaio/bootstruct.h>
+#include <stdio.h>
 
 /*==========================================================================
  * Initialize the structure of parameters passed to
@@ -109,8 +110,9 @@ void initKernBootStruct( void )
 void
 reserveKernBootStruct(void)
 {
-	if ((gMacOSVersion[0] == '1') && (gMacOSVersion[1] == '0')
-		&& (gMacOSVersion[2] == '.') && (gMacOSVersion[3] == '7' || gMacOSVersion[3] == '8' || gMacOSVersion[3] == '9'))
+	int major = 0, minor = 0;
+	sscanf(gMacOSVersion, "%d.%d", &major, &minor);
+	if (major == 10 && minor >= 7)
 	{
 		void *oldAddr = bootArgs;
 		bootArgs = (boot_args *)AllocateKernelMemory(sizeof(boot_args));

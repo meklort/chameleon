@@ -948,6 +948,8 @@ processBootOptions()
 		return -1;
 	}
 
+	strncpy(gMacOSVersion, gBootVolume->OSVersion, sizeof(gMacOSVersion));
+
 	// Load config table specified by the user, or use the default.
 
 	if (!getValueForBootKey(cp, "config", &val, &cnt)) {

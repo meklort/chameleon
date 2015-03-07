@@ -40,6 +40,8 @@
 #include "ramdisk.h"
 #include "modules.h"
 
+bool checkOSVersion(int major, int minor) ;
+
 size_t lzvn_decode(void * decompressedData, size_t decompressedSize, void * compressedData, size_t compressedSize);
 
 struct Module {  
@@ -228,7 +230,7 @@ long LoadDrivers( char * dirSpec )
 					return -1;
 				}
 			} else {
-				if (gMacOSVersion[3] == '9') {
+				if (checkOSVersion(10, 9) || checkOSVersion(10, 10)) {
 					strlcpy(gExtensionsSpec, dirSpec, 4087); /* 4096 - sizeof("Library/") */
 					strcat(gExtensionsSpec, "Library/");
 					FileLoadDrivers(gExtensionsSpec, 0);

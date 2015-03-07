@@ -80,7 +80,7 @@ int		bvCount = 0, gDeviceCount = 0;
 long		gBootMode; /* defaults to 0 == kBootModeNormal */
 BVRef		bvr, menuBVR, bvChain;
 
-static bool				checkOSVersion(int major, int minor);
+bool				checkOSVersion(int major, int minor);
 static void				getOSVersion();
 static unsigned long	Adler32(unsigned char *buffer, long length);
 //static void			selectBiosDevice(void);
@@ -407,7 +407,7 @@ void common_boot(int biosdev)
         execute_hook("ClearScreen", NULL, NULL, NULL, NULL);
 
 		// Find out which version mac os we're booting.
-		getOSVersion();
+		//getOSVersion();
 
 		if (platformCPUFeature(CPU_FEATURE_EM64T)) {
 			archCpuType = CPU_TYPE_X86_64;
