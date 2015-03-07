@@ -1476,7 +1476,8 @@ static bool getOSVersion(BVRef bvr, char *str)
 			// getValueForKey uses const char for val
 			// so copy it and trim
 			*str = '\0';
-			strncat(str, val, MIN(len, 4));
+			strncat(str, val, MIN(len, 5));
+			if(str[4] == '.') str[4] = '\0';
 		} else {
 			valid = false;
 		}
