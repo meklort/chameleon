@@ -5,7 +5,6 @@
 #include "boot.h"
 #include "modules.h"
 #include "mboot.h"
-#include <vers.h>
 
 #include <string.h>
 
