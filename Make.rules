@@ -59,7 +59,7 @@ OMIT_FRAME_POINTER_CFLAG=
 
 $(OBJROOT)/%.o: %.c
 	@echo "	[CC] $<"
-	@$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -MM -M -o ${abspath $@.Makedep}
+	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -MM -M -o ${abspath $@.Makedep}
 	${PRINT}$(CC) $(CFLAGS) $(DEFINES) -c $(INC) ${abspath $<} -o ${abspath $@}
 
 $(OBJROOT)/%.o: %.m
