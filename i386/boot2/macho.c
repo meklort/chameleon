@@ -544,6 +544,11 @@ void bind_macho(void* base, void* new_base, UInt8* bind_stream, UInt32 size)
                 i += strlen((char*)&bind_stream[i]);
 
                 symbolAddr = lookup_all_symbols(symbolName);
+		if(symbolAddr == lookup_all_symbols(VOID_SYMBOL))
+		{
+		    printf("Unable to find symbol '%s', using '%s' instead\n", symbolName, VOID_SYMBOL);
+		    pause();
+		}
                 break;
 
             case BIND_OPCODE_SET_TYPE_IMM:
