@@ -45,7 +45,6 @@ MODULE_OBJS = ${addprefix trunk/i386/libsa/,${LIBSA_OBJS}} \
 include ../MakeInc.dir
 
 
-override INC := ${filter-out -I$(SRCROOT)/i386/include/,${INC}} -Itrunk/i386/include/
 override INC = -I$(SRCROOT)/i386/modules/include/ -I${abspath include/} -Itrunk/i386/libsaio/ -Itrunk/i386/libsa/ \
 	-Itrunk/i386/include/ -Itrunk/i386/boot2/ $(MODULE_INCLUDES)
 
