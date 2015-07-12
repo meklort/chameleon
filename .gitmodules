@@ -1,0 +1,3 @@
+[submodule "i386/modules/KernelPatcher"]
+	path = i386/modules/KernelPatcher
+	url = https://public.xzenue.com/diffusion/K/KernelPatcher.git
