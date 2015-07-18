@@ -44,8 +44,9 @@ MODULE_OBJS = ${addprefix trunk/i386/libsa/,${LIBSA_OBJS}} \
 
 include ../MakeInc.dir
 
-.PHONY: trunk
-trunk:
+trunk: trunk-checkout
+.PHONY: trunk-checkout
+trunk-checkout:
 	@if [ ! -d "trunk" ];then svn co http://forge.voodooprojects.org/svn/chameleon/trunk trunk; fi
 	@if [ -d "trunk" ];then cd trunk && svn update; fi
 
