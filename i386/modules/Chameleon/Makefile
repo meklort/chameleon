@@ -35,7 +35,7 @@ BOOT2_OBJS = boot.x86.mach.o graphics.x86.mach.o drivers.x86.mach.o prompt.x86.m
            ramdisk.x86.mach.o picopng.x86.mach.o resume.x86.mach.o bmdecompress.x86.mach.o graphic_utils.x86.mach.o gui.x86.mach.o
 
 
-DIRS_NEEDED = ${OBJROOT}/trunk/i386/libsaio ${OBJROOT}/trunk/i386/libsa ${OBJROOT}/trunk/i386/boot2
+DIRS_NEEDED = ${OBJROOT}/trunk/i386/libsaio ${OBJROOT}/trunk/i386/libsa ${OBJROOT}/trunk/i386/boot2 trunk
 
 MODULE_OBJS = ${addprefix trunk/i386/libsa/,${LIBSA_OBJS}} \
 		${addprefix trunk/i386/libsaio/,${LIBSAIO_OBJS}} \
@@ -43,6 +43,12 @@ MODULE_OBJS = ${addprefix trunk/i386/libsa/,${LIBSA_OBJS}} \
 		${MODULE_OBJS_INT}
 
 include ../MakeInc.dir
+
+.PHONY: trunk
+trunk:
+	@if [ ! -d "trunk" ];then svn co http://forge.voodooprojects.org/svn/chameleon/trunk trunk; fi
+	@if [ -d "trunk" ];then cd trunk && svn update; fi
+
 
 
 override INC = -I$(SRCROOT)/i386/modules/include/ -I${abspath include/} -Itrunk/i386/libsaio/ -Itrunk/i386/libsa/ \
