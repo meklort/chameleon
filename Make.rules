@@ -137,7 +137,6 @@ $(HEADER_VERSION): $(SRCROOT)/version
 
 CONFIG_HEADERS=$(CONFIG_FILES) $(HEADER_VERSION)
 
-# This breaks make, must use make all (FIXME)
 $(DIRS_NEEDED) $(INSTALLDIR) $(OBJROOT) $(SYMROOT):
 	@echo "	[MKDIR] $@"
 	@$(MKDIRS) $@
