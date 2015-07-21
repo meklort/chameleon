@@ -23,6 +23,7 @@ LIBSAIO_OBJS = table.x86.mach.o biosfn.x86.mach.o \
         smbios.x86.mach.o smbios_getters.x86.mach.o smbios_decode.x86.mach.o \
         fake_efi.x86.mach.o ext2fs.x86.mach.o \
         hpet.x86.mach.o dram_controllers.x86.mach.o spd.x86.mach.o usb.x86.mach.o pci_setup.x86.mach.o \
+        networking.x86.mach.o \
         device_inject.x86.mach.o nvidia_helper.x86.mach.o nvidia.x86.mach.o ati.x86.mach.o gma.x86.mach.o hda.x86.mach.o pci_root.x86.mach.o \
         convert.x86.mach.o aml_generator.x86.mach.o console.x86.mach.o exfat.x86.mach.o base64-decode.x86.mach.o
 
