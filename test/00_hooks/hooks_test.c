@@ -57,7 +57,7 @@ void hooks_test_start()
     
     init_serial();
     printf("Replacing 'bios_putchar' with 0x%x\n", &write_serial);
-    replace += replace_function("_bios_putchar", (void*)&write_serial);
+    replace += replace_function("bios_putchar", (void*)&write_serial);
     replace += replace_function("NON_EXISTANT_FNC", (void*)&write_serial);
 
     register_hook_callback("Hook1", exec_hook1);
