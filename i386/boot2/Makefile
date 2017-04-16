@@ -56,6 +56,7 @@ OBJS = boot2.x86.elf.o boot.x86.elf.o \
 	options.x86.elf.o mboot.x86.elf.o \
 	hooks.x86.elf.o \
 	macho.x86.elf.o \
+	elf.x86.elf.o \
 	modules.x86.elf.o \
 	modules_support.x86.elf.o 
 
@@ -88,7 +89,7 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 	@echo "" > $(SYMROOT)/${SYMBOLS_MODULE}.ld
 	@echo "	[LD] boot.elf"
 	@#$(X86_ELF_CC) $(LDFLAGS) $(INC)  -MM -M -o $@.Makedep ${filter %.o $.a, $^}
-	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
+	${PRINT}cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 
 	@# Generate the Symbols.dylib file
 	@echo "	[dyldsymboltool] Symbols.dylib"
@@ -97,7 +98,7 @@ ${SYMROOT}/boot.elf: ${BOOT_DEPS}
 
 	@### Second pass
 	@echo "	[LD] boot.elf"
-	@cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
+	${PRINT}cd $(SYMROOT) && $(X86_ELF_CC) $(LDFLAGS) $(INC) -o $@ ${filter %.o %.a, $^}
 	@rm $(SYMROOT)/${SYMBOLS_MODULE}.ld
 
 	@echo "	[OBJCOPY] boot"
