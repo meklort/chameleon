@@ -4,7 +4,7 @@ MODULE_AUTHOR =
 MODULE_VERSION = "1.0.0"
 MODULE_COMPAT_VERSION = "1.0.0"
 MODULE_START = $(MODULE_NAME)_start
-MODULE_DEPENDENCIES = 
+MODULE_DEPENDENCIES =
 
 DIR = ${MODULE_NAME}
 
@@ -26,6 +26,7 @@ test:
 	${PRINT}timeout 10 qemu-system-i386 -m 512 \
 		-kernel ${SRCROOT}/sym/i386/boot \
 		-initrd ${SYMROOT}/${MODULE_NAME}.dylib \
+		-device isa-debug-exit,iobase=0xf4,iosize=0x04 \
 		-serial file:${COV_FILE} \
 		-serial file:${SYMROOT}/output > /dev/null
 	@grep PASS ${SYMROOT}/output > /dev/null && echo "	${MODULE_NAME} test passed." || (echo "	${MODULE_NAME} test FAILED" && false)
