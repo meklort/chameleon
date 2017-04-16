@@ -213,10 +213,11 @@ bool parse_elf(void* binary, void* base,
                             UInt32 sym = ELF32_R_SYM(dyns->r_info); // must be 0.
                             UInt32 offset = dyns->r_offset;
                             
-                            UInt32* data = base;
+                            UInt32* data;
                             
                             /* A = A + B */
-                            data[offset] += (UInt32)base;
+                            data = (void*)base + offset;
+                            *data += (UInt32)base;
                             
                             break;
                         }
