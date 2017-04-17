@@ -1,0 +1,11 @@
+#
+# Makefile for tests
+#
+TIMEOUT_COMMAND=${SRCROOT}/test/timeout.sh
+
+
+QEMU_COMMAND=qemu-system-i386 -m 512 -kernel ${SRCROOT}/sym/i386/boot \
+								-device isa-debug-exit,iobase=0xf4,iosize=0x04 \
+								-serial file:${COV_FILE} \
+								-serial file:${SYMROOT}/output \
+								-nographic

@@ -17,16 +17,13 @@ override OBJROOT=${abspath obj}
 override BOOT_ELF=${SRCROOT}/sym/i386/boot.elf
 
 include ${SRCROOT}/i386/modules/MakeInc.dir
+include ${SRCROOT}/test/MakeInc.dir
 
 
 
 test: 
 	@echo "*** Running test ${MODULE_NAME}"
 	@rm -f ${SYMROOT}/output
-	${PRINT}timeout 10 qemu-system-i386 -m 512 \
-		-kernel ${SRCROOT}/sym/i386/boot \
-		-initrd ${SYMROOT}/${MODULE_NAME}.dylib \
-		-device isa-debug-exit,iobase=0xf4,iosize=0x04 \
-		-serial file:${COV_FILE} \
-		-serial file:${SYMROOT}/output > /dev/null
+	${PRINT}${TIMEOUT_COMMAND} 10 ${QEMU_COMMAND} \
+		-initrd ${SYMROOT}/${MODULE_NAME}.dylib > /dev/null || true
 	@grep PASS ${SYMROOT}/output > /dev/null && echo "	${MODULE_NAME} test passed." || (echo "	${MODULE_NAME} test FAILED" && false)
