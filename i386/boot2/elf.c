@@ -278,7 +278,6 @@ bool parse_elf(void* binary, void* base,
                     dyns = (void*)dyns + Shdr->sh_entsize;
                     entries--;
                 }
-                DBG("Rel found, unsupporteds\n");
                 break;
             }
 
